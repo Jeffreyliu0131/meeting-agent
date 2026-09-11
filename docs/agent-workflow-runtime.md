@@ -1,6 +1,6 @@
 # Agent 工作流：当前实现与接续契约
 
-2026-09-12，本轮工作树实现说明。对应[实施任务书](agent-workflow-implementation.md)、[验收场景](agent-workflow-acceptance.md)与[最新独立验收](../tests/results/agent-workflow-acceptance-review.md)。本文描述源码行为；真实语义、音源、Windows 实机结果不能从代码或合成测试推导。
+2026-09-12，实现提交`9b6886d`的实际行为说明；已通过本轮独立验收并推送GitHub。对应[实施任务书](agent-workflow-implementation.md)、[验收场景](agent-workflow-acceptance.md)与[最新独立验收](../tests/results/agent-workflow-acceptance-review.md)。本文描述源码行为；真实语义、音源、Windows 实机结果不能从代码或合成测试推导。
 
 ## 持续会议与个人推演
 

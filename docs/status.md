@@ -1,6 +1,6 @@
 # 当前状态与接手入口
 
-更新：2026-09-12 01:47（Asia/Singapore）。维护规则见 [AGENTS.md](../AGENTS.md) 与 [session 流程](sessions/README.md)。本页是工作快照，开始任务时须核对工作树和相关交接；不是实时监控。
+更新：2026-09-12 01:49（Asia/Singapore）。维护规则见 [AGENTS.md](../AGENTS.md) 与 [session 流程](sessions/README.md)。本页是工作快照，开始任务时须核对工作树和相关交接；不是实时监控。
 
 ## 当前认知
 
@@ -20,8 +20,8 @@
 
 | 工作 | 核实到的状态 | 接手记录 |
 |---|---|---|
-| Agent工作流验收与推送 | 独立验收修正完成：86项单元／11项Electron、双端包及macOS烟测通过；准备推送 | [本轮记录](sessions/2026-09-12-agent-workflow-acceptance-push.md) |
-| Agent工作流实施 | W1–W6本地实现完成，81项单元／11项Electron通过；双端目录包及macOS临时包烟测通过，未提交、未替换日常包；真实效果待验 | [实施记录](sessions/2026-09-12-agent-workflow-implementation.md)／[证据表](../tests/results/agent-workflow-validation.md) |
+| Agent工作流验收与推送 | 独立验收通过：86项单元／11项Electron、双端包及macOS烟测；9b6886d已推送origin/main并核对远端SHA | [本轮记录](sessions/2026-09-12-agent-workflow-acceptance-push.md) |
+| Agent工作流实施 | W1–W6已随9b6886d交付；最新验收含边界修正，86项单元／11项Electron通过；日常包未替换，真实效果待验 | [实施记录](sessions/2026-09-12-agent-workflow-implementation.md)／[证据表](../tests/results/agent-workflow-validation.md) |
 | Agent业务对齐与实现交接 | 任务书与25项验收完成，已派发并核对接手；代码／验证状态由实现任务维护 | [交接](sessions/2026-09-12-business-aligned-handoff.md)／[任务书](agent-workflow-implementation.md) |
 | Agent 架构与 LangGraph 研究 | 报告与摘要完成；后续范围已收敛并派发，研究不代表实现完成 | [研究记录](sessions/2026-09-12-agent-architecture-research.md)／[摘要](research/2026-09-12-agent-architecture-summary.md) |
 | Agent 可靠性 | 三项实现完成，58项单元／10项桌面通过；8e0d2eb已推送GitHub main，真实模型待验收 | [本轮实现](sessions/2026-09-12-agent-reliability.md) |
@@ -46,7 +46,7 @@
 ## 建议接续顺序
 
 1. 核对相关 session、`git status --short` 和代码，确认仍在执行的任务与文件范围，不覆盖现有改动。
-2. Agent与会议入口基线为3f6279a；前端提交a587a92及本地包有独立[验证](../tests/results/frontend-refresh-validation.md)，真实模型与语音凭证接入仍按其计划单独执行。
+2. 当前源码基线为9b6886d，见[独立验收](../tests/results/agent-workflow-acceptance-review.md)；3f6279a／a587a92是历史阶段。日常安装包仍为此前版本，本轮只构建与验证临时包。真实模型与音源接入须单独授权和验收。
 3. 按用户反馈继续细化已实现的前端；本地release包含已随120f77c交付的图标／状态代码，新入口及历史已核对；新版结果见图标交接。真实音频、系统设备路由和Windows真机另行验收。
 4. 凭证与设备具备后执行真实模型、真实音频和双端验收；将结果链接到对应 session 和本页。
 
