@@ -1,6 +1,6 @@
 # Agent 事实、跟进与结束核对验证
 
-2026-09-12｜macOS 本地。源码基线 b634e8a 后的本轮改造，代码指纹见[机器汇总](agent-reliability-summary.json)。关联[任务交接](../../docs/sessions/2026-09-12-agent-reliability.md)。
+2026-09-12｜macOS 本地。源码基线 b634e8a 后的本轮改造，已纳入提交8e0d2eb并推送GitHub，代码指纹见[机器汇总](agent-reliability-summary.json)。关联[任务交接](../../docs/sessions/2026-09-12-agent-reliability.md)。
 
 ## 最终检查
 
