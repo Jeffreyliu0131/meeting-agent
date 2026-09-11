@@ -11,7 +11,7 @@
 
 内部元素→业务对象→来源的绑定必须保存。只保存SVG截图会失去来源与可维护性；只存模型上下文不能恢复已保存产物。
 
-所有载体接收`visualProfileId=collaborative-light-v2`、目标locale与可用尺寸；参考[前端规范](frontend-spec.md)和[设计tokens](design/tokens.json)。磨砂只由宿主在外围层提供，生成内容不能自行创建整页玻璃、极小字或全局样式。缺少效果时退回实色，不影响业务操作。
+当前视觉profile为`collaborative-light-v2`：生成器接收同源视觉指导，可信壳、隔离HTML和后台preflight注入共享颜色；产物并未逐条保存visualProfileId，字体／布局由宿主CSS及组件承接。目标locale属于实际产物字段，可用尺寸由渲染环境提供；参考[前端规范](frontend-spec.md)和[设计tokens](design/tokens.json)。磨砂只由宿主在外围层提供，生成内容不能自行创建整页玻璃、极小字或全局样式。缺少效果时退回实色，不影响业务操作。
 
 ## 2. 各种载体
 
@@ -33,9 +33,11 @@ SVG不默认是静态无风险内容。拒绝script、foreignObject、事件处�
 
 Chart只接受明确来源的内联数据，不允许任意远端URL加载或未检查表达式。复杂数据变换应尽量由可信工具计算；可视化层结果不能自行写入会议决定。
 
-## 4. HTML的实际边界
+## 4. HTML的现行实现与扩展目标
 
-工程建议采用独立、sandboxed的WebContents表达宿主，不与可信React壳共用Node或preload业务接口；必要时在其中再用无同源权限的iframe承载生成内容。不能仅凭一个iframe标签宣称完成隔离。
+当前实现：候选由无preload的独立WebContents做预检；可见HTML／SVG由 `ArtifactView.tsx` 的 `sandbox=""` iframe显示，CSP禁用脚本。HTML只接受受控标签／宿主类名，图形由可信组件提供来源入口。没有生成JS、HTML内部表单草稿或通用ArtifactActionRequest消息桥。
+
+以下为尚未启用的扩展目标，不是本轮新增权限：工程建议采用独立、sandboxed的WebContents表达宿主，不与可信React壳共用Node或preload业务接口；必要时在其中再用无同源权限的iframe承载生成内容。不能仅凭一个iframe标签宣称完成隔离。
 
 候选HTML在此层可安排布局、渲染SVG、运行有限本地交互。禁止网络请求、文件／系统访问、设备权限、任意窗口导航、下载、弹窗与跨会议读取。资源由宿主预打包，不在运行时由模型指定CDN。CSP、session请求拦截、权限处理、导航限制和Electron配置共同落实边界。[S01、S11](sources.md)
 
@@ -43,9 +45,9 @@ Chart只接受明确来源的内联数据，不允许任意远端URL加载或未
 
 初始限制建议：单产物载荷256KiB、DOM节点1000、渲染预览期限3秒；超限拒绝或请求简化。限制是工程初值，不是性能保证；不同载体可调整，不能通过无限增大掩盖冗长产物。
 
-## 5. 产物交互桥
+## 5. 产物交互桥（未启用的扩展设计）
 
-生成内容只能发`ArtifactActionRequest`：
+未来启用桥接时，生成内容只能发`ArtifactActionRequest`；当前结构化actions由可信React按钮发送个人提问，iframe不发送此协议：
 
 ```ts
 type ArtifactActionRequest = {

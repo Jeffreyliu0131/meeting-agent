@@ -1127,26 +1127,105 @@ summary {
 .launcher {
   width: 44px;
   height: 44px;
-  border: 1px solid #ffffff90;
+  min-height: 44px;
+  border: 0;
   border-radius: 13px;
-  background: var(--accent);
+  background: transparent;
   color: white;
   padding: 0;
   position: relative;
   user-select: none;
   touch-action: none;
-  box-shadow: 0 3px 12px #1018281a;
+  box-shadow: none;
+  overflow: hidden;
+  isolation: isolate;
 }
 .launcher:hover {
-  background: #1d52b7;
+  background: transparent;
 }
-.launcher > .dot {
+.launcher-artwork {
   position: absolute;
-  right: 5px;
-  top: 5px;
-  width: 7px;
-  height: 7px;
-  border: 1px solid #fff;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+}
+/* Crop only the generated asset's transparent safety margin; do not alter its pixels. */
+.launcher-artwork img {
+  position: absolute;
+  width: 120%;
+  height: 120%;
+  max-width: none;
+  left: -10%;
+  top: -10%;
+  object-fit: cover;
+}
+.launcher:hover .launcher-artwork {
+  filter: brightness(1.08);
+}
+.launcher:focus-visible {
+  outline: none;
+}
+.launcher:focus-visible::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 11px;
+  border: 2px solid #9fc0ff;
+  pointer-events: none;
+}
+.launcher-indicator {
+  position: absolute;
+  right: 3px;
+  top: 3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #172d63;
+  background: #a8b5ce;
+  box-shadow: 0 0 0 1.5px #203d7b;
+  pointer-events: none;
+}
+.launcher-indicator.connecting {
+  background: #203d7b;
+  border: 2px solid #ffcb70;
+}
+.launcher-indicator.listening {
+  background: #4adea4;
+}
+.launcher-indicator.paused {
+  background: #ffcb70;
+}
+.launcher-indicator.error {
+  background: #ff8790;
+}
+.indicator-error-mark {
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+}
+.launcher-status-listening {
+  color: var(--listening);
+  background: var(--successSurface);
+}
+.launcher-status-connecting,
+.launcher-status-paused {
+  color: var(--warning);
+  background: var(--warningSurface);
+}
+.launcher-status-error {
+  color: var(--error);
+  background: var(--errorSurface);
+}
+html[data-role='launcher'],
+html[data-role='launcher'] body,
+html[data-role='launcher'] #root {
+  background: transparent;
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
 }
 .preview {
   padding: 20px;

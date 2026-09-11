@@ -1,46 +1,17 @@
 {
-  "date": "2026-09-11",
-  "baseline": "3f6279a",
-  "scope": "local frontend refresh; synthetic provider and audio only",
+  "baseline": "38c70b1",
+  "scope": "uncommitted launcher icon and status update",
   "unitTests": {
-    "passed": 38,
+    "passed": 40,
     "failed": 0
   },
-  "desktopTests": [
-    {
-      "title": "real Electron: event, manual original source, honest missing model, correction, UI locale, end and restore",
-      "passed": true
-    },
-    {
-      "title": "native launcher opens one workspace; hiding does not stop the event; hover uses real windows",
-      "passed": true
-    },
-    {
-      "title": "UI cannot impersonate audio adapter; no frame gets filesystem or arbitrary IPC; responsive shell",
-      "passed": true
-    },
-    {
-      "title": "meeting library filters, search recovery and settings keyboard loop",
-      "passed": true
-    },
-    {
-      "title": "provider transport, isolated preflight, generated structure, source binding, updates and personal calculator",
-      "passed": true
-    },
-    {
-      "title": "synthetic oscillator keeps capturing through a slow STT response and stops cleanly",
-      "passed": true
-    },
-    {
-      "title": "text, timeline, chart, SVG and passive HTML render without a privileged bridge",
-      "passed": true
-    },
-    {
-      "title": "normal meeting entry saves setup once, starts audio in one intent and reveals exploration only after content",
-      "passed": true
-    }
-  ],
-  "desktopDurationMs": 58187.538,
+  "desktopStats": {
+    "expected": 9,
+    "unexpected": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "duration": 45889.42
+  },
   "sourceSha256": {
     "docs/design/tokens.json": "d11548a8df178530bc121e5d1e94cf8a17e2d06fac0236e272564f0736a8c82f",
     "package-lock.json": "09448d84b3d224357f442852886ec3ca8a4dadc8d56ef004d08617ef6e37a42a",
@@ -48,7 +19,7 @@
     "src/agent/context.ts": "fd2a5b88c8c4ab4719a408ae779e18b404d1b65e3e8570433cb89bc13040f736",
     "src/agent/provider.ts": "618459724dcc91f23b23bb6cef9d880af9425951f0ef0d91916e1206881e0039",
     "src/contracts/model.ts": "63ce6214f6552471abb6c10b05678bc78d861df7c93124f16b184c033b7cbd5a",
-    "src/desktop/main.ts": "ae523f6514953f2896cba0f459a9d3c7bfe5203a96c3baae67b9ee2a91a036ac",
+    "src/desktop/main.ts": "237c41b537478b508b32049c9afc722207062ad6052af58ada159d84ccbae20d",
     "src/desktop/platform.ts": "88e8dd4c25fb8d9a0484d3ec28178c72868b0c98c19e12046b2d1c7e5a55f933",
     "src/desktop/preflight.ts": "a86f3903de70f38e6f21ec412cfb786c7ad1f3fc3cdd57c7126739b8c7bb8411",
     "src/desktop/preload.ts": "f207401f068059d06cb0371f9ea6b09b91d762777ad6a936d445a2af9d17ddf3",
@@ -68,37 +39,27 @@
     "src/service/session.ts": "e80cfec6f755cc75574e8bade705b73e4f9b4d5ab7f793b3dd78c5ac1f47a84f",
     "src/service/store.ts": "0ec7c9c8b0bfd12ca93c26e60569add7c01ca11d31c5b19fe445b270377ffab8",
     "src/service/worker.ts": "2b742db245c4e95e07f2d3c5d26d7205875f7637394f5ebdff8c5cd4c0cdfb8d",
+    "src/ui/assets/launcher-dialogue-v1.png": "a0b3044a869f9a236d519f5df9221c0b6b459bf2ba0f3f43d4e07a6bbebff10f",
     "src/ui/bridge.ts": "3b4afaf270c4309d19403a8502ac246494683a29eb861bbbf23d708b354f5887",
     "src/ui/components.tsx": "a834b2ebd193cb556f8fc58b480b054a3b7516f3a3d1085b15aecc3b3688703f",
     "src/ui/env.d.ts": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
-    "src/ui/i18n.ts": "2a1ea3ad1ded9cafe88b8705b75ccf2b4ac7300d855c9a3159c061a78158fa4f",
+    "src/ui/i18n.ts": "7405aac825b08af9433159514a6e80ec92b032eae1226e845bf100f48115bdd8",
+    "src/ui/launcher-status.ts": "8e6372adea493de69f39704a841abe8c9626197bda02f1a909f4b25d50e96d2b",
     "src/ui/live.tsx": "b416439550bb2b80ec22576dfe6bf2b32ce3f20c26db774e47934dbcbef85c80",
-    "src/ui/main.tsx": "9c1a54161b6df1f489635810174f6cb3980cef359a95022408ef41e452eedd3d",
-    "src/ui/style.css": "e2f73ad7c154998ee091f7c1d1d29c051ac2af323ebdd7bb1cfdbc48ed5b9b94",
+    "src/ui/main.tsx": "6770b56259a394831ea178e6dc294c1d7786540e1c0dbbe721a9c920dc6d7211",
+    "src/ui/style.css": "c112349217d07d019bffee87d65b7cc4d12319a5a47511b1a29d7c6b2ad2a531",
     "src/ui/theme.ts": "0869cf916be67fdc8ecade2f60d6de427fc6f425abbe67cc0f1fb4b6383772af"
   },
-  "limitations": [
-    "No real model or speech evaluation",
-    "No Windows runtime validation"
-  ],
-  "finalSmallEdits": "After the full run: clarified settings footer copy, made audio error text match audio retry priority, and changed token status metadata. Final build and targeted error/setup tests cover these follow-up edits.",
-  "followupStats": {
-    "expected": 2,
-    "unexpected": 0,
-    "skipped": 0,
-    "flaky": 0,
-    "duration": 15135.296
+  "packaged": true,
+  "packageEvidence": "package-content-launcher.json",
+  "nativeUiVerified": {
+    "launcher": "new artwork; Ready · not recording",
+    "historyRowsPreserved": 2,
+    "realAudioStarted": false
   },
-  "delivery": {
-    "codeCommit": "a587a92",
-    "remote": "origin/main",
-    "push": "succeeded",
-    "packagedAppUpdated": true,
-    "packagedAppBaseline": "38c70b1",
-    "packagedAppUpdatedDate": "2026-09-12",
-    "packageEvidence": [
-      "package-content-frontend.json",
-      "package-smoke-frontend.json"
-    ]
-  }
+  "limits": [
+    "Windows runtime untested",
+    "status screenshots use synthetic renderer snapshots",
+    "Dock and tray icons unchanged"
+  ]
 }

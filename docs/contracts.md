@@ -3,7 +3,7 @@
 > 文件职责：产品／工程设计要求，不是完成清单。当前进度与最新修订见[状态页](status.md)；已交付首版取舍见[ADR-003](adr/003-cross-platform-first-version.md)，实际结果见[验证记录](../tests/results/README.md)。具体实现以代码核对，未实现的要求仍是目标。
 版本0.1｜业务设计契约。下面的TypeScript是设计示意；实际运行时 schema 与类型见 `src/contracts/model.ts`，需按当前状态核对差异。本文件定义业务职责，不将具体库写成不可替换前提。
 
-启动意图、持久化设备／语言偏好、自动标题版本与渐进提问上下文的最新增补见[会议入口规范](meeting-entry-spec.md)。这些是待接入契约，不因旧运行时仍要求创建表单字段而撤回新交互要求。
+启动意图、持久化设备／语言偏好、自动标题版本与渐进提问上下文的最新增补见[会议入口规范](meeting-entry-spec.md)。上述入口契约已接入；前端实现与本地应用更新见[前端交接](sessions/2026-09-11-frontend-refresh.md)。下文的抽象类型示意仍须与实际schema区分，不能把示意字段全部当作已落库。
 
 
 ## 实现与目标的边界（3f6279a）
@@ -19,7 +19,7 @@
 | 图形失败定向修复 | 生成器协议／校验可有限重试，预览失败保留旧产物并记录重试任务；不是全部渲染错误都能自动修好 |
 | 权限化工具与高级推演 | 已有来源、关系校验及确定性计算；尚无任意自主工具循环、工作日历或关键路径计算 |
 
-当前参数与源码以ADR-004、配置示例和本轮验收为准；后续前端任务修改需重新验证。
+核心参数与源码以ADR-004、配置示例及对应验证为准；`a587a92`之后的前端有[独立验证](../tests/results/frontend-refresh-validation.md)。当前运行时视觉profile来自全局 `docs/design/tokens.json`，通过主题注入及生成器指令使用；`src/contracts/model.ts`的ArtifactRevision并未逐条保存visualProfileId。
 
 
 ## 1. 核心对象
@@ -96,7 +96,7 @@ type RefVersion = { id: string; rev: number };
 type ExpressionPlan = {
   planId: string; meetingId: string;
   outputLocale: 'en' | 'zh-CN'; languageRevision: number;
-  visualProfileId: 'editorial-light-v1';
+  visualProfileId: 'collaborative-light-v2';
   action: 'no_change' | 'patch_artifact' | 'create_artifact' |
           'propose_restructure' | 'request_clarification';
   targetArtifactId: string | null;
@@ -115,7 +115,7 @@ type ArtifactAction =
 type ArtifactRevision = {
   artifactId: string; meetingId: string; revision: number; generation: number;
   locale: 'en' | 'zh-CN'; languageRevision: number;
-  visualProfileId: 'editorial-light-v1';
+  visualProfileId: 'collaborative-light-v2';
   carrier: Carrier; payload: unknown; schemaVersion: number;
   objectRefs: RefVersion[]; relationRefs: RefVersion[]; sourceRefs: SourceRef[];
   bindings: Array<{ elementId: string; objectId: string; actionIds: string[] }>;

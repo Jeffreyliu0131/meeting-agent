@@ -18,3 +18,7 @@
 本轮独立包证据：[macOS启动](package-smoke-live.json)、[两端包内容](package-content-live.json)、[源码与测试汇总](live-agent-summary.json)。旧package-smoke.json／package-content.json保持首版证据。
 
 当前前端独立结果：[StyledMD 与飞书布局细化](frontend-refresh-validation.md)／[源码与测试汇总](frontend-refresh-summary.json)。此轮为 `3f6279a` 后的前端改造，之后以 `a587a92` 提交并推送，不覆盖旧包与真实供应商验收。
+
+2026-09-12 本地前端包更新：[包内容一致性](package-content-frontend.json)／[隔离启动检查](package-smoke-frontend.json)。实际原路径应用已重开，新界面与两条历史记录已核对；本次未采音。
+
+后续桌面小图标与状态：[独立验证](launcher-validation.md)，仅覆盖其记录的新版入口与回归范围。

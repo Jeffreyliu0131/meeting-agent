@@ -1,3 +1,5 @@
+import launcherArtwork from './assets/launcher-dialogue-v1.png';
+import { launcherIndicator } from './launcher-status';
 import {
   AudioLines,
   ArrowLeft,
@@ -54,6 +56,7 @@ import {
 
 applyTheme();
 const role = new URLSearchParams(location.search).get('role') || 'workspace';
+document.documentElement.dataset.role = role;
 function App() {
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null),
     [selected, setSelected] = useState<string | null>(null),
@@ -124,6 +127,7 @@ function App() {
         setServiceError(true);
         return;
       }
+      setServiceError(false);
       setSnapshot(value);
       if (value.selectMeetingId) setSelected(value.selectMeetingId);
       if (value.openSettings) showSettings();
@@ -170,6 +174,18 @@ function App() {
     setSourceText('');
   };
   const active = snapshot?.meetings.find((m) => m.status === 'active');
+  const indicator = launcherIndicator(active, serviceError);
+  const captureLabel = t(indicator.labelKey);
+  const launcherLabel = [
+    captureLabel,
+    active?.error
+      ? errorText(locale, active.error)
+      : active?.processing === 'working'
+        ? t('processing.active')
+        : '',
+  ]
+    .filter(Boolean)
+    .join(' · ');
   const filteredMeetings =
     snapshot?.meetings.filter(
       (m) =>
@@ -181,8 +197,9 @@ function App() {
     return (
       <button
         className="launcher"
-        aria-label={`${t('launcher.label')} · ${t('status.' + (active?.capture || 'idle'))}`}
-        title={t('status.' + (active?.capture || 'idle'))}
+        aria-label={`${t('launcher.label')} · ${launcherLabel}`}
+        title={launcherLabel}
+        data-state={indicator.state}
         onMouseEnter={() => void api('hover', true)}
         onMouseLeave={() => void api('hover', false)}
         onContextMenu={(e) => {
@@ -218,8 +235,16 @@ function App() {
           drag.current = null;
         }}
       >
-        <AudioLines size={24} aria-hidden="true" />
-        <i className={`dot ${serviceError ? 'input_error' : active?.capture || 'idle'}`} />
+        <span className="launcher-artwork" aria-hidden="true">
+          <img src={launcherArtwork} alt="" draggable={false} />
+        </span>
+        <span className={`launcher-indicator ${indicator.state}`} aria-hidden="true">
+          {indicator.state === 'paused' ? (
+            <Pause size={7} strokeWidth={3} />
+          ) : indicator.state === 'error' ? (
+            <span className="indicator-error-mark">!</span>
+          ) : null}
+        </span>
       </button>
     );
   if (role === 'preview')
@@ -231,15 +256,17 @@ function App() {
       >
         <div className="eyebrow">
           Agents, Everywhere{' '}
-          <span className="status">{t('status.' + (active?.capture || 'idle'))}</span>
+          <span className={`status launcher-status-${indicator.state}`}>{captureLabel}</span>
         </div>
         <h2>{active?.focus || active?.title || t('emptyLibrary')}</h2>
         {active?.changes.slice(0, 3).map((s, i) => (
           <p key={i}>{s}</p>
         ))}
-        {(active?.error || serviceError) && (
+        {(active?.captureError || active?.error || serviceError) && (
           <p className="error-text">
-            {serviceError ? t('serviceError') : errorText(locale, active!.error!)}
+            {serviceError
+              ? t('serviceError')
+              : errorText(locale, active!.captureError || active!.error!)}
           </p>
         )}
         <button onClick={() => void api('open')}>{t('preview.open')} ↗</button>

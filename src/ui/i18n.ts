@@ -452,3 +452,22 @@ Object.assign(extra['zh-CN'], {
   'design.setupHint': '先选择收听范围。设置保存后，下次即可直接开始。',
   'design.setupSaveHint': '保存后返回首页，不会开始录音。',
 });
+
+Object.assign(extra.en, {
+  'launcher.ready': 'Ready · not recording',
+  'launcher.idle': 'Meeting open · not recording',
+  'launcher.connecting': 'Connecting audio · not ready yet',
+  'launcher.listening': 'Listening · audio input active',
+  'launcher.paused': 'Paused · not recording',
+  'launcher.inputError': 'Audio interrupted · reconnect needed',
+  'launcher.serviceError': 'Service unavailable · input stopped',
+});
+Object.assign(extra['zh-CN'], {
+  'launcher.ready': '待命 · 未录音',
+  'launcher.idle': '会议已打开 · 未录音',
+  'launcher.connecting': '正在连接音频 · 尚未就绪',
+  'launcher.listening': '正在收听 · 音频采集中',
+  'launcher.paused': '已暂停 · 未录音',
+  'launcher.inputError': '音频中断 · 需要重新连接',
+  'launcher.serviceError': '服务不可用 · 输入已停止',
+});

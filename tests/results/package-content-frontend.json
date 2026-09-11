@@ -1,0 +1,59 @@
+{
+  "baseline": "38c70b1",
+  "checkedFiles": 13,
+  "allMatch": true,
+  "files": [
+    {
+      "path": "dist/main.cjs",
+      "match": true
+    },
+    {
+      "path": "dist/main.cjs.map",
+      "match": true
+    },
+    {
+      "path": "dist/preload.cjs",
+      "match": true
+    },
+    {
+      "path": "dist/preload.cjs.map",
+      "match": true
+    },
+    {
+      "path": "dist/ui/assets/capture-Dolo6_mE.js",
+      "match": true
+    },
+    {
+      "path": "dist/ui/assets/main-Czfr2jv5.css",
+      "match": true
+    },
+    {
+      "path": "dist/ui/assets/main-GIHe5VZS.js",
+      "match": true
+    },
+    {
+      "path": "dist/ui/assets/modulepreload-polyfill-P2Xu9kJm.js",
+      "match": true
+    },
+    {
+      "path": "dist/ui/capture.html",
+      "match": true
+    },
+    {
+      "path": "dist/ui/index.html",
+      "match": true
+    },
+    {
+      "path": "dist/ui/pcm-worklet.js",
+      "match": true
+    },
+    {
+      "path": "dist/worker.cjs",
+      "match": true
+    },
+    {
+      "path": "dist/worker.cjs.map",
+      "match": true
+    }
+  ]
+}

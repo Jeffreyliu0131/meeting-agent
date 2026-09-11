@@ -269,6 +269,7 @@ test('meeting library filters, search recovery and settings keyboard loop', asyn
       }),
     )
     .toBe(true);
+  await dialog.getByLabel('Interface language', { exact: true }).scrollIntoViewIfNeeded();
   await dialog.getByLabel('Interface language', { exact: true }).selectOption('en');
   await expect(dialog.getByLabel('Interface language', { exact: true })).toBeInViewport();
   // Electron zoom affects CDP screenshot cropping; use the native surface at 200%.
@@ -291,4 +292,93 @@ test('meeting library filters, search recovery and settings keyboard loop', asyn
   await dialog.getByRole('button', { name: 'Save settings', exact: true }).press('Escape');
   await expect(dialog).toBeHidden();
   await expect(page.getByRole('button', { name: 'Settings', exact: true })).toBeFocused();
+});
+
+test('launcher uses transparent chrome and distinct synthetic capture indicators with truthful labels', async () => {
+  await page.getByText('Development tools', { exact: true }).click();
+  await page.getByRole('button', { name: 'Development input', exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Start meeting' }).click();
+  const launcher = (await app.windows()).find((p) => p.url().includes('role=launcher'))!;
+  const snapshot = await page.evaluate(async () => (await window.meeting.call('snapshot')).value);
+  const icon = launcher.getByRole('button');
+  await expect(launcher.locator('.launcher-artwork img')).toBeVisible();
+  await expect
+    .poll(() =>
+      launcher
+        .locator('img')
+        .evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0),
+    )
+    .toBe(true);
+  expect(
+    await launcher.locator('button').evaluate((el) => getComputedStyle(el).borderTopWidth),
+  ).toBe('0px');
+  expect(
+    await launcher.locator('html').evaluate((el) => getComputedStyle(el).backgroundColor),
+  ).toBe('rgba(0, 0, 0, 0)');
+  const alpha = await app.evaluate(async ({ BrowserWindow }) => {
+    const surface = await BrowserWindow.getAllWindows()
+      .find((w) => w.webContents.getURL().includes('role=launcher'))!
+      .webContents.capturePage();
+    const pixels = surface.toBitmap(),
+      { width, height } = surface.getSize();
+    return {
+      corner: pixels[3],
+      center: pixels[(Math.floor(height / 2) * width + Math.floor(width / 2)) * 4 + 3],
+    };
+  });
+  expect(alpha.corner).toBe(0);
+  expect(alpha.center).toBeGreaterThan(240); // Generated artwork may retain slight satin alpha.
+  // Renderer-only fixtures: not a claim that real audio was captured.
+  for (const [capture, state, label] of [
+    ['idle', 'ready', 'not recording'],
+    ['starting', 'connecting', 'not ready yet'],
+    ['capturing', 'listening', 'audio input active'],
+    ['paused', 'paused', 'not recording'],
+    ['input_error', 'error', 'reconnect needed'],
+  ]) {
+    const fixture = structuredClone(snapshot);
+    fixture.meetings[0].capture = capture;
+    await app.evaluate(
+      ({ BrowserWindow }, fixture) =>
+        BrowserWindow.getAllWindows()
+          .find((w) => w.webContents.getURL().includes('role=launcher'))!
+          .webContents.send('snapshot', fixture),
+      fixture,
+    );
+    await expect(icon).toHaveAttribute('data-state', state);
+    await expect(icon).toHaveAttribute('title', new RegExp(label));
+    // Native capturePage can otherwise capture the previous compositor frame.
+    await launcher.evaluate(
+      () =>
+        new Promise<void>((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+        ),
+    );
+    const shot = await app.evaluate(async ({ BrowserWindow }) =>
+      (
+        await BrowserWindow.getAllWindows()
+          .find((w) => w.webContents.getURL().includes('role=launcher'))!
+          .webContents.capturePage()
+      )
+        .toPNG()
+        .toString('base64'),
+    );
+    writeFileSync(`tests/results/e2e-artifacts/launcher-${state}.png`, Buffer.from(shot, 'base64'));
+  }
+  await app.evaluate(({ BrowserWindow }) =>
+    BrowserWindow.getAllWindows()
+      .find((w) => w.webContents.getURL().includes('role=launcher'))!
+      .webContents.send('snapshot', { serviceError: 'SERVICE_UNAVAILABLE' }),
+  );
+  await expect(icon).toHaveAttribute('title', /Service unavailable/);
+  await expect(icon).toHaveAttribute('data-state', 'error');
+  await app.evaluate(
+    ({ BrowserWindow }, snapshot) =>
+      BrowserWindow.getAllWindows()
+        .find((w) => w.webContents.getURL().includes('role=launcher'))!
+        .webContents.send('snapshot', snapshot),
+    snapshot,
+  );
+  await expect(icon).toHaveAttribute('data-state', 'ready');
+  await icon.press('Tab');
 });
