@@ -1,0 +1,44 @@
+# Dependencies and build products
+node_modules/
+dist/
+build/
+out/
+release/
+coverage/
+.cache/
+*.tsbuildinfo
+
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials/
+secrets/
+
+# Local meeting data, recordings and databases
+local-data/
+recordings/
+exports/
+*.sqlite
+*.sqlite-*
+*.db
+*.db-*
+*.wav
+*.mp3
+*.m4a
+*.webm
+*.mp4
+*.log
+
+# Personal environment
+.DS_Store
+.idea/
+.vscode/
+.venv/
+__pycache__/
+*.pyc
+
+# Test input JSON is synthetic and intentionally tracked.
+# Inspect result files before a future commit; no real meeting text by default.

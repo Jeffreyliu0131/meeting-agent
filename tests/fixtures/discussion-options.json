@@ -1,0 +1,25 @@
+{
+  "fixtureId": "discussion-options",
+  "schemaVersion": 1,
+  "synthetic": true,
+  "title": "功能开放范围讨论",
+  "meetingDate": "2026-09-14",
+  "timezone": "Asia/Singapore",
+  "defaultIdentity": "unknown",
+  "turns": [
+    {"id": "o1", "kind": "speech", "groundTruthSpeaker": "A", "text": "新功能先只给内部用，主要是担心支持团队应付不过来。"},
+    {"id": "o2", "kind": "speech", "groundTruthSpeaker": "B", "text": "我希望客户也能试用，不然很难知道有没有价值。不过必须控制风险。"},
+    {"id": "o3", "kind": "speech", "groundTruthSpeaker": "C", "text": "能不能先用白名单邀请少数客户？这个只是一个备选。"},
+    {"id": "o4", "kind": "speech", "groundTruthSpeaker": "A", "text": "如果邀请规模可控而且支持团队同意，我可以考虑白名单。还不能说已经确定。"},
+    {"id": "o5", "kind": "speech", "groundTruthSpeaker": "B", "text": "另一个问题，帮助中心的文案谁来更新？这个先记成待办问题。"},
+    {"id": "o6", "kind": "speech", "groundTruthSpeaker": "C", "text": "回到刚才白名单方案，还需要给参与客户说明这是试用版。"},
+    {"id": "o7", "kind": "user_request", "text": "把内部试用和白名单客户试用的差异整理清楚，不要替我们选。"}
+  ],
+  "expected": [
+    {"id": "O-01", "check": "保留内部试用、客户参与与白名单备选及其理由；不虚构参与人数", "sourceTurnIds": ["o1", "o2", "o3"]},
+    {"id": "O-02", "check": "A对候选方案是有条件考虑，不是反对也不是会议已确认", "sourceTurnIds": ["o4"]},
+    {"id": "O-03", "check": "回到白名单时更新已有对象，不重复新建；帮助中心作为独立问题保留", "sourceTurnIds": ["o3", "o5", "o6"]},
+    {"id": "O-04", "check": "比较突出反馈来源、支持条件与试用告知；未知数据留空，不自动评分", "sourceTurnIds": ["o1", "o2", "o4", "o6", "o7"]},
+    {"id": "O-05", "check": "默认不使用groundTruthSpeaker作为实名；没有任何会议决定", "sourceTurnIds": ["o1", "o2", "o3", "o4", "o5", "o6"]}
+  ]
+}

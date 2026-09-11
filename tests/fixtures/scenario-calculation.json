@@ -1,0 +1,30 @@
+{
+  "fixtureId": "scenario-calculation",
+  "schemaVersion": 1,
+  "synthetic": true,
+  "title": "活动费用条件试算",
+  "meetingDate": "2026-09-14",
+  "timezone": "Asia/Singapore",
+  "defaultIdentity": "unknown",
+  "turns": [
+    {"id": "c1", "kind": "speech", "groundTruthSpeaker": "A", "text": "这次明确只算场地和餐饮：总额等于场地费加人数乘每人餐饮费，单位都是新加坡元。"},
+    {"id": "c2", "kind": "speech", "groundTruthSpeaker": "B", "text": "当前方案30人，场地150，每人餐饮12，预算上限600。场地费还是估价。"},
+    {"id": "c3", "kind": "user_request", "text": "如果改成40人会怎样？先试算，不改当前方案。"},
+    {"id": "c4", "kind": "user_request", "text": "再保存一个35人的个人试算，也不改当前方案。"},
+    {"id": "c5", "kind": "speech", "groundTruthSpeaker": "B", "text": "刚拿到新报价，当前方案的场地费改成180新加坡元。其他条件先不变，仍待最后确认。"},
+    {"id": "c6", "kind": "user_request", "text": "能不能再加上交通费？目前还没有交通单价。"}
+  ],
+  "expected": [
+    {"id": "C-01", "check": "当前方案总额510、余额90，因场地为估价标为条件性结果", "sourceTurnIds": ["c1", "c2"]},
+    {"id": "C-02", "check": "40人试算总额630、超预算30，当前方案人数仍为30", "sourceTurnIds": ["c1", "c2", "c3"]},
+    {"id": "C-03", "check": "35人个人试算在旧场地条件下总额570，个人保存不形成会议决定", "sourceTurnIds": ["c1", "c2", "c4"]},
+    {"id": "C-04", "check": "新场地条件下当前30人方案总额540、余额60；旧试算保留基线并标为需重算", "sourceTurnIds": ["c1", "c2", "c4", "c5"]},
+    {"id": "C-05", "check": "交通价格和计算口径缺失，含交通的完整总额未知；可单列已知部分，不假设交通费为0", "sourceTurnIds": ["c1", "c2", "c5", "c6"]}
+  ],
+  "numericChecks": [
+    {"id": "base-old", "currency": "SGD", "people": 30, "venueMinor": 15000, "perPersonMinor": 1200, "budgetMinor": 60000, "expectedTotalMinor": 51000, "expectedRemainingMinor": 9000},
+    {"id": "scenario-40-old", "currency": "SGD", "people": 40, "venueMinor": 15000, "perPersonMinor": 1200, "budgetMinor": 60000, "expectedTotalMinor": 63000, "expectedRemainingMinor": -3000},
+    {"id": "scenario-35-old", "currency": "SGD", "people": 35, "venueMinor": 15000, "perPersonMinor": 1200, "budgetMinor": 60000, "expectedTotalMinor": 57000, "expectedRemainingMinor": 3000},
+    {"id": "base-new", "currency": "SGD", "people": 30, "venueMinor": 18000, "perPersonMinor": 1200, "budgetMinor": 60000, "expectedTotalMinor": 54000, "expectedRemainingMinor": 6000}
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "fixtureId": "execution-plan",
+  "schemaVersion": 1,
+  "synthetic": true,
+  "title": "客户演示安排",
+  "meetingDate": "2026-09-14",
+  "timezone": "Asia/Singapore",
+  "defaultIdentity": "unknown",
+  "turns": [
+    {"id": "t1", "kind": "speech", "groundTruthSpeaker": "A", "text": "目标是这周五，9月18日，给客户演示。具体几点还没定。"},
+    {"id": "t2", "kind": "speech", "groundTruthSpeaker": "B", "text": "接口预计周三完成。接口完成后才能开始联调，联调大概两天。"},
+    {"id": "t3", "kind": "speech", "groundTruthSpeaker": "C", "text": "能不能先用模拟数据演示流程？但这不能说明真实接口已经验收。"},
+    {"id": "t4", "kind": "speech", "groundTruthSpeaker": "B", "text": "我纠正一下，接口是周四才预计完成。两天到底怎么算，以及当天几点能好，还需要确认。"},
+    {"id": "t5", "kind": "user_request", "text": "把真实接口和模拟数据两条路线需要做的准备拆开，并指出时间上缺什么信息。"},
+    {"id": "t6", "kind": "speech", "groundTruthSpeaker": "A", "text": "先保留这两个备选，我们还没决定走哪条路线。"}
+  ],
+  "expected": [
+    {"id": "T-01", "check": "目标日期为2026-09-18，时刻未知；日期不是确认的交付承诺", "sourceTurnIds": ["t1"]},
+    {"id": "T-02", "check": "接口完成是联调前置条件；两天口径和起止时刻未知，不承诺能赶上", "sourceTurnIds": ["t2", "t4"]},
+    {"id": "T-03", "check": "同一接口完成节点从预计2026-09-16修订为2026-09-17，保留旧来源与修正链", "sourceTurnIds": ["t2", "t4"]},
+    {"id": "T-04", "check": "模拟数据为备选，不把它表示为真实接口验收通过；拆解新增步骤标为Agent建议", "sourceTurnIds": ["t3", "t5"]},
+    {"id": "T-05", "check": "没有确定负责人、模拟准备工期或最终选择，均不自动补造", "sourceTurnIds": ["t1", "t2", "t3", "t4", "t5", "t6"]}
+  ]
+}
