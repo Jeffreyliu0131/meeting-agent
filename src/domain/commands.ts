@@ -268,6 +268,9 @@ export function reduceMeeting(
         )
         .map((s) => ({ id: s.id, rev: s.rev }));
       if (scope === 'meeting') {
+        if (a.scope === 'personal') throw new Error('PERSONAL_ARTIFACT_NOT_MEETING_DECISION');
+        if (sources.some((r) => m.segments.some((s) => s.id === r.id && s.kind === 'request')))
+          throw new Error('PERSONAL_SOURCE_IN_MEETING');
         if (!participants.trim()) throw new Error('DECISION_SCOPE_REQUIRED');
         validateRefs(sources, m, true);
         if (a.inputVersion !== m.inputVersion) throw new Error('SOURCE_SUPERSEDED');

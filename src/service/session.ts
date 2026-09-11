@@ -19,7 +19,14 @@ import type { StorePort } from './store';
 import { createMeeting, reduceMeeting } from '../domain/commands';
 import type { AudioLease } from '../integrations/audio-leases';
 import { validateArtifact, validateDelta } from '../renderers/validate';
-import { buildContextBatch, pendingSegments, latestSegments } from '../agent/context';
+import {
+  buildContextBatch,
+  pendingSegments,
+  latestSegments,
+  scopedContext,
+} from '../agent/context';
+import { commitMeaning, refreshIntegrity, dependencies } from '../domain/meaning';
+import { reconcileCloseout } from '../domain/closeout';
 import { applyArtifactPatch, changedBlocks } from '../domain/artifacts';
 import { validateRefs } from '../domain/evidence';
 import { resolvePreferences } from '../domain/preferences';
@@ -56,9 +63,28 @@ export class SessionService {
       m.processing = 'idle';
       // Old stores had no source watermark; replay once rather than mark an unseen correction processed.
       m.processedSources ??= {};
+      // Legacy stores have relations but no dependency snapshots. Establish the
+      // observed baseline before source repairs so failures still propagate review.
+      for (const o of m.objects)
+        o.dependencyRefs ??= dependencies(m, o.id).map((id) => ({
+          id,
+          rev: m.objects.find((x) => x.id === id)?.rev ?? 0,
+        }));
       m.calls ??= [];
       m.expressionJobs ??= [];
       m.expressionStatus = 'idle';
+      if ((m.audioPending ?? 0) > 0)
+        m.inputGaps.push({
+          epoch: m.epoch,
+          channel: 'unknown',
+          receivedAt: new Date().toISOString(),
+          code: 'PROCESS_INTERRUPTED',
+        });
+      m.audioPending = 0;
+      if (!config.key && pendingSegments(m).length) {
+        m.processing = 'error';
+        m.error = 'MODEL_NOT_CONFIGURED';
+      }
       for (const c of m.calls)
         if (c.status === 'pending') {
           c.status = 'failed';
@@ -88,9 +114,16 @@ export class SessionService {
       },
     });
   }
+  private saveState(...args: Parameters<StorePort['save']>) {
+    for (const m of args[0]) {
+      refreshIntegrity(m);
+      m.closeout = reconcileCloseout(m);
+    }
+    this.store.save(...args);
+  }
   private persist() {
     try {
-      this.store.save(this.meetings, this.preferences);
+      this.saveState(this.meetings, this.preferences);
       this.storageError = null;
     } catch {
       this.storageError = 'STORAGE_FAILED';
@@ -142,7 +175,7 @@ export class SessionService {
       ({ result, schedule } = reduceMeeting(m, c));
     }
     try {
-      this.store.save(meetings, prefs, { id: c.id, hash, result });
+      this.saveState(meetings, prefs, { id: c.id, hash, result });
       this.storageError = null;
     } catch {
       this.storageError = 'STORAGE_FAILED';
@@ -174,15 +207,18 @@ export class SessionService {
       throw new Error('SOURCE_SUPERSEDED');
     m.translations.push(translation);
     m.revision++;
-    this.store.save(meetings, this.preferences);
+    this.saveState(meetings, this.preferences);
     this.meetings = meetings;
     this.changed();
     return translation;
   }
-  audioQueueChanged(pending: number) {
-    const m = this.meetings.find((m) => m.status === 'active') ?? this.meetings[0];
+  audioQueueChanged(pending: number, meetingId?: string) {
+    const m = meetingId
+      ? this.meetings.find((m) => m.id === meetingId)
+      : (this.meetings.find((m) => m.status === 'active') ?? this.meetings[0]);
     if (m) {
       m.audioPending = pending;
+      this.persist();
       this.changed();
     }
   }
@@ -198,7 +234,7 @@ export class SessionService {
     });
     m.captureError = code;
     m.revision++;
-    this.store.save(meetings, this.preferences);
+    this.saveState(meetings, this.preferences);
     this.meetings = meetings;
     this.changed();
   }
@@ -243,7 +279,7 @@ export class SessionService {
     });
     m.inputVersion++;
     m.revision++;
-    this.store.save(next, this.preferences);
+    this.saveState(next, this.preferences);
     this.meetings = next;
     this.changed();
     this.schedule(m.id);
@@ -422,24 +458,11 @@ export class SessionService {
       const personal = batch.accepted.some((r) =>
         snapshot.segments.some((s) => s.id === r.id && s.kind === 'request'),
       );
+      const originalHistory = structuredClone(next.objectHistory ?? []);
       const originalObjects = structuredClone(next.objects),
         originalRelations = structuredClone(next.relations);
-      for (const o of languageOnly ? [] : proposal.objects) {
-        const i = next.objects.findIndex((x) => x.id === o.id),
-          prev = next.objects[i];
-        const same = prev && JSON.stringify({ ...prev, rev: undefined }) === JSON.stringify(o);
-        const value = { ...o, rev: (prev?.rev ?? 0) + (same ? 0 : 1) };
-        if (i < 0) next.objects.push(value);
-        else next.objects[i] = value;
-      }
-      for (const r of languageOnly ? [] : proposal.relations) {
-        const i = next.relations.findIndex((x) => x.id === r.id),
-          prev = next.relations[i];
-        const same = prev && JSON.stringify({ ...prev, rev: undefined }) === JSON.stringify(r);
-        const value = { ...r, rev: (prev?.rev ?? 0) + (same ? 0 : 1) };
-        if (i < 0) next.relations.push(value);
-        else next.relations[i] = value;
-      }
+      validateDelta(proposal, scopedContext(current, personal ? 'personal' : 'meeting'));
+      if (!languageOnly) commitMeaning(next, proposal);
       if (
         !personal &&
         proposal.titleProposal &&
@@ -494,6 +517,8 @@ export class SessionService {
           ...(patchBase?.objectIds ?? []),
           ...(proposal.patch?.upsertBlocks.flatMap((b) => b.objectIds) ?? []),
         ]);
+        for (const id of objectIds)
+          for (const dependency of dependencies(next, id)) objectIds.add(dependency);
         const job: ExpressionJob = {
           id: crypto.randomUUID(),
           inputVersion: snapshot.inputVersion,
@@ -541,10 +566,11 @@ export class SessionService {
       if (personal) {
         next.objects = originalObjects;
         next.relations = originalRelations;
+        next.objectHistory = originalHistory;
       }
       next.revision++;
       const all = this.meetings.map((m) => (m.id === id ? next : m));
-      this.store.save(all, this.preferences);
+      this.saveState(all, this.preferences);
       this.meetings = all;
       this.changed();
       if (pendingSegments(next).length) this.dirty.add(id);
@@ -568,6 +594,11 @@ export class SessionService {
       if (!this.closed) {
         const m = this.meetings.find((m) => m.id === id);
         if (m?.processing === 'working') m.processing = 'idle';
+        try {
+          this.persist();
+        } catch {
+          this.storageError = 'STORAGE_FAILED';
+        }
         this.changed();
         if (this.dirty.has(id)) this.schedule(id);
       }
@@ -605,7 +636,7 @@ export class SessionService {
             } else if (job.artifact) a = structuredClone(job.artifact);
             else {
               if (!job.plan || !this.model.generate) throw new Error('GENERATOR_UNAVAILABLE');
-              const context = structuredClone(m);
+              const context = scopedContext(m, job.scope);
               context.objects = job.personalObjects ?? context.objects;
               context.relations = job.personalRelations ?? context.relations;
               context.objects = context.objects.filter(
@@ -665,7 +696,7 @@ export class SessionService {
             const current = this.meetings.find((m) => m.id === id)!;
             a = validateArtifact(
               a,
-              current,
+              scopedContext(current, job.scope),
               job.personalObjects ?? current.objects,
               job.personalRelations ?? current.relations,
             );
@@ -715,7 +746,7 @@ export class SessionService {
             next.expressionJobs = next.expressionJobs?.filter((j) => j.id !== job.id);
             next.expressionStatus = 'idle';
             next.revision++;
-            this.store.save(
+            this.saveState(
               this.meetings.map((m) => (m.id === id ? next : m)),
               this.preferences,
             );
@@ -754,6 +785,7 @@ export class SessionService {
     }
   }
   close() {
+    if (this.closed) return;
     this.closed = true;
     for (const c of this.controllers) c.abort();
     for (const t of this.timers.values()) clearTimeout(t);

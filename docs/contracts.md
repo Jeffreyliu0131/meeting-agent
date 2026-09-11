@@ -22,6 +22,10 @@
 核心参数与源码以ADR-004、配置示例及对应验证为准；`a587a92`之后的前端有[独立验证](../tests/results/frontend-refresh-validation.md)。当前运行时视觉profile来自全局 `docs/design/tokens.json`，通过主题注入及生成器指令使用；`src/contracts/model.ts`的ArtifactRevision并未逐条保存visualProfileId。
 
 
+## 当前可靠性契约
+
+运行时新增 meaning／changeSources、对象 dependencyRefs／reviewRequired／objectHistory 和 Meeting.closeout；旧格式保守兼容，含义和迁移边界见[可靠性规范](agent-reliability.md)。会议理解投影不含个人假设；个人产物和 request 来源不能用于直接记录会议决定。
+
 ## 1. 核心对象
 
 | 对象 | 作用 | 关键规则 |

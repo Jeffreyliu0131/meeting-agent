@@ -28,23 +28,45 @@ const service = new SessionService(
   () => parent.postMessage({ type: 'snapshot', value: service.snapshot() }),
   preview,
 );
+const pendingAudio = new Map<string, string>();
+function updateAudio(meetingId: string) {
+  service.audioQueueChanged(
+    [...pendingAudio.values()].filter((id) => id === meetingId).length,
+    meetingId,
+  );
+}
 const audioQueue = new TranscriptionQueue<{
+  queueId: string;
   lease: AudioLease;
   wav: Uint8Array;
   bytes: number;
   durationMs: number;
 }>(
   async (item) => {
-    const text = await service.runCall(
-      item.lease.meetingId,
-      'transcribe',
-      (options) => provider.transcribe(item.wav, options),
-      item.durationMs / 1000,
-    );
-    if (text) service.completeAudio(item.lease, text);
+    try {
+      const text = await service.runCall(
+        item.lease.meetingId,
+        'transcribe',
+        (options) => provider.transcribe(item.wav, options),
+        item.durationMs / 1000,
+      );
+      if (text) service.completeAudio(item.lease, text);
+    } catch (error) {
+      // Record failure before releasing the pending marker: no temporary complete report.
+      service.recordInputGap(
+        item.lease,
+        error instanceof Error && /^[A-Z0-9_]+$/.test(error.message) ? error.message : 'STT_FAILED',
+      );
+    } finally {
+      pendingAudio.delete(item.queueId);
+      updateAudio(item.lease.meetingId);
+    }
   },
-  (item, code) => service.recordInputGap(item.lease, code),
-  (pending) => service.audioQueueChanged(pending),
+  (item, code) => {
+    service.recordInputGap(item.lease, code);
+    pendingAudio.delete(item.queueId);
+    updateAudio(item.lease.meetingId);
+  },
 );
 parent.on('message', async ({ data }: any) => {
   const { id, method, args } = data;
@@ -89,7 +111,11 @@ parent.on('message', async ({ data }: any) => {
       const rate = new DataView(wav.buffer, wav.byteOffset, wav.byteLength).getUint32(24, true);
       if (![16000, 24000, 44100, 48000].includes(rate)) throw new Error('INVALID_AUDIO');
       const durationMs = ((wav.length - 44) / 2 / rate) * 1000;
+      const queueId = crypto.randomUUID();
+      pendingAudio.set(queueId, meetingId);
+      updateAudio(meetingId);
       const accepted = audioQueue.enqueue(meetingId + ':' + epoch + ':' + channel, {
+        queueId,
         lease,
         wav,
         bytes: wav.length,

@@ -471,3 +471,87 @@ Object.assign(extra['zh-CN'], {
   'launcher.inputError': '音频中断 · 需要重新连接',
   'launcher.serviceError': '服务不可用 · 输入已停止',
 });
+
+Object.assign(extra.en, {
+  'meaning.asserted': 'Stated, not a decision',
+  'meaning.proposed': 'Proposal',
+  'meaning.conditional': 'Conditional',
+  'meaning.committed': 'Reported commitment, not group consensus',
+  'meaning.unknown': 'Not classified',
+  'review.title': 'Meeting wrap-up',
+  'review.basis': 'Conditions and commitment basis',
+  'review.basisNote':
+    'Current meeting understanding; historical views keep their original content above.',
+  'review.changed': 'Changed basis · review needed',
+  'review.conditions': 'Conditions still to check',
+  'review.owner': 'Named owner',
+  'review.deadline': 'Original time statement',
+  'review.pending': 'Finishing received content',
+  'review.needs_review': 'Saved with items to review',
+  'review.ready': 'Record checks complete',
+  'review.limit':
+    'Sources and open items are preserved. Decisions require an explicit confirmation record.',
+  'review.pendingSources': 'Unprocessed excerpts',
+  'review.gaps': 'Input gaps · conclusions may be incomplete',
+  'review.unresolved': 'Open questions and disagreements',
+  'review.incomplete': 'Tasks without complete commitments',
+  'review.unclassified': 'Unclassified items',
+  'review.staleArtifacts': 'Outdated working views',
+  'review.staleDecisions': 'Recorded decisions with changed evidence',
+  'review.minutes': 'Consolidated meeting record',
+  'review.recordedDecision': 'Recorded meeting decision',
+  'review.noItems': 'No structured meeting items yet.',
+});
+Object.assign(extra['zh-CN'], {
+  'meaning.asserted': '原话陈述，非决定',
+  'meaning.proposed': '提议',
+  'meaning.conditional': '有条件',
+  'meaning.committed': '原话中的承诺，非全体共识',
+  'meaning.unknown': '尚未分类',
+  'review.title': '会议结束核对',
+  'review.basis': '条件与承诺依据',
+  'review.basisNote': '这里显示当前会议理解；历史版本的正文仍保留原貌。',
+  'review.changed': '依据已变化，待核对',
+  'review.conditions': '仍需核对的条件',
+  'review.owner': '原话中的负责人',
+  'review.deadline': '原话中的时间',
+  'review.pending': '正在整理已接收内容',
+  'review.needs_review': '已保存，仍有事项待核对',
+  'review.ready': '记录检查已完成',
+  'review.limit': '来源与未决事项已保留，决定以明确确认记录为准。',
+  'review.pendingSources': '尚未处理的原话',
+  'review.gaps': '输入缺口，结论可能不完整',
+  'review.unresolved': '未决问题与分歧',
+  'review.incomplete': '承诺信息不完整的任务',
+  'review.unclassified': '尚未分类的事项',
+  'review.staleArtifacts': '需要更新的工作内容',
+  'review.staleDecisions': '依据已变化的决定记录',
+  'review.minutes': '汇总会议记录',
+  'review.recordedDecision': '已记录的会议决定',
+  'review.noItems': '尚未形成结构化会议事项。',
+});
+
+Object.assign(extra.en, {
+  'error.CONTEXT_MEMORY_LIMIT':
+    'Active conditions exceed the current context limit. Sources are saved; understanding is paused until the context budget or meeting state is adjusted.',
+  'error.REQUEST_CONTEXT_TOO_LARGE':
+    'The selected context is too large. Remove the context selection or narrow the request.',
+  'error.PERSONAL_SOURCE_IN_MEETING':
+    'Personal exploration cannot serve as meeting confirmation evidence.',
+  'error.PERSONAL_ARTIFACT_NOT_MEETING_DECISION':
+    'This is a personal exploration. Record a meeting decision against meeting content and its explicit evidence.',
+  'error.MEANING_CHANGE_REQUIRES_NEW_EVIDENCE':
+    'The proposed change has no new supporting source. Previous conditions are preserved.',
+  'error.QUOTE_NOT_IN_SOURCE':
+    'The cited words were not found in the source. The proposed understanding was not saved.',
+});
+Object.assign(extra['zh-CN'], {
+  'error.CONTEXT_MEMORY_LIMIT':
+    '有效条件已超出当前上下文容量。原话已保存；调整上下文预算或会议状态前，理解暂停。',
+  'error.REQUEST_CONTEXT_TOO_LARGE': '选中的上下文过大。请移除上下文选择，或缩小问题范围。',
+  'error.PERSONAL_SOURCE_IN_MEETING': '个人探索不能作为会议确认依据。',
+  'error.PERSONAL_ARTIFACT_NOT_MEETING_DECISION':
+    '这是个人探索。请基于会议内容及明确依据记录会议决定。',
+  'error.MEANING_CHANGE_REQUIRES_NEW_EVIDENCE': '本次修订缺少新的原话依据，原有条件仍保留。',
+  'error.QUOTE_NOT_IN_SOURCE': '引用的文字未在来源中找到，本次理解修订未保存。',
+});

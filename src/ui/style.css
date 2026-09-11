@@ -1773,3 +1773,23 @@ body[data-role='preview'] {
     position: static;
   }
 }
+
+.meeting-review {
+  margin: 20px 0;
+  padding: 16px 0;
+  border-top: 1px solid var(--divider);
+  overflow-wrap: anywhere;
+}
+.meeting-review summary {
+  cursor: pointer;
+  padding: 8px 0;
+}
+.meeting-review h2 {
+  font-size: 18px;
+}
+.meeting-review li {
+  margin: 12px 0;
+}
+.meeting-review li p {
+  margin: 6px 0;
+}

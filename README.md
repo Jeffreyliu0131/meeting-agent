@@ -89,3 +89,8 @@ npm run pack:win     # 在 Windows 构建应用目录
 设计文档定义目标；实际 schema 以 `src/contracts/model.ts` 为准，首版实现差异见 ADR-003；后续变化先查状态与对应 session／新 ADR，验证以对应版本结果为准。尚未通过的验收不会因“已有代码”自动变为通过。
 
 本目录是独立 Git 仓库，对应 [Jeffreyliu0131/meeting-agent](https://github.com/Jeffreyliu0131/meeting-agent)（私有）。运行不依赖父目录资料。未提交工作须在对应 session 中说明。提交不包含凭证、真实会议数据、依赖目录或应用构建包。
+
+
+## 条件、修订与会议结束核对
+
+工作内容可展开条件与承诺依据；个人探索不进入后台会议理解。结束后核对已接收内容、未决问题、仍有效条件、任务信息缺项与输入缺口，并可展开汇总记录、查看原话；JSON 导出包含核对结果和本轮起保存的对象历史。记录检查完成不代表语义全部正确或全体共识。实现边界见[Agent 可靠性](docs/agent-reliability.md)。

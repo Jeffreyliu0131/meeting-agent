@@ -169,3 +169,8 @@ SVG中使用token映射的颜色与字号；HTML／chart由隔离宿主注入同
 | 桌面与交付 | 生成图标＋透明无白边入口、五态采集提示、左键工作页、隐藏不停止；macOS原路径应用已更新，历史保留 | 新版Windows真机、完整屏幕阅读器和真实模型／音频仍未验收；本次未新增签名或分发能力 |
 
 主要定位：`src/ui/main.tsx`（首页、目录、推演及错误路由）、`components.tsx`（设置和来源）、`live.tsx`（保护逻辑）、`src/renderers/ArtifactView.tsx`／`RelationshipGraph.tsx`（载体）、`src/ui/theme.ts`／`src/desktop/preflight.ts`（主题与预检）。
+
+
+## Agent 可靠性入口补充
+
+会议产物下可展开“条件与承诺依据”，显示当前对象的条件、原话承诺、负责人／时间及待核对状态。结束后出现“会议结束核对”，按需展开未决事项和汇总会议记录，可回到来源；历史正文不被当前依据覆盖。具体规则与 ready／needs_review／pending 边界见[可靠性规范](agent-reliability.md)。

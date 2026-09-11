@@ -26,6 +26,7 @@ import {
   ListTree,
 } from 'lucide-react';
 import { applyTheme } from './theme';
+import { MeetingReview, MeaningNotes } from './MeetingReview';
 import React, { useEffect, useState, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import type {
@@ -698,6 +699,7 @@ function App() {
                 {t('live.preparing')}
               </p>
             )}
+            <MeetingReview meeting={current} locale={locale} onSources={openSources} />
             {personal.length > 0 && (
               <nav className="personal-work" aria-label={t('live.personal')}>
                 <span>{t('live.personal')}</span>
@@ -736,6 +738,12 @@ function App() {
                 {artifact.scope === 'personal' && (
                   <p className="scope-note">{t('design.personalNote')}</p>
                 )}
+                <MeaningNotes
+                  meeting={current}
+                  artifact={artifact}
+                  locale={locale}
+                  onSources={openSources}
+                />
                 <ArtifactView
                   artifact={artifact}
                   locale={locale}

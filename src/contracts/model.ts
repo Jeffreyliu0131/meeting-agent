@@ -11,6 +11,21 @@ export type Ref = z.infer<typeof Ref>;
 const refs = z.array(Ref).max(50);
 export const Provenance = z.enum(['stated', 'agent_inferred', 'user_entered', 'tool_computed']);
 export const Status = z.enum(['unverified', 'assumed', 'disputed', 'unknown']);
+export const QuotedEvidence = z
+  .object({ quote: z.string().trim().min(1).max(700), sources: refs.min(1) })
+  .strict();
+const evidencedValue = z
+  .object({ value: z.string().trim().min(1).max(180), evidence: QuotedEvidence })
+  .strict();
+export const Meaning = z
+  .object({
+    stance: z.enum(['asserted', 'proposed', 'conditional', 'committed', 'unknown']),
+    conditionIds: z.array(id).max(20),
+    owner: evidencedValue.nullable(),
+    deadline: evidencedValue.nullable(),
+    evidence: z.array(QuotedEvidence).max(12),
+  })
+  .strict();
 export const SemanticObject = z
   .object({
     id,
@@ -30,6 +45,8 @@ export const SemanticObject = z
     status: Status,
     sources: refs,
     lifecycle: z.enum(['active', 'superseded', 'archived']),
+    meaning: Meaning.nullable().optional(),
+    changeSources: refs.optional(),
   })
   .strict();
 export const Relation = z
@@ -269,7 +286,11 @@ export type Segment = {
   captureEndMs?: number;
   channelSequence?: number;
 };
-export type ObjectState = z.infer<typeof SemanticObject> & { rev: number };
+export type ObjectState = z.infer<typeof SemanticObject> & {
+  rev: number;
+  dependencyRefs?: Ref[];
+  reviewRequired?: boolean;
+};
 export type RelationState = z.infer<typeof Relation> & { rev: number };
 export type ArtifactRevision = Artifact & {
   rev: number;
@@ -303,6 +324,19 @@ export type Decision = {
   participants: string;
   sources: Ref[];
   createdAt: string;
+};
+export type Closeout = {
+  inputVersion: number;
+  state: 'pending' | 'needs_review' | 'ready';
+  pendingSources: Ref[];
+  reviewObjectIds: string[];
+  unresolvedObjectIds: string[];
+  conditionalObjectIds: string[];
+  incompleteTaskIds: string[];
+  staleDecisionIds: string[];
+  staleArtifactIds: string[];
+  gapCount: number;
+  provisionalObjectIds: string[];
 };
 export type Translation = {
   segmentId: string;
@@ -365,6 +399,10 @@ export type Meeting = {
   translations: Translation[];
   inputGaps: Array<{ epoch: number; channel: string; receivedAt: string; code: string }>;
   objects: ObjectState[];
+  objectHistory?: ObjectState[];
+  closeout?: Closeout;
+  /** Ephemeral provider projection, never authority to change meeting facts. */
+  contextScope?: 'meeting' | 'personal';
   relations: RelationState[];
   artifacts: ArtifactRevision[];
   scenarios: Scenario[];

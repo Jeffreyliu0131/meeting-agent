@@ -9,6 +9,7 @@ import type {
 } from '../contracts/model';
 import { validateRefs } from '../domain/evidence';
 import { calculate } from '../domain/calculator';
+import { validateMeaning } from '../domain/meaning';
 export function safeMarkup(markup: string, type: 'html' | 'svg'): string {
   if (Buffer.byteLength(markup) > 50000 || (markup.match(/</g) || []).length > 700)
     throw new Error('ARTIFACT_TOO_LARGE');
@@ -158,6 +159,7 @@ export function validateArtifact(
   return a;
 }
 export function validateDelta(proposal: Proposal, meeting: Meeting) {
+  validateMeaning(proposal, meeting);
   if ([proposal.artifact, proposal.patch, proposal.plan].filter(Boolean).length > 1)
     throw new Error('AMBIGUOUS_EXPRESSION');
   if (proposal.plan) {

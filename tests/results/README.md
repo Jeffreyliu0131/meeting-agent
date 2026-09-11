@@ -22,3 +22,6 @@
 2026-09-12 本地前端包更新：[包内容一致性](package-content-frontend.json)／[隔离启动检查](package-smoke-frontend.json)。实际原路径应用已重开，新界面与两条历史记录已核对；本次未采音。
 
 后续桌面小图标与状态：[独立验证](launcher-validation.md)，仅覆盖其记录的新版入口与回归范围。
+
+
+Agent三项可靠性迭代：[验证结果](agent-reliability-validation.md)／[源码与测试汇总](agent-reliability-summary.json)。58项单元和10项桌面通过，真实模型与语音仍未验收。
