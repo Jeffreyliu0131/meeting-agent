@@ -6,6 +6,10 @@
 
 | 记录 | 类型／状态 | 主要内容 |
 |---|---|---|
+| [Agent工作流验收与推送](2026-09-12-agent-workflow-acceptance-push.md) | 验收通过，准备交付 | 修复审查问题；86项单元／11项Electron、双端包与macOS烟测 |
+| [Agent工作流实施](2026-09-12-agent-workflow-implementation.md) | 本地实现与验证完成，未提交 | W1–W6；81项单元／11项Electron，双端目录包与macOS烟测，真实效果待验 |
+| [业务复核与实现交接](2026-09-12-business-aligned-handoff.md) | 完成，已核对接手 | 业务映射、W1–W6任务书、25项验收；实现由新任务继续 |
+| [Agent 架构与 LangGraph 研究](2026-09-12-agent-architecture-research.md) | 完成，仅研究，未提交 | 详细报告与摘要；建议局部LangGraph、提交边界、检索／工具与实验设计，未实施 |
 | [Agent 可靠性](2026-09-12-agent-reliability.md) | 完成，8e0d2eb已推送 | 事实边界、持续条件、修订传播与结束核对；58项／10项验证 |
 | [桌面图标与状态](2026-09-12-launcher-icon.md) | 完成，本地应用已更新，120f77c已推送 | 新生成图标、白边修复与采集状态定义 |
 | [前端文档对齐](2026-09-12-frontend-doc-sync.md) | 完成，随后随120f77c交付 | 新视觉、实现边界、已更新本地包和历史路由 |

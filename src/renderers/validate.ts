@@ -129,7 +129,24 @@ export function validateArtifact(
     if (block.type === 'timeline')
       for (const item of block.items) validateRefs(item.sources, meeting, true);
     if (block.type === 'chart')
-      for (const item of block.values) validateRefs(item.sources, meeting, true);
+      for (const item of block.values) {
+        validateRefs(item.sources, meeting, true);
+        if (item.binding) {
+          const result = (
+            meeting.toolObservations as import('../agent/tools').ToolObservation[] | undefined
+          )?.find((r) => r.resultId === item.binding!.resultId && r.kind === 'calculate');
+          const value = result?.values[0] as { result: string | null; unit: string } | undefined;
+          if (
+            !result ||
+            !value ||
+            !['known', 'conditional'].includes(result.status) ||
+            value.result === null
+          )
+            throw new Error('UNKNOWN_TOOL_BINDING');
+          if (value.unit !== block.unit) throw new Error('UNIT_MISMATCH');
+          if (Number(value.result) !== item.value) throw new Error('TOOL_VALUE_MISMATCH');
+        }
+      }
     if (block.type === 'diagram') {
       const nodes = new Set(block.nodes.map((n) => n.id));
       if (nodes.size !== block.nodes.length || block.nodes.some((n) => !objectIds.has(n.objectId)))
@@ -154,6 +171,14 @@ export function validateArtifact(
   if (a.objectIds.some((id) => !objectIds.has(id))) throw new Error('INVALID_OBJECT');
   for (const formula of a.formulas) {
     validateRefs(formula.sources, meeting, true);
+    if (
+      !formula.sources.some((r) =>
+        meeting.segments.some(
+          (s) => s.id === r.id && s.rev === r.rev && s.text.includes(formula.basis),
+        ),
+      )
+    )
+      throw new Error('FORMULA_BASIS_NOT_QUOTED');
     calculate(formula);
   }
   return a;

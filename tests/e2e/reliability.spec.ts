@@ -16,7 +16,7 @@ test('conditional meeting record survives personal exploration, end, sources and
     const s = context.segments.at(-1),
       sources = [{ id: s.id, rev: s.rev }];
     const personal = context.scope === 'personal';
-    const first = !context.objects.some((o: any) => o.id === 'launch');
+    const first = !context.objects.some((o: any) => o.title === 'Friday launch');
     const p: any = {
       focus: 'Synthetic launch discussion',
       changes: [],
@@ -150,7 +150,7 @@ test('conditional meeting record survives personal exploration, end, sources and
     await expect.poll(() => contexts.filter((c) => c.scope === 'meeting').length).toBe(2);
     const lastMeeting = contexts.filter((c) => c.scope === 'meeting').at(-1);
     expect(JSON.stringify(lastMeeting)).not.toContain('PRIVATE_TEST_ONLY');
-    expect(lastMeeting.objects.some((o: any) => o.id === 'budget')).toBe(true);
+    expect(lastMeeting.objects.some((o: any) => o.title === 'Budget approval')).toBe(true);
     await page.getByRole('button', { name: 'End meeting', exact: true }).click();
     const review = page.getByTestId('meeting-closeout');
     await review.locator('summary').first().click();

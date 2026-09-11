@@ -88,3 +88,7 @@ type ArtifactActionRequest = {
 固定业务模板会限制用户确认的生成能力；任意完整应用又把会议状态、权限和表现绑在一起。采用通用载体＋可组合产物，使Agent拥有结构自由，同时让宿主控制来源、状态和真实业务操作。
 
 运行环境必须用实际生成内容、异常HTML、过大SVG、无效图语言和脚本循环测试。通过静态示意图不能证明这些能力完成；验收见[标准](acceptance-criteria.md)。
+
+## 当前预览与修复接线
+
+实际Electron预览通过RenderReport返回块ID、错误码及可得尺寸，utility service接收详细报告并在持久预算内最多修复一次。候选在预览前保存；修复需保持内容、来源、公式和稳定ID，失败保留旧版／过期状态。可信计算绑定不赋予生成内容工具调用权限。详见[工作流运行时](agent-workflow-runtime.md)与[验证](../tests/results/agent-workflow-validation.md)。

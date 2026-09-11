@@ -1,3 +1,4 @@
+import { RenderFailure } from '../contracts/render-report';
 import { BrowserWindow, session } from 'electron';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -43,7 +44,11 @@ export async function renderPreflight(artifact: Artifact, distDirectory: string)
     const fits = await win.webContents.executeJavaScript(
       'document.documentElement.scrollWidth <= innerWidth + 1 && document.querySelectorAll("*").length < 1000',
     );
-    if (!fits) throw new Error('RENDER_OVERFLOW');
+    if (!fits)
+      throw new RenderFailure({
+        ok: false,
+        issues: [{ blockId: null, errorCode: 'RENDER_OVERFLOW', viewport: 1056 }],
+      });
     for (const block of artifact.blocks) {
       if (block.type !== 'html' && block.type !== 'svg') continue;
       const markup = safeMarkup(block.markup, block.type);
@@ -52,7 +57,10 @@ export async function renderPreflight(artifact: Artifact, distDirectory: string)
         '({width:document.documentElement.scrollWidth,height:document.body.scrollHeight,viewport:innerWidth})',
       );
       if (result.width > result.viewport + 1 || result.height > 1200)
-        throw new Error('RENDER_OVERFLOW');
+        throw new RenderFailure({
+          ok: false,
+          issues: [{ blockId: block.id, errorCode: 'RENDER_OVERFLOW', ...result }],
+        });
     }
   } finally {
     clearTimeout(timer);

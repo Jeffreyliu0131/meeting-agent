@@ -92,3 +92,7 @@ Agent输出`ExpressionPlan`应包含：主要用户问题、关联对象、选�
 ## 事实与表达的可靠性约束
 
 按[可靠性规范](agent-reliability.md)，表达读取当前范围内的对象与证据。conditional／committed 是原话含义，不授予会议确认。已改变的依赖需核对；无法确定新结论时保留待核对。正文之外的条件依据由可信 UI 呈现，不能因模型省略一个条件就解除它。结束核对汇总已有状态，不取消 Agent 自主生成表达的职责。
+
+## 当前工作流实现
+
+[ADR-005](adr/005-bounded-agent-workflows.md)已接入scope／branch／purpose／有序对象角色身份、候选持久化、RenderReport与一次修复。修复保守限制为布局／几何，不改内容、来源、公式和块ID。Decimal新增单位维度检查，chart可绑定可信计算resultId；普通数字有来源仍不等于工具证明。完整边界见[运行时说明](agent-workflow-runtime.md)，实际结果见[验证](../tests/results/agent-workflow-validation.md)。

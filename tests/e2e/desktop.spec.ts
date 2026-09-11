@@ -102,7 +102,7 @@ test('real Electron: event, manual original source, honest missing model, correc
   await expect(page.getByRole('button', { name: '结束会议' })).toBeVisible();
   await page.getByRole('button', { name: '结束会议' }).click();
   await expect(page.getByText('会议已结束', { exact: true }).first()).toBeVisible();
-  await page.screenshot({ path: 'tests/results/e2e-artifacts/ended-zh.png', fullPage: true });
+  await page.screenshot({ path: test.info().outputPath('ended-zh.png'), fullPage: true });
   const state = await page.evaluate(async () => {
     const r = await window.meeting.call('snapshot');
     return r.value;
@@ -218,7 +218,7 @@ test('UI cannot impersonate audio adapter; no frame gets filesystem or arbitrary
     await expect
       .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
       .toBe(true);
-    await page.screenshot({ path: `tests/results/e2e-artifacts/library-${size.width}.png` });
+    await page.screenshot({ path: test.info().outputPath(`library-${size.width}.png`) });
   }
   await app.evaluate(({ BrowserWindow }) =>
     BrowserWindow.getAllWindows()
@@ -283,7 +283,7 @@ test('meeting library filters, search recovery and settings keyboard loop', asyn
       .toString('base64'),
   );
   writeFileSync(
-    'tests/results/e2e-artifacts/refresh-settings-200.png',
+    test.info().outputPath('refresh-settings-200.png'),
     Buffer.from(zoomCapture, 'base64'),
   );
 
@@ -363,7 +363,7 @@ test('launcher uses transparent chrome and distinct synthetic capture indicators
         .toPNG()
         .toString('base64'),
     );
-    writeFileSync(`tests/results/e2e-artifacts/launcher-${state}.png`, Buffer.from(shot, 'base64'));
+    writeFileSync(test.info().outputPath(`launcher-${state}.png`), Buffer.from(shot, 'base64'));
   }
   await app.evaluate(({ BrowserWindow }) =>
     BrowserWindow.getAllWindows()

@@ -45,7 +45,13 @@ export function reconcileCloseout(m: Meeting): Closeout | undefined {
     m.processing === 'working' ||
     m.expressionStatus === 'working' ||
     !!m.expressionJobs?.length;
+  const workflowIssues =
+    (m.workflowJobs ?? []).filter((j) =>
+      ['failed', 'rejected', 'pending', 'running', 'proposed'].includes(j.status),
+    ).length +
+    (m.clarifications ?? []).filter((c) => c.status === 'pending' || c.status === 'stale').length;
   const issues =
+    workflowIssues ||
     pendingSources.length ||
     m.inputGaps.length ||
     reviewObjectIds.length ||
@@ -60,7 +66,9 @@ export function reconcileCloseout(m: Meeting): Closeout | undefined {
   return {
     inputVersion: m.inputVersion,
     state:
-      working || (pendingSources.length > 0 && m.processing !== 'error')
+      working ||
+      (pendingSources.some((r) => m.quarantinedSources?.[r.id] !== r.rev) &&
+        m.processing !== 'error')
         ? 'pending'
         : issues
           ? 'needs_review'

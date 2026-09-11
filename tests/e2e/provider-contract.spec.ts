@@ -116,7 +116,7 @@ function reply(context: any) {
             { id: 'total', op: 'add', left: 'venue', right: 'catering' },
           ],
           result: 'total',
-          basis: 'Synthetic test formula: venue + people × catering per person',
+          basis: s.text, // Exact quote binding only; this fixture does not test semantic entailment.
           sources,
         },
       ],
@@ -180,7 +180,17 @@ function reply(context: any) {
           '<section><h2>Open condition</h2><p>Confirm support before inviting customers.</p><ul><li>Timing remains unknown.</li></ul></section>',
       },
     ];
-  return answer;
+  const ids: Record<string, string> = {
+    'option-a':
+      context.objects.find((o: any) => o.title === 'Invited participants')?.id ?? 'option-a',
+    capacity: context.objects.find((o: any) => o.title === 'Support capacity')?.id ?? 'capacity',
+    condition: context.relations.find((r: any) => r.kind === 'conditions')?.id ?? 'condition',
+  };
+  return JSON.parse(
+    JSON.stringify(answer, (_key, value) =>
+      typeof value === 'string' ? (ids[value] ?? value) : value,
+    ),
+  );
 }
 test.beforeEach(async () => {
   ((calls = 0), (sttDelay = 0));
@@ -310,7 +320,7 @@ test('provider transport, isolated preflight, generated structure, source bindin
       .getByRole('dialog', { name: 'View sources' })
       .getByText('Two routes, one unresolved condition', { exact: true }),
   ).toBeVisible();
-  await page.screenshot({ path: 'tests/results/e2e-artifacts/refresh-sources.png' });
+  await page.screenshot({ path: test.info().outputPath('refresh-sources.png') });
   await page
     .getByRole('dialog', { name: 'View sources' })
     .getByRole('button', { name: 'Close', exact: true })
@@ -332,7 +342,7 @@ test('provider transport, isolated preflight, generated structure, source bindin
       .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
       .toBe(true);
     await page.screenshot({
-      path: `tests/results/e2e-artifacts/contract-workspace-${size.width}.png`,
+      path: test.info().outputPath(`contract-workspace-${size.width}.png`),
       fullPage: true,
     });
   }
@@ -361,7 +371,7 @@ test('provider transport, isolated preflight, generated structure, source bindin
       .toString('base64'),
   );
   writeFileSync(
-    'tests/results/e2e-artifacts/refresh-workspace-200.png',
+    test.info().outputPath('refresh-workspace-200.png'),
     Buffer.from(zoomCapture, 'base64'),
   );
 });
@@ -481,7 +491,7 @@ test('text, timeline, chart, SVG and passive HTML render without a privileged br
     'undefined',
   );
   await page.screenshot({
-    path: 'tests/results/e2e-artifacts/passive-carriers.png',
+    path: test.info().outputPath('passive-carriers.png'),
     fullPage: true,
   });
 });
@@ -523,7 +533,7 @@ test('normal meeting entry saves setup once, starts audio in one intent and reve
   await page.getByRole('button', { name: 'Start meeting' }).first().click();
   await expect(page.getByRole('dialog', { name: 'Meeting audio' })).toBeVisible();
   await expect(page.getByLabel('Interface language', { exact: true })).toHaveCount(0);
-  await page.screenshot({ path: 'tests/results/e2e-artifacts/audio-settings.png', fullPage: true });
+  await page.screenshot({ path: test.info().outputPath('audio-settings.png'), fullPage: true });
   await expect(page.getByLabel('Meeting title', { exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: 'Save settings', exact: true }).click();
   let state = await page.evaluate(() => window.meeting.call('snapshot'));
@@ -610,7 +620,7 @@ test('normal meeting entry saves setup once, starts audio in one intent and reve
     })
     .toBe('capturing');
   await page.getByRole('button', { name: 'End meeting', exact: true }).click();
-  await page.screenshot({ path: 'tests/results/e2e-artifacts/normal-entry.png', fullPage: true });
+  await page.screenshot({ path: test.info().outputPath('normal-entry.png'), fullPage: true });
   await capture.evaluate(async () => {
     for (const ctx of (window as any).testContexts ?? []) await ctx.close();
   });

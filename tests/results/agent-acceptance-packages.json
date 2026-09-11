@@ -1,0 +1,163 @@
+{
+  "packages": {
+    "mac": {
+      "files": [
+        {
+          "file": "dist/main.cjs",
+          "sha256": "4a8375a5f7f4ad1de4c40cab8424be6a1cf75829cd5f1763c375a5d9365b88a1",
+          "matches": true
+        },
+        {
+          "file": "dist/main.cjs.map",
+          "sha256": "3605ebeb49a049e269d9d2da72d91b0bd3034e39f9df1fea0362828467d88fb6",
+          "matches": true
+        },
+        {
+          "file": "dist/preload.cjs",
+          "sha256": "72e96d4193cd8d02dcfc29b0dd57bbe6724fc060fa723e3e8bbc7956fe55a224",
+          "matches": true
+        },
+        {
+          "file": "dist/preload.cjs.map",
+          "sha256": "0eb3dab73f53cddd61c1bd751b3e223d3c50efdbcd9e0cc652b2c4c3003a0437",
+          "matches": true
+        },
+        {
+          "file": "dist/ui/assets/capture-Dolo6_mE.js",
+          "sha256": "fd8b8d2fdf2ea54f0034ca23c29e90e5a5c8cb9b44e649e6ceaef18d7d157e4e",
+          "matches": true
+        },
+        {
+          "file": "dist/ui/assets/launcher-dialogue-v1-B9Qjn0Ww.png",
+          "sha256": "a0b3044a869f9a236d519f5df9221c0b6b459bf2ba0f3f43d4e07a6bbebff10f",
+          "matches": true
+        },
+        {
+          "file": "dist/ui/assets/main-DjjlB8PZ.js",
+          "sha256": "127622a9cc6a1f5726c83bcc61750fb16cc44080e39e2eb0e02abbfe2be2ace0",
+          "matches": true
+        },
+        {
+          "file": "dist/ui/assets/main-HbEVvdfp.css",
+          "sha256": "34088b2f049b22b00e30309881f07056b2d35e7614252af124399f425fbf3b00",
+          "matches": true
+        },
+        {
+          "file": "dist/ui/assets/modulepreload-polyfill-P2Xu9kJm.js",
+          "sha256": "418c206484b89b68ef5f067277831e583fc9193a62aadf4de269acaaeb12a85f",
+          "matches": true
+        },
+        {
+          "file": "dist/ui/capture.html",
+          "sha256": "2da528a2b9fc58c900651a04f92e25addcdc78f5c19f62668523a0599f4a0a85",
+          "matches": true
+        },
+        {
+          "file": "dist/ui/index.html",
+          "sha256": "6ebb87234a3158c61c5a252929be0535aa049142a51383896465213d0ffde220",
+          "matches": true
+        },
+        {
+          "file": "dist/ui/pcm-worklet.js",
+          "sha256": "0188369d029580367f50b2d93cd3f1c17b3414e783d4fa31194034d986bbb8a5",
+          "matches": true
+        },
+        {
+          "file": "dist/worker.cjs",
+          "sha256": "da7a2c14bebb583d08fc495759eb4b5d87a85f991d0737cd2b2a021a6c772709",
+          "matches": true
+        },
+        {
+          "file": "dist/worker.cjs.map",
+          "sha256": "36bbfd8d431ca079c606d83f7d6523ba2ce0aff8b1523ffa1bb2ec76c19ff870",
+          "matches": true
+        }
+      ],
+      "asarSha256": "6780dd22272231f1743105c878365d0274779d103f49f2ac42088d4ca16bbde1"
+    },
+    "win": {
+      "files": [
+        {
+          "file": "dist/main.cjs",
+          "sha256": "4a8375a5f7f4ad1de4c40cab8424be6a1cf75829cd5f1763c375a5d9365b88a1",
+          "matches": true
+        },
+        {
+          "file": "dist/main.cjs.map",
+          "sha256": "3605ebeb49a049e269d9d2da72d91b0bd3034e39f9df1fea0362828467d88fb6",
+          "matches": true
+        },
+        {
+          "file": "dist/preload.cjs",
+          "sha256": "72e96d4193cd8d02dcfc29b0dd57bbe6724fc060fa723e3e8bbc7956fe55a224",
+          "matches": true
+        },
+        {
+          "file": "dist/preload.cjs.map",
+          "sha256": "0eb3dab73f53cddd61c1bd751b3e223d3c50efdbcd9e0cc652b2c4c3003a0437",
+          "matches": true
+        },
+        {
+          "file": "dist/ui/assets/capture-Dolo6_mE.js",
+          "sha256": "fd8b8d2fdf2ea54f0034ca23c29e90e5a5c8cb9b44e649e6ceaef18d7d157e4e",
+          "matches": true
+        },
+        {
+          "file": "dist/ui/assets/launcher-dialogue-v1-B9Qjn0Ww.png",
+          "sha256": "a0b3044a869f9a236d519f5df9221c0b6b459bf2ba0f3f43d4e07a6bbebff10f",
+          "matches": true
+        },
+        {
+          "file": "dist/ui/assets/main-DjjlB8PZ.js",
+          "sha256": "127622a9cc6a1f5726c83bcc61750fb16cc44080e39e2eb0e02abbfe2be2ace0",
+          "matches": true
+        },
+        {
+          "file": "dist/ui/assets/main-HbEVvdfp.css",
+          "sha256": "34088b2f049b22b00e30309881f07056b2d35e7614252af124399f425fbf3b00",
+          "matches": true
+        },
+        {
+          "file": "dist/ui/assets/modulepreload-polyfill-P2Xu9kJm.js",
+          "sha256": "418c206484b89b68ef5f067277831e583fc9193a62aadf4de269acaaeb12a85f",
+          "matches": true
+        },
+        {
+          "file": "dist/ui/capture.html",
+          "sha256": "2da528a2b9fc58c900651a04f92e25addcdc78f5c19f62668523a0599f4a0a85",
+          "matches": true
+        },
+        {
+          "file": "dist/ui/index.html",
+          "sha256": "6ebb87234a3158c61c5a252929be0535aa049142a51383896465213d0ffde220",
+          "matches": true
+        },
+        {
+          "file": "dist/ui/pcm-worklet.js",
+          "sha256": "0188369d029580367f50b2d93cd3f1c17b3414e783d4fa31194034d986bbb8a5",
+          "matches": true
+        },
+        {
+          "file": "dist/worker.cjs",
+          "sha256": "da7a2c14bebb583d08fc495759eb4b5d87a85f991d0737cd2b2a021a6c772709",
+          "matches": true
+        },
+        {
+          "file": "dist/worker.cjs.map",
+          "sha256": "36bbfd8d431ca079c606d83f7d6523ba2ce0aff8b1523ffa1bb2ec76c19ff870",
+          "matches": true
+        }
+      ],
+      "asarSha256": "6780dd22272231f1743105c878365d0274779d103f49f2ac42088d4ca16bbde1"
+    }
+  },
+  "macSmoke": {
+    "serviceReady": true,
+    "events": 0,
+    "modelConfigured": false,
+    "realAudio": false,
+    "realModel": false
+  },
+  "windowsRuntime": "not_tested",
+  "ranAt": "2026-09-11T17:43:22.055Z"
+}

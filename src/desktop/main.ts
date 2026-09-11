@@ -296,8 +296,18 @@ app.whenReady().then(async () => {
         .then(() =>
           worker.postMessage({ id: message.id, method: 'previewResult', args: { ok: true } }),
         )
-        .catch(() =>
-          worker.postMessage({ id: message.id, method: 'previewResult', args: { ok: false } }),
+        .catch((error) =>
+          worker.postMessage({
+            id: message.id,
+            method: 'previewResult',
+            args: {
+              ok: false,
+              report: error.report ?? {
+                ok: false,
+                issues: [{ blockId: null, errorCode: 'RENDER_FAILED' }],
+              },
+            },
+          }),
         );
       return;
     }
@@ -528,6 +538,9 @@ app.whenReady().then(async () => {
               'correct',
               'language',
               'ask',
+              'cancelRequest',
+              'answerClarification',
+              'cancelClarification',
               'retry',
               'scenario',
               'decision',

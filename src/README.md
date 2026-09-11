@@ -1,6 +1,6 @@
 # 产品实现
 
-业务、输入和表达采用明确边界；当前连续 Agent 采用 [ADR-004](../docs/adr/004-live-agent-pipeline.md)，首版历史见 [ADR-003](../docs/adr/003-cross-platform-first-version.md)，进度见[状态](../docs/status.md)与[Agent 迭代记录](../docs/sessions/2026-09-11-agent-iteration.md)。目录存在不表示功能已验收。
+业务、输入和表达采用明确边界；当前连续 Agent 采用 [ADR-005](../docs/adr/005-bounded-agent-workflows.md)，采集基线保留 [ADR-004](../docs/adr/004-live-agent-pipeline.md)，首版历史见 [ADR-003](../docs/adr/003-cross-platform-first-version.md)，进度见[状态](../docs/status.md)与[Agent 迭代记录](../docs/sessions/2026-09-11-agent-iteration.md)。目录存在不表示功能已验收。
 
 - `contracts/`：运行时 schema 与持久化／IPC 类型。
 - `domain/`：状态转换、证据和精确计算；不依赖 Electron、服务或供应商。
@@ -19,3 +19,13 @@
 
 
 可靠性补充：`domain/meaning.ts`维护证据约束和依赖修订；`domain/closeout.ts`核对全场结束状态；`ui/MeetingReview.tsx`提供条件依据和结束汇总。行为和边界见[规范](../docs/agent-reliability.md)。
+
+## 有界工作流新增模块
+
+- [workflow.ts](agent/workflow.ts)／[tools.ts](agent/tools.ts)：实时与个人图、只读证据和受控计算。
+- [workflow-state.ts](service/workflow-state.ts)／[call-pool.ts](service/call-pool.ts)：可信读集、ID映射、fencing、调用保留槽。
+- [workflow.ts](contracts/workflow.ts)／[render-report.ts](contracts/render-report.ts)：持久任务／工具请求与预览反馈契约。
+- [units.ts](domain/units.ts)／[expression-repair.ts](domain/expression-repair.ts)：维度与内容保持校验。
+- [WorkflowPanel.tsx](ui/WorkflowPanel.tsx)：个人任务、澄清和输入缺口的可信操作。
+
+实际预算、恢复、版本与有限支持范围见[工作流说明](../docs/agent-workflow-runtime.md)。

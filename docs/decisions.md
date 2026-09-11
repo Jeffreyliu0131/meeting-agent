@@ -123,3 +123,8 @@ C07确认的是允许可靠性边界，不是“说话人识别已测试不行�
 
 - 用户确认按①不混淆事实、②不漏掉变化、③不带着遗漏结束的顺序优化。随后明确授权实现、验证，通过后提交并推送 GitHub。该外部操作授权仅属于本轮任务。
 - 工程落地：结构化证据和条件、上下文隔离、依赖失效标记与保留历史、确定性结束核对。具体限制见[规范](agent-reliability.md)，实施与验证见[交接](sessions/2026-09-12-agent-reliability.md)。
+
+
+## 2026-09-12 研究后的业务复核与实施授权
+
+用户要求在研究基础上明确业务对应和具体实现，完成文档后新建一个Session实施，并确保交接与验证质量。本轮工程选择局部LangGraph工作流、可信提交／恢复、主动本会议检索、独立个人推演、低打扰澄清和表达修复；具体范围见[任务书](agent-workflow-implementation.md)，验收见[场景](agent-workflow-acceptance.md)。上述工程选择已由实施任务接入本地工作树，采用依据与边界见[ADR-005](adr/005-bounded-agent-workflows.md)及[运行时说明](agent-workflow-runtime.md)；真实效果尚未验收。原实施请求未授权真实采音、付费供应商调用或Git交付；用户随后明确授权高质量验收通过后提交并推送GitHub，见[验收交付记录](sessions/2026-09-12-agent-workflow-acceptance-push.md)。真实采音、付费模型和部署仍未授权。

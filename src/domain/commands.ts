@@ -126,11 +126,30 @@ export function reduceMeeting(
       let requestContext: Segment['requestContext'];
       if (command.type === 'ask' && p.context) {
         const context = z
-          .object({ artifactId: z.string(), artifactRev: z.number().int().positive() })
+          .object({
+            artifactId: z.string().optional(),
+            artifactRev: z.number().int().positive().optional(),
+            objectRefs: z
+              .array(z.object({ id: z.string(), rev: z.number().int().positive() }).strict())
+              .max(10)
+              .optional(),
+          })
           .strict()
           .parse(p.context);
-        if (!m.artifacts.some((a) => a.id === context.artifactId && a.rev === context.artifactRev))
+        if (
+          context.artifactId &&
+          !m.artifacts.some((a) => a.id === context.artifactId && a.rev === context.artifactRev)
+        )
           throw new Error('ARTIFACT_NOT_FOUND');
+        if (
+          context.objectRefs?.some(
+            (r) =>
+              ![...m.objects, ...(m.objectHistory ?? [])].some(
+                (o) => o.id === r.id && o.rev === r.rev,
+              ),
+          )
+        )
+          throw new Error('OBJECT_NOT_FOUND');
         requestContext = context;
       }
       const segment: Segment = {
@@ -153,6 +172,45 @@ export function reduceMeeting(
       m.inputVersion++;
       schedule = true;
       result = segment;
+      break;
+    }
+    case 'cancelRequest': {
+      const requestId = z.string().parse(p.requestId);
+      const source = m.segments.find((s) => s.id === requestId && s.kind === 'request');
+      if (!source) throw new Error('REQUEST_NOT_FOUND');
+      for (const job of m.workflowJobs ?? [])
+        if (job.requestId === requestId) {
+          job.cancelled = true;
+          job.expressionState = 'cancelled';
+          if (job.status !== 'succeeded') job.status = 'cancelled';
+          job.fence++;
+          job.leaseUntil = 0;
+        }
+      m.quarantinedSources ??= {};
+      m.quarantinedSources[requestId] = source.rev;
+      m.expressionJobs = m.expressionJobs?.filter((j) => j.branchId !== requestId);
+      break;
+    }
+    case 'answerClarification':
+    case 'cancelClarification': {
+      const clarification = m.clarifications?.find((c) => c.id === p.clarificationId);
+      if (!clarification || clarification.status !== 'pending')
+        throw new Error('CLARIFICATION_NOT_PENDING');
+      clarification.status = command.type === 'answerClarification' ? 'answered' : 'cancelled';
+      if (command.type === 'answerClarification') {
+        clarification.answer = limited.parse(p.answer);
+        // An individual's answer stays in a personal request, never meeting speech.
+        const response = reduceMeeting(m, {
+          ...command,
+          type: 'ask',
+          payload: {
+            text: clarification.question + '\n' + clarification.answer,
+            context: { objectRefs: clarification.candidates },
+          },
+        });
+        schedule = response.schedule;
+        result = response.result;
+      }
       break;
     }
     case 'correct': {

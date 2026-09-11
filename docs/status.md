@@ -1,6 +1,6 @@
 # 当前状态与接手入口
 
-更新：2026-09-12 00:17（Asia/Singapore）。维护规则见 [AGENTS.md](../AGENTS.md) 与 [session 流程](sessions/README.md)。本页是工作快照，开始任务时须核对工作树和相关交接；不是实时监控。
+更新：2026-09-12 01:47（Asia/Singapore）。维护规则见 [AGENTS.md](../AGENTS.md) 与 [session 流程](sessions/README.md)。本页是工作快照，开始任务时须核对工作树和相关交接；不是实时监控。
 
 ## 当前认知
 
@@ -20,6 +20,10 @@
 
 | 工作 | 核实到的状态 | 接手记录 |
 |---|---|---|
+| Agent工作流验收与推送 | 独立验收修正完成：86项单元／11项Electron、双端包及macOS烟测通过；准备推送 | [本轮记录](sessions/2026-09-12-agent-workflow-acceptance-push.md) |
+| Agent工作流实施 | W1–W6本地实现完成，81项单元／11项Electron通过；双端目录包及macOS临时包烟测通过，未提交、未替换日常包；真实效果待验 | [实施记录](sessions/2026-09-12-agent-workflow-implementation.md)／[证据表](../tests/results/agent-workflow-validation.md) |
+| Agent业务对齐与实现交接 | 任务书与25项验收完成，已派发并核对接手；代码／验证状态由实现任务维护 | [交接](sessions/2026-09-12-business-aligned-handoff.md)／[任务书](agent-workflow-implementation.md) |
+| Agent 架构与 LangGraph 研究 | 报告与摘要完成；后续范围已收敛并派发，研究不代表实现完成 | [研究记录](sessions/2026-09-12-agent-architecture-research.md)／[摘要](research/2026-09-12-agent-architecture-summary.md) |
 | Agent 可靠性 | 三项实现完成，58项单元／10项桌面通过；8e0d2eb已推送GitHub main，真实模型待验收 | [本轮实现](sessions/2026-09-12-agent-reliability.md) |
 | 桌面入口图标 | 新图标／透明边缘／五态已接入；40项单元、9项桌面通过，本地.app已重建，120f77c已推送origin/main | [图标迭代](sessions/2026-09-12-launcher-icon.md) |
 | 前端文档对齐 | 已完成正文同步、实现边界和历史路由检查；仅文档，随后随120f77c交付 | [文档同步](sessions/2026-09-12-frontend-doc-sync.md) |
@@ -36,7 +40,7 @@
 
 - 真实模型／转写凭证在首版交付时缺失。当前配置是否变化需在获授权的实现任务中核对可用性，不读取或展示密钥值；没有新的真实结果前保持未验收。
 - 线上本机＋远端声音、多人重叠发言与归属、中英质量、真实时延／成本、Windows 真机体验仍需专门证据。
-- 首次仅音频设置、采集恢复入口与新视觉已接入；剩余目标包括独立麦克风测试、对象级推演上下文、独立理解反馈与通用重排确认机制，见[实现边界](frontend-spec.md#11-当前实现与目标差距)。真实设备与完整审美／无障碍验收不由合成检查代替。
+- 首次仅音频设置、采集恢复入口与新视觉已接入；剩余目标包括独立麦克风测试、独立理解反馈与通用重排确认机制，见[实现边界](frontend-spec.md#11-当前实现与目标差距)。真实设备与完整审美／无障碍验收不由合成检查代替。
 - 官方比赛赛程、评分、提交方式与团队分工没有在本页发现新的核验记录；需要时回到官方材料或用户确认。
 
 ## 建议接续顺序

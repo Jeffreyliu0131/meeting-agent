@@ -1793,3 +1793,25 @@ body[data-role='preview'] {
 .meeting-review li p {
   margin: 6px 0;
 }
+
+.workflow-panel {
+  overflow-wrap: anywhere;
+}
+.workflow-panel form {
+  margin-top: 14px;
+}
+.workflow-panel label {
+  display: block;
+  margin-bottom: 8px;
+}
+.workflow-panel button + button {
+  margin-inline-start: 8px;
+}
+.workflow-panel p button {
+  margin: 4px 0 4px 8px;
+}
+.object-context-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

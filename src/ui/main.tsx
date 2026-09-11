@@ -1,3 +1,4 @@
+import { WorkflowPanel } from './WorkflowPanel';
 import launcherArtwork from './assets/launcher-dialogue-v1.png';
 import { launcherIndicator } from './launcher-status';
 import {
@@ -75,9 +76,11 @@ function App() {
     [sending, setSending] = useState(false),
     [starting, setStarting] = useState(false),
     [askOpen, setAskOpen] = useState(false),
-    [askContext, setAskContext] = useState<{ artifactId: string; artifactRev: number } | null>(
-      null,
-    ),
+    [askContext, setAskContext] = useState<{
+      artifactId: string;
+      artifactRev: number;
+      objectRefs?: Ref[];
+    } | null>(null),
     [renaming, setRenaming] = useState(false),
     [titleDraft, setTitleDraft] = useState('');
   const [audioSetup, setAudioSetup] = useState(false);
@@ -800,6 +803,17 @@ function App() {
                 )}
               </div>
             )}
+            <WorkflowPanel
+              meeting={current}
+              locale={locale}
+              command={(type, payload) => command(type as any, payload)}
+              onSources={openSources}
+              onRebase={(text) => {
+                setAsk(text);
+                setAskOpen(true);
+                if (artifact) setAskContext({ artifactId: artifact.id, artifactRev: artifact.rev });
+              }}
+            />
             {current.status === 'active' && artifact && (
               <div className="explore-entry">
                 <button
@@ -840,6 +854,33 @@ function App() {
                     </p>
                   )}
                 <p className="explore-note">{t('design.personalNote')}</p>
+                <div className="object-context-options">
+                  {artifact.objectIds
+                    .map((id) => current.objects.find((o) => o.id === id))
+                    .filter((o) => !!o)
+                    .map((o) => (
+                      <button
+                        type="button"
+                        key={o.id}
+                        aria-pressed={askContext?.objectRefs?.some((r) => r.id === o.id) ?? false}
+                        onClick={() =>
+                          setAskContext((previous) => {
+                            const refs = previous?.objectRefs ?? [];
+                            return {
+                              artifactId: previous?.artifactId ?? artifact.id,
+                              artifactRev: previous?.artifactRev ?? artifact.rev,
+                              objectRefs: refs.some((r) => r.id === o.id)
+                                ? refs.filter((r) => r.id !== o.id)
+                                : [...refs, { id: o.id, rev: o.rev }],
+                            };
+                          })
+                        }
+                      >
+                        {o.title}
+                        {askContext?.objectRefs?.some((r) => r.id === o.id) ? ' ×' : ' +'}
+                      </button>
+                    ))}
+                </div>
                 {askContext && (
                   <div className="context-chip">
                     <FileText size={13} />

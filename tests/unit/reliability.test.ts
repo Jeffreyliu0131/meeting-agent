@@ -295,7 +295,11 @@ test('memory overflow is explicit instead of silently dropping active obligation
     m.objects.push({ ...object('c' + i, '约束'.repeat(150), id, 'constraint'), rev: 1 });
   }
   source(m, 'last', '继续');
-  assert.throws(() => buildContextBatch(m, 8000), /CONTEXT_MEMORY_LIMIT/);
+  const batch = buildContextBatch(m, 8000);
+  assert.ok(batch.bytes <= 8000);
+  assert.equal(batch.meeting.contextIndex?.coverage.incompleteEvidence, true);
+  assert.equal(m.objects.length, 82);
+  assert.ok(batch.meeting.segments.some((s) => s.id === 'last'));
 });
 
 test('correcting a source marks dependent tasks and working views stale transitively', () => {

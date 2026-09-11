@@ -33,6 +33,10 @@ export class SQLiteStore implements StorePort {
     this.db.exec(
       'PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; CREATE TABLE IF NOT EXISTS state (id INTEGER PRIMARY KEY CHECK(id=1), schema_version INTEGER NOT NULL, payload TEXT NOT NULL); CREATE TABLE IF NOT EXISTS commands (id TEXT PRIMARY KEY, hash TEXT NOT NULL, result TEXT NOT NULL);',
     );
+    this.db
+      .exec(`CREATE TABLE IF NOT EXISTS workflow_jobs (id TEXT PRIMARY KEY, meeting_id TEXT NOT NULL, batch_hash TEXT NOT NULL, fence INTEGER NOT NULL, status TEXT NOT NULL, payload TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS workflow_proposals (job_id TEXT PRIMARY KEY, hash TEXT NOT NULL, payload TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS workflow_success (meeting_id TEXT NOT NULL, batch_hash TEXT NOT NULL, job_id TEXT NOT NULL UNIQUE, PRIMARY KEY(meeting_id,batch_hash));`);
   }
   load() {
     const row = this.db.prepare('SELECT payload,schema_version FROM state WHERE id=1').get();
@@ -67,6 +71,47 @@ export class SQLiteStore implements StorePort {
           'INSERT INTO state(id,schema_version,payload) VALUES(1,1,?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload',
         )
         .run(JSON.stringify({ meetings, preferences }));
+      for (const meeting of meetings)
+        for (const job of meeting.workflowJobs ?? []) {
+          const previous = this.db
+            .prepare('SELECT fence,status FROM workflow_jobs WHERE id=?')
+            .get(job.id);
+          if (
+            previous &&
+            (Number(previous.fence) > job.fence ||
+              (previous.status === 'succeeded' && job.status !== 'succeeded'))
+          )
+            throw new Error('JOB_FENCED');
+          if (job.proposal) {
+            const payload = JSON.stringify(job.proposal);
+            const old = this.db
+              .prepare('SELECT hash,payload FROM workflow_proposals WHERE job_id=?')
+              .get(job.id);
+            if (old && (old.hash !== job.proposalHash || old.payload !== payload))
+              throw new Error('PROPOSAL_MUTATED');
+            this.db
+              .prepare(
+                'INSERT OR IGNORE INTO workflow_proposals(job_id,hash,payload) VALUES(?,?,?)',
+              )
+              .run(job.id, job.proposalHash!, payload);
+          }
+          this.db
+            .prepare(
+              'INSERT INTO workflow_jobs(id,meeting_id,batch_hash,fence,status,payload) VALUES(?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET fence=excluded.fence,status=excluded.status,payload=excluded.payload',
+            )
+            .run(job.id, meeting.id, job.hash, job.fence, job.status, JSON.stringify(job));
+          if (job.status === 'succeeded') {
+            const success = this.db
+              .prepare('SELECT job_id FROM workflow_success WHERE meeting_id=? AND batch_hash=?')
+              .get(meeting.id, job.hash);
+            if (success && success.job_id !== job.id) throw new Error('DUPLICATE_BATCH_COMMIT');
+            this.db
+              .prepare(
+                'INSERT OR IGNORE INTO workflow_success(meeting_id,batch_hash,job_id) VALUES(?,?,?)',
+              )
+              .run(meeting.id, job.hash, job.id);
+          }
+        }
       if (command)
         this.db
           .prepare('INSERT INTO commands(id,hash,result) VALUES(?,?,?)')

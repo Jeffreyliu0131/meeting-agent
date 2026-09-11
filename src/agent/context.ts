@@ -17,11 +17,13 @@ export function sourceVersion(s: Segment) {
   return s.version ?? s.order;
 }
 export function pendingSegments(m: Meeting) {
-  return latestSegments(m).filter((s) =>
-    m.processedSources
-      ? m.processedSources[s.id] !== s.rev
-      : sourceVersion(s) > m.understoodVersion,
-  );
+  return latestSegments(m)
+    .filter((s) => m.quarantinedSources?.[s.id] !== s.rev)
+    .filter((s) =>
+      m.processedSources
+        ? m.processedSources[s.id] !== s.rev
+        : sourceVersion(s) > m.understoodVersion,
+    );
 }
 const bytes = (x: unknown) => new TextEncoder().encode(JSON.stringify(x)).length;
 function terms(text: string) {
@@ -135,7 +137,43 @@ export function buildContextBatch(m: Meeting, maxBytes = 28000): ContextBatch {
   projected.segments = [...sources.values()];
   // Only one relevant current artifact is included. The provider sends a compact index separately.
   const latest = new Map(m.artifacts.map((a) => [a.id, a]));
+  projected.contextIndex = {
+    artifacts: [...latest.values()].slice(0, 100).map((a) => ({
+      id: a.id,
+      rev: a.rev,
+      purposeKey: a.purposeKey,
+      question: a.question,
+      objectIds: a.objectIds,
+    })),
+    objects: m.objects.slice(0, 150).map((o) => ({
+      id: o.id,
+      rev: o.rev,
+      kind: o.kind,
+      title: o.title,
+      lifecycle: o.lifecycle,
+      reviewRequired: o.reviewRequired,
+    })),
+    coverage: {
+      total: m.objects.length + latest.size,
+      loaded: Math.min(m.objects.length, 150) + Math.min(latest.size, 100),
+      hasMore: m.objects.length > 150 || latest.size > 100,
+    },
+  };
   const requestContext = selected.find((s) => s.kind === 'request')?.requestContext;
+  for (const ref of requestContext?.objectRefs ?? []) {
+    const version = [...(m.objectHistory ?? []), ...m.objects].find(
+      (o) => o.id === ref.id && o.rev === ref.rev,
+    );
+    if (!version) throw new Error('REQUEST_OBJECT_NOT_FOUND');
+    projected.objects = projected.objects.filter((o) => o.id !== ref.id).concat(version);
+    essentialIds.add(ref.id);
+    for (const sourceRef of objectSources(version)) {
+      const source = m.segments.find((s) => s.id === sourceRef.id && s.rev === sourceRef.rev);
+      if (source && !projected.segments.some((s) => s.id === source.id && s.rev === source.rev))
+        projected.segments.push(source);
+      mandatoryIds.add(sourceRef.id);
+    }
+  }
   const requested = requestContext
     ? m.artifacts.find(
         (a) => a.id === requestContext.artifactId && a.rev === requestContext.artifactRev,
@@ -163,6 +201,37 @@ export function buildContextBatch(m: Meeting, maxBytes = 28000): ContextBatch {
     const i = projected.segments.map((s) => mandatoryIds.has(s.id)).lastIndexOf(false);
     projected.segments.splice(i, 1);
   }
+  // Keep a paged directory when full obligation evidence exceeds one context.
+  // Omitted evidence is explicitly incomplete, never a withdrawal of the stored condition.
+  while (size() > maxBytes && projected.objects.length && !requestContext?.objectRefs?.length) {
+    projected.contextIndex!.coverage.incompleteEvidence = true;
+    projected.objects.pop();
+    projected.relations = projected.relations.filter(
+      (r) =>
+        projected.objects.some((o) => o.id === r.from) &&
+        projected.objects.some((o) => o.id === r.to),
+    );
+    const required = new Set([
+      ...selected.map((s) => s.id),
+      ...projected.objects.flatMap(objectSources).map((r) => r.id),
+      ...m.decisions
+        .filter((d) => d.scope === 'meeting')
+        .flatMap((d) => d.sources)
+        .map((r) => r.id),
+    ]);
+    projected.segments = projected.segments.filter((s) => required.has(s.id));
+  }
+  while (
+    size() > maxBytes &&
+    projected.contextIndex &&
+    (projected.contextIndex.objects.length || projected.contextIndex.artifacts.length)
+  ) {
+    const index = projected.contextIndex;
+    if (index.objects.length) index.objects.pop();
+    else index.artifacts.pop();
+    index.coverage.hasMore = true;
+    index.coverage.loaded = index.objects.length + index.artifacts.length;
+  }
   if (size() > maxBytes)
     throw new Error(
       requested
@@ -179,6 +248,19 @@ export function buildContextBatch(m: Meeting, maxBytes = 28000): ContextBatch {
         ? Math.max(...selected.map(sourceVersion))
         : m.understoodVersion;
   projected.segments = latestSegments(projected);
+  if (scope === 'personal') {
+    const fixed = [
+      ...(requested?.sources ?? []),
+      ...projected.objects
+        .filter((o) => requestContext?.objectRefs?.some((r) => r.id === o.id && r.rev === o.rev))
+        .flatMap(objectSources),
+    ];
+    for (const ref of fixed) {
+      const original = m.segments.find((s) => s.id === ref.id && s.rev === ref.rev);
+      if (original)
+        projected.segments = projected.segments.filter((s) => s.id !== ref.id).concat(original);
+    }
+  }
   return {
     meeting: projected,
     accepted: selected.map((s) => ({ id: s.id, rev: s.rev })),
@@ -189,8 +271,16 @@ export function buildContextBatch(m: Meeting, maxBytes = 28000): ContextBatch {
 export function scopedContext(meeting: Meeting, scope: 'meeting' | 'personal'): Meeting {
   const m = structuredClone(meeting);
   m.contextScope = scope;
+  delete m.workflowJobs;
+  delete m.failedExpression;
+  m.expressionJobs = [];
+  m.calls = [];
   if (scope === 'meeting') {
     m.segments = m.segments.filter((s) => s.kind !== 'request');
+    m.clarifications = m.clarifications?.filter((c) => !c.branchId);
+    m.objectHistory = m.objectHistory?.filter((o) =>
+      objectSources(o).every((r) => m.segments.some((s) => s.id === r.id)),
+    );
     m.artifacts = m.artifacts.filter((a) => (a.scope ?? 'meeting') === 'meeting');
     m.decisions = m.decisions.filter((d) => d.scope === 'meeting');
     m.scenarios = [];
@@ -212,6 +302,9 @@ export function contextPayload(meeting: Meeting) {
   const m = scopedContext(meeting, meeting.contextScope ?? 'meeting');
   const current = m.artifacts.at(-1);
   return {
+    clarifications: m.clarifications?.filter((c) => c.status === 'pending') ?? [],
+    personalRequest:
+      m.contextScope === 'personal' ? (m.segments.find((s) => s.kind === 'request') ?? null) : null,
     scope: m.contextScope,
     outputLocale: m.outputLocale,
     timezone: m.timezone,
@@ -238,18 +331,22 @@ export function contextPayload(meeting: Meeting) {
       values: s.values,
       result: s.result,
     })),
-    artifactIndex: m.artifacts.map((a) => ({
-      id: a.id,
-      rev: a.rev,
-      purposeKey: a.purposeKey,
-      question: a.question,
-      blocks: a.blocks.map((b) => ({
-        id: b.id,
-        type: b.type,
-        title: b.title,
-        objectIds: b.objectIds,
+    toolObservations: m.toolObservations ?? [],
+    memoryIndex: m.contextIndex ?? null,
+    artifactIndex:
+      m.contextIndex?.artifacts ??
+      m.artifacts.map((a) => ({
+        id: a.id,
+        rev: a.rev,
+        purposeKey: a.purposeKey,
+        question: a.question,
+        blocks: a.blocks.map((b) => ({
+          id: b.id,
+          type: b.type,
+          title: b.title,
+          objectIds: b.objectIds,
+        })),
       })),
-    })),
     currentArtifact: current
       ? {
           id: current.id,

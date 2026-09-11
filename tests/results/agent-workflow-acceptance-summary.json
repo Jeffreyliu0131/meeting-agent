@@ -1,0 +1,351 @@
+{
+  "baseline": "a7d577195360201f6c8595def79587f546ec6790",
+  "generatedAt": "2026-09-11T17:47:29.169980+00:00",
+  "scope": "Independent acceptance of bounded workflow implementation; synthetic data only",
+  "unit": {
+    "passed": 86,
+    "failed": 0,
+    "durationMs": 30803.989917,
+    "cases": [
+      "review: historical source retrieval can inform a successful current batch",
+      "review: an invalid persisted clarification cannot poison subsequent independent input",
+      "review: historical reads still reject a head changed after retrieval",
+      "review: production context capacity accounts for schema overhead before a call",
+      "review: legacy IDs beginning new_ stay stable and cannot switch entity kind",
+      "business contracts and domain do not depend on desktop, persistence, provider or UI",
+      "frontend does not import secrets or trusted service implementation",
+      "isolates events, saves immutable source revisions, never restores capture",
+      "idempotency binds IDs to payloads and source events",
+      "late model result cannot overwrite a correction or new output locale",
+      "no_change advances received understanding without a new artifact",
+      "model failure preserves original source and existing artifacts",
+      "render failure still commits understanding, keeps previous artifact",
+      "decimal arithmetic, unknown inputs, bounds and formula validation",
+      "personal scenarios and decisions cannot become meeting consensus",
+      "capture epochs and identity remain explicit",
+      "unsafe generated content is rejected; passive content survives",
+      "schema rejects invented consensus and missing graph bindings",
+      "storage failure does not report a command as saved",
+      "English and Chinese additional UI keys match",
+      "continuous appended input does not starve an in-flight understanding batch",
+      "already-received audio may finish after end; new audio cannot enter",
+      "diagram direction must match its cited semantic relation",
+      "model relations cannot claim trusted tool provenance",
+      "launcher reports actual capture readiness, pause and errors independently",
+      "service failure overrides an outdated green capture snapshot and its text",
+      "understanding commits while preview is held, and new speech is processed independently",
+      "complex generation runs after understanding and does not block subsequent batches",
+      "a source correction invalidates a preview result without losing the correction",
+      "out-of-order dual-channel responses retain capture chronology and receipt versions",
+      "transcription queue survives a slow call, preserves per-channel order and reports overflow",
+      "queue failure is an explicit gap and does not discard subsequent audio",
+      "long-meeting retrieval recalls old conditions within a bounded prompt",
+      "pending inputs are batched without silent truncation or skipped watermarks",
+      "usage is recorded even when the provider returns invalid output or the result is superseded",
+      "budget denial stops provider calls while keeping new input available",
+      "patch preserves unchanged blocks and rejects stale bases",
+      "graph branching shares a node and preserves positions on append",
+      "audio timing is validated before work is accepted",
+      "agent patch is applied through the service and preserves untouched content",
+      "personal exploration cannot replace meeting objects or reuse the meeting artifact identity",
+      "a failed preview does not poison the next valid visual update",
+      "system language and legacy preferences migrate without changing an active meeting language",
+      "user rename wins over an in-flight automatic title proposal",
+      "start intent snapshots configured audio and never silently selects manual input",
+      "background understanding excludes personal requests, artifacts, choices and trial values",
+      "personal exploration retains an explicitly bound context without rewriting meeting state",
+      "conditional statements require conditions; owners and times require actual quoted words",
+      "existing conditions cannot be removed with old evidence or omission",
+      "explicit new speech can revise meaning, preserving prior conditions in history",
+      "active old conditions survive unrelated discussion and missing lexical overlap",
+      "memory overflow is explicit instead of silently dropping active obligations",
+      "correcting a source marks dependent tasks and working views stale transitively",
+      "dependency update requires rechecking dependents even when their own source is unchanged",
+      "meeting decision cannot cite personal requests, including mixed evidence",
+      "whole-meeting closeout retains conditions, unresolved questions, missing commitments and gaps",
+      "end waits for interpretation and late accepted audio; report persists across restart",
+      "provider failure leaves an incomplete closeout and retry can finish it",
+      "unchanged structured meaning does not churn revisions or invalidate dependents",
+      "stale conclusions cannot clear review by merely repeating their old source",
+      "old recorded decisions retain their original evidence in background context",
+      "late audio counts stay with the ended event while another meeting is active",
+      "restored legacy relations propagate review even when the model is unavailable",
+      "W1 new refs map cross references, old IDs remain stable, dangling refs reject",
+      "W1 read set allows unrelated append but rejects read revision and expired fencing",
+      "W1 saved immutable proposal recovers after domain save failure without another model call",
+      "W1 failed input exhausts budget, stays visible and no longer blocks independent input",
+      "W2 versioned Chinese short-word search, neighbor pages and explicit missing coverage",
+      "W2 active evidence branch executes before second interpretation and persists observations",
+      "W3 personal tool wait does not hold meeting lock; cancellation rejects late result",
+      "W3 reserved understanding capacity survives occupied background lanes",
+      "W4 clarification searches first, persists one question, personal answer never creates meeting speech",
+      "W5 purpose identity includes scope, branch and ordered object roles",
+      "W5 dimension mismatch and content-changing repair are rejected",
+      "W3 a real 30-second synthetic tool wait permits meeting completion before returning",
+      "W3 request baseline persists at send time through source correction and restart",
+      "W4 later explicit evidence resolves persisted clarification without promoting personal answers",
+      "W5 preview error reaches one repair and preserves the submitted content",
+      "W5 distinct personal requests cannot reuse each other artifact ID even with same purpose",
+      "W1 object aliases never rewrite source IDs or formula parameters",
+      "W5 computed chart binding verifies host result identity, unit and value",
+      "W2 meeting retrieval excludes legacy personal object history and clarification",
+      "W1 CAS re-planning shares the same source batch budget instead of resetting it",
+      "W1 interruption before proposal persistence resumes within the original call budget",
+      "W1 interruption after atomic commit restores success without duplicate model work",
+      "W3 personal artifact keeps the bound object revision when the live object changes"
+    ]
+  },
+  "electron": {
+    "passed": 11,
+    "failed": 0,
+    "durationMs": 53275.76,
+    "tests": [
+      {
+        "file": "desktop.spec.ts",
+        "title": "real Electron: event, manual original source, honest missing model, correction, UI locale, end and restore",
+        "status": "expected",
+        "runs": [
+          {
+            "status": "passed",
+            "durationMs": 3847,
+            "errors": []
+          }
+        ]
+      },
+      {
+        "file": "desktop.spec.ts",
+        "title": "native launcher opens one workspace; hiding does not stop the event; hover uses real windows",
+        "status": "expected",
+        "runs": [
+          {
+            "status": "passed",
+            "durationMs": 1082,
+            "errors": []
+          }
+        ]
+      },
+      {
+        "file": "desktop.spec.ts",
+        "title": "UI cannot impersonate audio adapter; no frame gets filesystem or arbitrary IPC; responsive shell",
+        "status": "expected",
+        "runs": [
+          {
+            "status": "passed",
+            "durationMs": 725,
+            "errors": []
+          }
+        ]
+      },
+      {
+        "file": "desktop.spec.ts",
+        "title": "meeting library filters, search recovery and settings keyboard loop",
+        "status": "expected",
+        "runs": [
+          {
+            "status": "passed",
+            "durationMs": 847,
+            "errors": []
+          }
+        ]
+      },
+      {
+        "file": "desktop.spec.ts",
+        "title": "launcher uses transparent chrome and distinct synthetic capture indicators with truthful labels",
+        "status": "expected",
+        "runs": [
+          {
+            "status": "passed",
+            "durationMs": 755,
+            "errors": []
+          }
+        ]
+      },
+      {
+        "file": "provider-contract.spec.ts",
+        "title": "provider transport, isolated preflight, generated structure, source binding, updates and personal calculator",
+        "status": "expected",
+        "runs": [
+          {
+            "status": "passed",
+            "durationMs": 5093,
+            "errors": []
+          }
+        ]
+      },
+      {
+        "file": "provider-contract.spec.ts",
+        "title": "synthetic oscillator keeps capturing through a slow STT response and stops cleanly",
+        "status": "expected",
+        "runs": [
+          {
+            "status": "passed",
+            "durationMs": 19830,
+            "errors": []
+          }
+        ]
+      },
+      {
+        "file": "provider-contract.spec.ts",
+        "title": "text, timeline, chart, SVG and passive HTML render without a privileged bridge",
+        "status": "expected",
+        "runs": [
+          {
+            "status": "passed",
+            "durationMs": 2750,
+            "errors": []
+          }
+        ]
+      },
+      {
+        "file": "provider-contract.spec.ts",
+        "title": "normal meeting entry saves setup once, starts audio in one intent and reveals exploration only after content",
+        "status": "expected",
+        "runs": [
+          {
+            "status": "passed",
+            "durationMs": 8142,
+            "errors": []
+          }
+        ]
+      },
+      {
+        "file": "reliability.spec.ts",
+        "title": "conditional meeting record survives personal exploration, end, sources and restart",
+        "status": "expected",
+        "runs": [
+          {
+            "status": "passed",
+            "durationMs": 7065,
+            "errors": []
+          }
+        ]
+      },
+      {
+        "file": "workflow.spec.ts",
+        "title": "workflow: object-bound exploration, live progress, cancellation and persistent clarification",
+        "status": "expected",
+        "runs": [
+          {
+            "status": "passed",
+            "durationMs": 2677,
+            "errors": []
+          }
+        ]
+      }
+    ],
+    "visualRerun": {
+      "passed": 1,
+      "failed": 0,
+      "tests": [
+        {
+          "file": "workflow.spec.ts",
+          "title": "workflow: object-bound exploration, live progress, cancellation and persistent clarification",
+          "status": "expected",
+          "runs": [
+            {
+              "status": "passed",
+              "durationMs": 2774,
+              "errors": []
+            }
+          ]
+        }
+      ],
+      "scope": "Screenshot-only paint wait added after full suite; production code unchanged, affected case rerun"
+    }
+  },
+  "build": "passed",
+  "format": "passed",
+  "diffCheck": "passed",
+  "packages": "agent-acceptance-packages.json",
+  "realModel": "not_tested",
+  "realAudio": "not_tested",
+  "windowsRuntime": "not_tested",
+  "sourceHashes": {
+    "docs/design/tokens.json": "d11548a8df178530bc121e5d1e94cf8a17e2d06fac0236e272564f0736a8c82f",
+    "docs/design/ui-copy.json": "ca2a826597af65124b2a7bff6a6845cbb7014e30f1364fa246333aa1a54e104f",
+    "package-lock.json": "02b33c60a737290c1fb7599bbe8a61c212033cb8874ff67f9dcccf9452bd511f",
+    "package.json": "f27973eeae5071c32059dbbe905a96b28123ccc6251c1e65c62660422313c48f",
+    "playwright.config.ts": "d5ae8ebd1b2ffbaa747bceaea6c516151cc4c1e7acd88aad64f7dd0e38911636",
+    "scripts/build.mjs": "34e488dd65f492e8ab058b3d832e6cd9e1611d06d19f704527a3162dd34356b7",
+    "scripts/check-docs.py": "baca7e91ac1bb2857f4b807ff666f3eccd1e5007f837d3d771213cc9b3f08c3c",
+    "scripts/microphone-probe.mjs": "8ab8d73ef5cbeea678ef31acaaf257f59119873012cde4fec5dfbf96647c5e9d",
+    "scripts/model-eval.ts": "07276912d02a74417862af60fb672a08edce98ee8ff27c47b098c55221e37880",
+    "scripts/package-smoke.mjs": "ec57ca0251c51eb55a9bf649d5604634b9c19ecbbbeca9a93ce962dd43aa3275",
+    "scripts/stream-eval.ts": "ef5e75ce1fe2e5b8bfec4f0f881b90d286ae6aace520aae6aa9719e7169d7276",
+    "scripts/workflow-eval.ts": "93b63462aa3c02d4d08d20bb89c25f8c43d34aa2498d3d681dacb379724e489a",
+    "src/README.md": "2c1ef0f1bac5e4e2c432f7eec30eb581ce0f6c4568ebbd303c283a6e20617e05",
+    "src/agent/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/agent/context.ts": "6b5b9615cb265ee667d45c5858b7f3da6593a870dcae1e911e3b0e76299f75b2",
+    "src/agent/provider.ts": "87232cceb59d6bc67d267bbf08ff3e1492248b484cec655fbce22977b8b8aab7",
+    "src/agent/tools.ts": "e7d203954c30139f95a0a7cac2b92d2e28946be27d0123602c766a8fc8bbb8bf",
+    "src/agent/workflow.ts": "a9acc72be1d744018fc6e22f6ad5feef7a0b3beffff99417640be77797cab8cb",
+    "src/contracts/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/contracts/model.ts": "ea36f951fe762be9e2fcfb691f7576b8c14404cecf2dbc7d53c483ece745f18b",
+    "src/contracts/render-report.ts": "f868872b1af76e185ce8a341d456e3ca6a407fe2754196d0bb10a391a9eedcf2",
+    "src/contracts/workflow.ts": "3bcbf0261137ba24494179944ead2d6790adce5e03d8f1dfd254da89a7914112",
+    "src/desktop/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/desktop/main.ts": "9cebd3e84016423cdb7049f30cf87729305daf71f08733cd33b35b1fdc87fc8e",
+    "src/desktop/platform.ts": "88e8dd4c25fb8d9a0484d3ec28178c72868b0c98c19e12046b2d1c7e5a55f933",
+    "src/desktop/preflight.ts": "8441ea106f700413afcde3ba55f46b2e898de2fd09fcb474f48f53dca982746c",
+    "src/desktop/preload.ts": "f207401f068059d06cb0371f9ea6b09b91d762777ad6a936d445a2af9d17ddf3",
+    "src/domain/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/domain/artifacts.ts": "0ed7e009f6e242fdf848610c89854d09ae2ac5357071ad5f86c467982748d9a5",
+    "src/domain/calculator.ts": "e8b9d5a0a5d893e4ddb833a9f900f350482093e731d90a6649a35fe35a73ad3d",
+    "src/domain/closeout.ts": "61cca1f35798fd8d0766743e4bb384687742c5ff697914a1dbef9a7e8d8d04b5",
+    "src/domain/commands.ts": "b46ce2405d48760d49aa9fa6484a905a33d1fcb4e275a87b3414a8851a0c99ac",
+    "src/domain/evidence.ts": "a420acae9d723ff6d77021c57e42159d9b3957074ec2812132a9a9f38a85e832",
+    "src/domain/expression-repair.ts": "0d23c68d67669d34f03532e82df4fce21066b5576792411649de07fa94ad3e91",
+    "src/domain/meaning.ts": "44310b5ec2883c126e7b3ef4b1bcbd7a07d8b50e3a2079564427c897d9573ce4",
+    "src/domain/preferences.ts": "c60d91f6841e3df5a354beed05ce28d1c6da76f87604f9faee835b22c9c56231",
+    "src/domain/units.ts": "c566f2afde798dbbbf17f6728f783b7ff99f4b85f3a725c2f463e3486037b89b",
+    "src/integrations/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/integrations/audio-leases.ts": "2813176cb44cbbf4c1daecf0f8618d6ac826abf449ecb1474c2967b7b726cda2",
+    "src/integrations/capture.ts": "71093fcde1b34f21fd59a61004f9f8148ea795c2b99ff1b22f381d48838b2ec1",
+    "src/integrations/transcription-queue.ts": "b9898389548913f27460b46afbc88f3d21355fd759bac32d725a63ef9245888b",
+    "src/renderers/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/renderers/ArtifactView.tsx": "5ed33e0899ed59812add0be98473a4423581521f2ceb369d33eca5a2c7f733e8",
+    "src/renderers/RelationshipGraph.tsx": "36f68cefa24d9fd592320e7c350eac5c2f4abed291d01be49c6465a154988790",
+    "src/renderers/graph-layout.ts": "9b276e0f9772d371310a296b6e5ab6cdde9ac22266597e63039138e29d314581",
+    "src/renderers/preflight.tsx": "4f4e338726a0af1878a94f302a03e325641d557f87f6ca569553e45088bd933b",
+    "src/renderers/validate.ts": "42b8596dc421b878c14e27c2bbbb38253a2628ebc28abbfb1f388a4700c0f2ce",
+    "src/service/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/service/call-pool.ts": "0d9f766a68a21623e0e90fb3fd78b1d0705fd6d429506e75f2d722b5097953b6",
+    "src/service/session.ts": "169b685c2a86703fad5182648d1904c55c4ceaef27a393d308ec159d4030e828",
+    "src/service/store.ts": "59652b3e1b6d93209d26dfe082bb7c0e3590ac1983fa90fdad20152420db28f9",
+    "src/service/worker.ts": "f5fa4ead7e44b9615fe5f0d29fa031b70d2cd9410714c94884b024ff1159295c",
+    "src/service/workflow-state.ts": "c39317af67956703ca3bf62368283ab05e7ba152bf985f109ebd483ed1e7b93c",
+    "src/ui/MeetingReview.tsx": "8b9d428f0af5b37f6b3f641bc3f464dcb59d1965c02100ad16d08723cd4394d7",
+    "src/ui/WorkflowPanel.tsx": "2d038bf102406813d2523dbc559f89feaa334ed0db60dec0038c900e0ec72a42",
+    "src/ui/assets/README.md": "719fb78853ab3ae999dd709a4b2045b76556479514349f92f9113b2a28021213",
+    "src/ui/assets/launcher-dialogue-v1.png": "a0b3044a869f9a236d519f5df9221c0b6b459bf2ba0f3f43d4e07a6bbebff10f",
+    "src/ui/assets/launcher-dialogue-v1.prompt.md": "5d8a8877a712ec2797e1a3e271087ccde5d0d6fe6513b5398d9503db92c2af08",
+    "src/ui/bridge.ts": "3b4afaf270c4309d19403a8502ac246494683a29eb861bbbf23d708b354f5887",
+    "src/ui/components.tsx": "a834b2ebd193cb556f8fc58b480b054a3b7516f3a3d1085b15aecc3b3688703f",
+    "src/ui/env.d.ts": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
+    "src/ui/i18n.ts": "3ab7b05ff11afc186a72f0dc9a3f4daf7cd5adc9d5f44974e19f5b619a6ae8a8",
+    "src/ui/launcher-status.ts": "8e6372adea493de69f39704a841abe8c9626197bda02f1a909f4b25d50e96d2b",
+    "src/ui/live.tsx": "b416439550bb2b80ec22576dfe6bf2b32ce3f20c26db774e47934dbcbef85c80",
+    "src/ui/main.tsx": "81d7e0bf1b4e21a9b2b878f7a8638004422db14ec23d72a25125e701c1aa6087",
+    "src/ui/style.css": "e1abc6b5eed3e583a7f8d5f1bb9fa194973638c1237d8c09ed1bc914c25ca700",
+    "src/ui/theme.ts": "0869cf916be67fdc8ecade2f60d6de427fc6f425abbe67cc0f1fb4b6383772af",
+    "tests/e2e/desktop.spec.ts": "c9c8b4c4d34c3d6df70a765001dc3eb6c546a899529588ef03f0afb761354c49",
+    "tests/e2e/provider-contract.spec.ts": "8951542bca1d42d439964e4313eec49775c103917899482e1854f95cf86891dc",
+    "tests/e2e/reliability.spec.ts": "cef0f220dcc559d152a56425d3aafc330c7b79f2560ef6b803621cf9666203a4",
+    "tests/e2e/workflow.spec.ts": "324cd6f44f0f8e8008a84e87cc2cbe348c64a8dcaaf06fee871c898c157ff57a",
+    "tests/fixtures/README.md": "a6ba84b4f1ef814ee443a9899535a08ff62b79bdf3f25b61c392935a6a166b4a",
+    "tests/fixtures/bilingual-meeting.json": "47adc1375b2f4ba434b36d4ee1acd0fdda6eaad332c74e8890dda4ad78a7f782",
+    "tests/fixtures/discussion-options.json": "c39a1ec5721fc18008835c19d9dac808de524061d0ca7eea2019bf0d30deafce",
+    "tests/fixtures/execution-plan.json": "0c9a50036245ea84fcaf9ea5f57148c954bd696ae7034cd3c5c08ed13a76896f",
+    "tests/fixtures/scenario-calculation.json": "ec7f3c9b4e54d8a183b6dbe674be6639a2de1731fbd0381dbe8040d01e12d51b",
+    "tests/unit/acceptance-review.test.ts": "b2a7506ca3d39f57773dee199ceeedc115619b2a1156609b0a778b6bd3c54592",
+    "tests/unit/architecture.test.ts": "44ac08c935f1b4e62325ca3406c5a531e28f3cefb59a4c1498528068589431b4",
+    "tests/unit/core.test.ts": "5d3f18247cdfaaccc91c086de44636e4aa5edd3cb75dc120b7d0f03e915cd7f3",
+    "tests/unit/launcher-status.test.ts": "dc57c457582933ad6ee30bfe9301dece2179c34ab6827501a294fa09aaab9bae",
+    "tests/unit/live-agent.test.ts": "87b24ad87a2e91ad9889a6228a4e6662d1c37f3b120aa50ee11ceb2573f69877",
+    "tests/unit/reliability.test.ts": "c7c2c7cced852a422fc23b628b88a3b78acbf372125e235423ac20b9e79b9857",
+    "tests/unit/workflow.test.ts": "13817456999dd8eaf7bbea6d66285e2bd1ffe26b1b84337399d9705a3760ed87",
+    "tsconfig.json": "4d93bd90efda78cc2ed7847c8ebd65abfd112f7d987892f3f0fe98eb36a0f7c3",
+    "vite.config.ts": "518fa34fc5bed614c126a4c5436a55131c53e71b259b46dd8713b80dd4119999"
+  },
+  "sourceManifestSha256": "2c79d530e36557894e391f6c4cdc5afb853a895da486fd525c0d0ea8ac4f4dea"
+}

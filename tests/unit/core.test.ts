@@ -21,6 +21,7 @@ const config: ProviderConfig = {
   format: 'json_schema',
 };
 function proposal(m: Meeting): Proposal {
+  const topicId = m.objects.find((o) => o.title === 'Protocol test')?.id ?? 'topic';
   const s = m.segments.at(-1)!,
     sources = [{ id: s.id, rev: s.rev }];
   return {
@@ -28,7 +29,7 @@ function proposal(m: Meeting): Proposal {
     changes: ['Test update'],
     objects: [
       {
-        id: 'topic',
+        id: topicId,
         kind: 'topic',
         title: 'Protocol test',
         detail: s.text,
@@ -46,7 +47,7 @@ function proposal(m: Meeting): Proposal {
       question: 'Protocol test only',
       summary: 'Not a model result',
       layout: 'stack',
-      objectIds: ['topic'],
+      objectIds: [topicId],
       sources,
       blocks: [
         {
@@ -55,7 +56,7 @@ function proposal(m: Meeting): Proposal {
           title: 'Test content',
           items: [s.text],
           sources,
-          objectIds: ['topic'],
+          objectIds: [topicId],
           origin: 'stated',
           status: 'unverified',
         },
@@ -166,6 +167,7 @@ test('late model result cannot overwrite a correction or new output locale', asy
     const work = x.service.process(id);
     x.command(id, 'correct', { segmentId: 's', baseRevision: 1, text: 'new', speaker: null });
     x.command(id, 'language', { locale: 'zh-CN' });
+    while (!resolve) await new Promise((r) => setTimeout(r, 1));
     resolve({});
     await work;
     assert.equal(x.service.meetings[0].artifacts.length, 0);
@@ -308,7 +310,9 @@ test('personal scenarios and decisions cannot become meeting consensus', async (
   const x = setup({
     interpret: async (m) => {
       const p = proposal(m);
-      p.artifact!.formulas = [{ ...formula, sources: p.artifact!.sources }];
+      p.artifact!.formulas = [
+        { ...formula, basis: m.segments.at(-1)!.text, sources: p.artifact!.sources },
+      ];
       return { proposal: p, inputTokens: 0, outputTokens: 0 };
     },
   });
@@ -460,6 +464,7 @@ test('continuous appended input does not starve an in-flight understanding batch
     x.command(id, 'ingest', { text: 'batch one', kind: 'manual' });
     const work = x.service.process(id);
     x.command(id, 'ingest', { text: 'batch two while processing', kind: 'manual' });
+    while (!resolve) await new Promise((r) => setTimeout(r, 1));
     resolve({});
     await work;
     assert.equal(x.service.meetings[0].understoodVersion, 1);

@@ -1,3 +1,4 @@
+import { RenderFailure } from '../contracts/render-report';
 import { SQLiteStore } from './store';
 import { SessionService } from './session';
 import { OpenAIProvider, configFromEnv } from '../agent/provider';
@@ -75,7 +76,13 @@ parent.on('message', async ({ data }: any) => {
     if (p) {
       clearTimeout(p.timer);
       previews.delete(id);
-      args.ok ? p.resolve() : p.reject(new Error('RENDER_FAILED'));
+      args.ok
+        ? p.resolve()
+        : p.reject(
+            new RenderFailure(
+              args.report ?? { ok: false, issues: [{ blockId: null, errorCode: 'RENDER_FAILED' }] },
+            ),
+          );
     }
     return;
   }

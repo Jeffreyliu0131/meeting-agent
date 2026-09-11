@@ -80,6 +80,8 @@ npm run pack:win     # 在 Windows 构建应用目录
 
 ## 文档入口与按需阅读
 
+[Agent架构与LangGraph研究](docs/research/README.md)：源码评估、取舍建议与实验设计；不是已采用架构或产品验收。
+
 先读[状态页](docs/status.md)及[相关 session](docs/sessions/README.md)，再按 [AGENTS.md 的任务路由](AGENTS.md)进入产品定义、会议入口、表达语言、前端／语言、技术设计、契约、运行环境或验收。文档职责与冲突处理也在 AGENTS.md，不要求每个 session 通读全部文档。
 
 当前前端视觉与页面入口：[style.md](docs/design/style.md) → [前端交互规范](docs/frontend-spec.md)。用户已认可新 8 图及本轮视觉方向；本地已接入新风格并参考飞书布局细化，见[前端改造](docs/sessions/2026-09-11-frontend-refresh.md)。旧第二张参考仅为历史。
@@ -94,3 +96,7 @@ npm run pack:win     # 在 Windows 构建应用目录
 ## 条件、修订与会议结束核对
 
 工作内容可展开条件与承诺依据；个人探索不进入后台会议理解。结束后核对已接收内容、未决问题、仍有效条件、任务信息缺项与输入缺口，并可展开汇总记录、查看原话；JSON 导出包含核对结果和本轮起保存的对象历史。记录检查完成不代表语义全部正确或全体共识。实现边界见[Agent 可靠性](docs/agent-reliability.md)。
+
+## 有界Agent工作流
+
+当前本地实现采用LangGraph JS 1.4.14，支持本会议主动检索、独立个人推演、持久提案／任务恢复、澄清与表达修复。运行方式不变；完整实现与限制见[运行时说明](docs/agent-workflow-runtime.md)，逐项结果见[工作流验证](tests/results/agent-workflow-validation.md)。离线人工评分清单：`node --import tsx scripts/workflow-eval.ts`（零模型调用）。不要将`test:model`误作免费离线检查。

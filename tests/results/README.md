@@ -25,3 +25,7 @@
 
 
 Agent三项可靠性迭代：[验证结果](agent-reliability-validation.md)／[源码与测试汇总](agent-reliability-summary.json)。58项单元和10项桌面通过，真实模型与语音仍未验收。
+
+- [Agent工作流验证与交付表](agent-workflow-validation.md)：W1–W6、AC01–25、合成测试／真实效果边界；[离线语义评分清单](workflow-semantic-rubric.json)不包含真实模型结果。
+
+- [Agent工作流独立验收与GitHub交付](agent-workflow-acceptance-review.md)：独立反例、修正、最终检查与提交边界；优先于实现阶段81项记录。

@@ -18,6 +18,8 @@
 
 ## 接续工作
 
+2026-09-12用户已授权研究后的业务复核与新任务实现；本次接续范围以[Agent工作流任务书](agent-workflow-implementation.md)及[验收场景](agent-workflow-acceptance.md)为准。W1–W6已完成本地实施并进入独立验收，不改写下方历史阶段的验收事实。
+
 1. 核对[session](sessions/README.md)、当前状态和工作树；连续Agent及入口基线已在 `3f6279a`，前端改造在 `a587a92`，本地macOS包已按 `38c70b1` 源码更新，不能再次从旧入口方案重做。
 2. 按[前端验证](../tests/results/frontend-refresh-validation.md)复用已有本地证据；后续代码变化再做对应复验，不将合成评估当作真实会议效果。
 3. 新前端后续项以[当前实现与目标差距](frontend-spec.md#11-当前实现与目标差距)和用户反馈为准；音频偏好、一键开始、自动标题、系统语言与渐进提问已接入，不再列作未开发任务。
@@ -36,3 +38,5 @@
 
 
 当前三项可靠性实现、验证与下一步见[本轮交接](sessions/2026-09-12-agent-reliability.md)。其中确定性记录检查已与真实模型语义评估分开，不用程序通过取消原 P1／P4 真实效果验收。
+
+当前W1–W6本地实施与验证由[实施session](sessions/2026-09-12-agent-workflow-implementation.md)记录，实际接口以[运行时说明](agent-workflow-runtime.md)为准；研究建议不能继续当作尚未接入的源码结论。
