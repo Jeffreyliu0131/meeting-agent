@@ -6,7 +6,7 @@
 
 连续 Agent 与新会议入口已纳入基线 `3f6279a`；前端改造已完成独立本地验证，见[前端记录](docs/sessions/2026-09-11-frontend-refresh.md)。架构见 [ADR-004](docs/adr/004-live-agent-pipeline.md)，本轮证据见 [连续 Agent 验证](tests/results/live-agent-validation.md)。真实模型和转写凭证仍缺失，程序通过不等于真实会议效果达标。
 
-本地macOS应用已于2026-09-12按`38c70b1`源码更新，新界面与原历史记录已实际核对。应用位置为 `release/mac-arm64/Meeting Agent.app`；检查范围见[前端与包验证](tests/results/frontend-refresh-validation.md)。随后[桌面小图标与五态](docs/design/launcher.md)又完成本地更新，其代码尚未提交，验证见[图标结果](tests/results/launcher-validation.md)。Git源码同步与本地应用打包是两步，当前源码提交不自动更新其他机器已有的应用包。
+本地macOS应用已于2026-09-12按`38c70b1`源码更新，新界面与原历史记录已实际核对。应用位置为 `release/mac-arm64/Meeting Agent.app`；检查范围见[前端与包验证](tests/results/frontend-refresh-validation.md)。随后[桌面小图标与五态](docs/design/launcher.md)又完成本地更新，其代码已随120f77c提交推送，验证见[图标结果](tests/results/launcher-validation.md)。Git源码同步与本地应用打包是两步，当前源码提交不自动更新其他机器已有的应用包。
 
 ## 本地启动
 

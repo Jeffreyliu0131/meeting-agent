@@ -61,5 +61,10 @@
     "Windows runtime untested",
     "status screenshots use synthetic renderer snapshots",
     "Dock and tray icons unchanged"
-  ]
+  ],
+  "delivery": {
+    "codeCommit": "120f77c",
+    "remote": "origin/main",
+    "push": "succeeded"
+  }
 }
