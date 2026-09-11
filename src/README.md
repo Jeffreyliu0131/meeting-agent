@@ -9,7 +9,7 @@
 - `integrations/`：隐藏窗口的 AudioWorklet 输入、WAV、双通道、停止释放。
 - `renderers/`：通用表达渲染、来源校验、被动 HTML/SVG 清洗及预览标记。
 - `desktop/`：跨平台窗口、权限、IPC、托盘、菜单、快捷键及独立预览沙箱。
-- `ui/`：选定视觉方向、双语文案与可信交互。
+- `ui/`：协作浅色视觉、双语文案与可信交互；`theme.ts`从设计 JSON 提供共享颜色，浏览器显式初始化，后台预检只读取参数。图标使用 lucide-react。
 
 启动入口 `desktop/main.ts`；会话服务入口 `service/worker.ts`；UI 入口 `ui/main.tsx`。产品不依赖仓库外文件；密钥、数据库、音频和构建目录不入库。
 

@@ -4,7 +4,7 @@
 
 **进度入口：[当前状态](docs/status.md)；跨任务接手：[AGENTS.md](AGENTS.md) → [session 索引](docs/sessions/README.md)。** 已有 0.1.0 首版本地实现；首版结果见[验证记录](tests/results/validation.md)，后续工作树改动和新规范的接入程度以状态及对应 session 为准，不把旧测试视为当前全部通过。
 
-当前工作树已接入连续 Agent 与新会议入口，架构见 [ADR-004](docs/adr/004-live-agent-pipeline.md)，本轮证据见 [连续 Agent 验证](tests/results/live-agent-validation.md)。真实模型和转写凭证仍缺失，程序通过不等于真实会议效果达标。
+连续 Agent 与新会议入口已纳入基线 `3f6279a`；前端改造已完成独立本地验证，见[前端记录](docs/sessions/2026-09-11-frontend-refresh.md)。架构见 [ADR-004](docs/adr/004-live-agent-pipeline.md)，本轮证据见 [连续 Agent 验证](tests/results/live-agent-validation.md)。真实模型和转写凭证仍缺失，程序通过不等于真实会议效果达标。
 
 ## 本地启动
 
@@ -58,7 +58,7 @@ MEETING_STT_API_BASE=https://api.openai.com/v1
 
 ## Agent运行参数
 
-配置示例见 `.env.example`：上下文24,000字节、单次输出2,500 tokens、每小时2,400次供应商调用／4,000,000文本tokens预算、批次合并1,500毫秒。额度是运行上限，不是承诺时延或价格。缺少用量数据会保守预留并标未知。当前转写仍是约5秒音频切片，使用每通道30秒／2MB缓冲；超限明确记录缺口，不能承诺持续过载无损。
+配置示例见 `.env.example`：上下文24,000字节、单次输出2,500 tokens、每场会议滚动一小时2,400次供应商调用／4,000,000文本tokens预算、批次合并1,500毫秒。额度是运行上限，不是承诺时延或价格。缺少用量数据会保守预留并标未知。当前转写仍是约5秒音频切片，使用每通道30秒／2MB缓冲；超限明确记录缺口，不能承诺持续过载无损。
 
 ## 数据与平台
 
@@ -80,7 +80,7 @@ npm run pack:win     # 在 Windows 构建应用目录
 
 先读[状态页](docs/status.md)及[相关 session](docs/sessions/README.md)，再按 [AGENTS.md 的任务路由](AGENTS.md)进入产品定义、会议入口、表达语言、前端／语言、技术设计、契约、运行环境或验收。文档职责与冲突处理也在 AGENTS.md，不要求每个 session 通读全部文档。
 
-当前前端视觉与页面入口：[style.md](docs/design/style.md) → [前端交互规范](docs/frontend-spec.md)。用户已认可新 8 图的整体风格；本地规范已整理，新风格代码接入待后续任务，旧第二张参考仅为历史。
+当前前端视觉与页面入口：[style.md](docs/design/style.md) → [前端交互规范](docs/frontend-spec.md)。用户已认可新 8 图及本轮视觉方向；本地已接入新风格并参考飞书布局细化，见[前端改造](docs/sessions/2026-09-11-frontend-refresh.md)。旧第二张参考仅为历史。
 
 文档修改后执行 `python3 scripts/check-docs.py`；它检查结构与链接，不验证产品行为。新增文件、目录职责或运行命令时同步相关 README，迭代结束前更新状态和 session。
 

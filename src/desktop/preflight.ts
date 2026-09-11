@@ -3,6 +3,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Artifact } from '../contracts/model';
 import { safeMarkup } from '../renderers/validate';
+import { themeVariables } from '../ui/theme';
 import { preflightMarkup } from '../renderers/preflight';
 /** A disposable, permissionless renderer. No preload, Node or generated scripts. */
 export async function renderPreflight(artifact: Artifact, distDirectory: string): Promise<void> {
@@ -35,7 +36,7 @@ export async function renderPreflight(artifact: Artifact, distDirectory: string)
     const cssName = readdirSync(join(distDirectory, 'ui/assets')).find((n) => n.endsWith('.css'))!;
     const css = readFileSync(join(distDirectory, 'ui/assets', cssName), 'utf8');
     const document = (content: string) =>
-      `<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'none'; style-src 'unsafe-inline'; frame-src about:; form-action 'none'; base-uri 'none'"><style>${css}body{padding:20px;font-size:15px}svg{max-width:100%;height:auto}</style></head><body>${content}</body></html>`;
+      `<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'none'; style-src 'unsafe-inline'; frame-src about:; form-action 'none'; base-uri 'none'"><style>:root{${themeVariables}}${css}body{padding:20px;font-size:15px}svg{max-width:100%;height:auto}</style></head><body>${content}</body></html>`;
     await win.loadURL(
       'data:text/html;charset=UTF-8,' + encodeURIComponent(document(preflightMarkup(artifact))),
     );

@@ -1,7 +1,7 @@
 # 前端页面、桌面入口与视觉实施规范
 
 > 文件职责：产品／工程设计要求，不是完成清单。当前进度与最新修订见[状态页](status.md)；已交付首版取舍见[ADR-003](adr/003-cross-platform-first-version.md)，实际结果见[验证记录](../tests/results/README.md)。具体实现以代码核对，未实现的要求仍是目标。
-2026-09-11｜当前视觉依据为[style.md](design/style.md)中的已认可 8 张概念图，文档标识 `collaborative-light-v2`。本文件负责交互与窗口契约；style.md 负责视觉、页面分区和实施建议。旧 `editorial-light-v1` 运行参数尚未迁移；本轮仅同步设计文档，不表示代码采用了新风格。启动、设备、语言细则见[会议入口规范](meeting-entry-spec.md)。
+2026-09-11｜当前视觉依据为[style.md](design/style.md)中的已认可 8 张概念图，文档标识 `collaborative-light-v2`。本文件负责交互与窗口契约；style.md 负责视觉、页面分区和实施建议。本地运行参数、外壳与动态内容已统一迁移，飞书布局参考后的细化见 style.md 第 11 节；实际验证见[本轮记录](sessions/2026-09-11-frontend-refresh.md)。启动、设备、语言细则见[会议入口规范](meeting-entry-spec.md)。
 
 设计资料导航见[design/README.md](design/README.md)。
 
@@ -9,7 +9,7 @@
 
 用户本轮明确不提供旧图，让生成端自由设计，并认可新 8 图的整体风格。其页面和来源见[style.md](design/style.md)，替代关系见[设计决策](design/decision.md)。[旧第二张图](design/assets/selected-editorial-reference.png)仅作历史保留；新图是概念稿，不是实际运行截图。
 
-实现依据按职责区分：用户最新确认优先；本规范、[会议入口](meeting-entry-spec.md)及[语言规范](language-spec.md)约束行为；[style.md](design/style.md)定义当前视觉和页面；[旧设计tokens](design/tokens.json)与[界面文案](design/ui-copy.json)说明现有配置，待代码任务统一迁移，不能反向覆盖新目标。图片中的示例文字、会议日期、图表结构和比例不得硬编码成业务模板。
+实现依据按职责区分：用户最新确认优先；本规范、[会议入口](meeting-entry-spec.md)及[语言规范](language-spec.md)约束行为；[style.md](design/style.md)定义当前视觉和页面；[设计tokens](design/tokens.json)与[界面文案](design/ui-copy.json)说明现行配置；新增双语文案在 `src/ui/i18n.ts`，不能反向覆盖产品目标。图片中的示例文字、会议日期、图表结构和比例不得硬编码成业务模板。
 
 `ui-copy.json`目前被运行时代码直接引用，本轮未修改。其旧标题／输入源字段和`defaultLocale`不定义新交互；新文案、系统语言解析及正常／测试入口需由代码接入任务一起更新，避免只改字典就宣称行为完成。
 
@@ -100,7 +100,7 @@
 
 ## 6. 视觉语言与材质
 
-浅色为首版基准：纸白内容面、石墨文字、低饱和蓝强调、细分隔。正文建议15px／1.5行高，辅助文字不小于12px，字体优先系统无衬线并配中文回退；当前建议token和对比度校准见[style.md](design/style.md)；[JSON](design/tokens.json)保留旧运行参数，待实现同步。标题不用宣传页式超大字号。
+浅色为首版基准：纸白内容面、石墨文字、低饱和蓝强调、细分隔。正文建议15px／1.5行高，辅助文字不小于12px，字体优先系统无衬线并配中文回退；当前建议token和对比度校准见[style.md](design/style.md)；[JSON](design/tokens.json)维护当前运行参数。标题不用宣传页式超大字号。
 
 材质仅用于桌面入口、速览、右键菜单与可选轻顶栏。正文／表格／图形底面保持不透明。可采用轻模糊＋接近不透明的底色＋细边界，避免折射、流光、亮边或随鼠标移动的效果。背景颜色不能改变事实状态的辨识。
 
@@ -137,7 +137,7 @@ SVG中使用token映射的颜色与字号；HTML／chart由隔离宿主注入同
 
 ## 10. 页面与现有源码的接入导航
 
-以下仅为本轮只读核对到的接入位置，不表示这些文件已采用新视觉，也不覆盖并行任务后续重构：
+以下为当前前端接入位置；对应验证以[本轮记录](sessions/2026-09-11-frontend-refresh.md)为准：
 
 | 对象 | 当前接入位置 | 设计依据 |
 |---|---|---|
@@ -148,4 +148,4 @@ SVG中使用token映射的颜色与字号；HTML／chart由隔离宿主注入同
 | 样式与语言 | [style.css](../src/ui/style.css)、[i18n.ts](../src/ui/i18n.ts)、[ui-copy.json](design/ui-copy.json) | 当前风格、系统语言和中英长文案；需与生成器视觉配置统一迁移 |
 | 真实窗口与菜单行为 | [desktop/main.ts](../src/desktop/main.ts) | 左键持续打开、悬停速览、关闭不停止；不以静态图证明行为完成 |
 
-本轮只同步 MD，不改以上代码或 tokens.json。实现任务开始前重新核对工作树，保护并行改动；按图组及首次初始化／异常状态分别截图和验证。
+上述代码已接入新视觉；`src/ui/theme.ts`统一颜色变量，后台 preflight 与生成 HTML 同步接入。首页搜索／筛选、动态目录、来源目标、首次音频设置和完整设置的分组见 style.md 第 11 节。后续修改仍需保护工作树并分别验证。

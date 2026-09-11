@@ -11,7 +11,7 @@
 
 内部元素→业务对象→来源的绑定必须保存。只保存SVG截图会失去来源与可维护性；只存模型上下文不能恢复已保存产物。
 
-所有载体接收`visualProfileId=editorial-light-v1`、目标locale与可用尺寸；参考[前端规范](frontend-spec.md)和[设计tokens](design/tokens.json)。磨砂只由宿主在外围层提供，生成内容不能自行创建整页玻璃、极小字或全局样式。缺少效果时退回实色，不影响业务操作。
+所有载体接收`visualProfileId=collaborative-light-v2`、目标locale与可用尺寸；参考[前端规范](frontend-spec.md)和[设计tokens](design/tokens.json)。磨砂只由宿主在外围层提供，生成内容不能自行创建整页玻璃、极小字或全局样式。缺少效果时退回实色，不影响业务操作。
 
 ## 2. 各种载体
 

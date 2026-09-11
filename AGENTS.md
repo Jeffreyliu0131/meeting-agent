@@ -17,7 +17,7 @@
 | 产品认知、范围、优先级 | [产品定义](docs/product-definition.md) → [决策](docs/decisions.md) → [实施计划](docs/implementation-plan.md) |
 | 开始会议、设备、语言、提问、UI | [会议入口规范](docs/meeting-entry-spec.md) → [前端](docs/frontend-spec.md)／[当前风格与页面](docs/design/style.md)／[语言](docs/language-spec.md) → [设计依据](docs/design/decision.md) |
 | Agent、上下文、生成、更新、推演 | [表达语言](docs/expression-language.md) → [技术设计](docs/technical-design.md) → [契约](docs/contracts.md) → 状态页最新工程修订及相关源码 |
-| IPC、持久化、平台音源、隔离 | [ADR-003](docs/adr/003-cross-platform-first-version.md) → [契约](docs/contracts.md)／[运行环境](docs/rendering-runtime.md) → [源码导航](src/README.md) |
+| IPC、持久化、平台音源、隔离 | [ADR-004](docs/adr/004-live-agent-pipeline.md)／[首版ADR-003](docs/adr/003-cross-platform-first-version.md) → [契约](docs/contracts.md)／[运行环境](docs/rendering-runtime.md) → [源码导航](src/README.md) |
 | 启动、配置、构建 | [README](README.md) → [当前状态](docs/status.md) → `package.json`／`.env.example`；不打印凭证 |
 | 测试、验收、交付判断 | [验收标准](docs/acceptance-criteria.md) → [结果索引](tests/results/README.md) → 对应版本的结果与代码 |
 | 外部接口、研究依据 | [来源](docs/sources.md) → 必要的官方来源；文档能力、账号权限、真实成功分开核验 |

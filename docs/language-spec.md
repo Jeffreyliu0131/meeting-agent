@@ -58,7 +58,7 @@ type ArtifactPresentation = {
   artifactId: string;
   locale: ProductLocale;
   languageRevision: number;
-  visualProfileId: 'editorial-light-v1';
+  visualProfileId: 'collaborative-light-v2';
   revision: number;
 };
 ```

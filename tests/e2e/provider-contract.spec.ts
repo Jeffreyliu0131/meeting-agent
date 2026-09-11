@@ -2,7 +2,7 @@
  * These tests do not assess real model semantics or real microphone quality. */
 import { test, expect, _electron as electron, type ElectronApplication } from '@playwright/test';
 import { createServer, type Server } from 'node:http';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 let server: Server,
@@ -283,10 +283,39 @@ test('provider transport, isolated preflight, generated structure, source bindin
     'Draft kept while a new version arrives',
   );
   await expect(page.getByLabel('People (people)', { exact: true })).toHaveValue('40');
+  await page.getByRole('button', { name: 'Remove context', exact: true }).click();
+  await expect(page.locator('.context-chip')).toHaveCount(0);
+  await expect(page.getByRole('textbox', { name: 'Ask about this meeting…' })).toHaveValue(
+    'Draft kept while a new version arrives',
+  );
+  await page.getByRole('button', { name: 'Contents', exact: true }).click();
+  await page
+    .getByRole('navigation', { name: 'Contents' })
+    .getByRole('button', { name: 'Key condition' })
+    .click();
+  await expect(page.locator('[data-block-id="dependency"]')).toBeFocused();
+
   await expect(
     page.getByText('Synthetic provider output. Batch 2 — transport only.', { exact: true }),
   ).toBeVisible();
-  await expect(page.getByText('Following meeting', { exact: false }).first()).toBeVisible();
+  await expect(page.getByText('Current focus', { exact: false }).first()).toBeVisible();
+  await page
+    .getByRole('button', {
+      name: 'View sources: Two routes, one unresolved condition',
+      exact: true,
+    })
+    .click();
+  await expect(
+    page
+      .getByRole('dialog', { name: 'View sources' })
+      .getByText('Two routes, one unresolved condition', { exact: true }),
+  ).toBeVisible();
+  await page.screenshot({ path: 'tests/results/e2e-artifacts/refresh-sources.png' });
+  await page
+    .getByRole('dialog', { name: 'View sources' })
+    .getByRole('button', { name: 'Close', exact: true })
+    .click();
+
   for (const size of [
     { width: 1440, height: 1024 },
     { width: 1024, height: 768 },
@@ -312,6 +341,29 @@ test('provider transport, isolated preflight, generated structure, source bindin
   expect(state.value.meetings[0].artifacts[0].id).toBe(state.value.meetings[0].artifacts[1].id);
   expect(state.value.meetings[0].scenarios[0].result).toBe('630');
   expect(state.value.meetings[0].decisions).toHaveLength(0);
+  await app.evaluate(({ BrowserWindow }) =>
+    BrowserWindow.getAllWindows()
+      .find((w) => w.webContents.getURL().includes('role=workspace'))
+      ?.webContents.setZoomFactor(2),
+  );
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+  await expect(page.locator('.relationship-list')).toBeVisible();
+  // Electron zoom affects CDP screenshot cropping; use the native surface at 200%.
+  const zoomCapture = await app.evaluate(async ({ BrowserWindow }) =>
+    (
+      await BrowserWindow.getAllWindows()
+        .find((w) => w.webContents.getURL().includes('role=workspace'))!
+        .webContents.capturePage()
+    )
+      .toPNG()
+      .toString('base64'),
+  );
+  writeFileSync(
+    'tests/results/e2e-artifacts/refresh-workspace-200.png',
+    Buffer.from(zoomCapture, 'base64'),
+  );
 });
 test('synthetic oscillator keeps capturing through a slow STT response and stops cleanly', async () => {
   sttDelay = 6500;
@@ -469,7 +521,8 @@ test('normal meeting entry saves setup once, starts audio in one intent and reve
   await expect(page.getByText('Development tools', { exact: true })).toHaveCount(0);
   await expect(page.getByRole('textbox', { name: 'Ask about this meeting…' })).toHaveCount(0);
   await page.getByRole('button', { name: 'Start meeting' }).first().click();
-  await expect(page.getByRole('dialog', { name: 'Settings' })).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'Meeting audio' })).toBeVisible();
+  await expect(page.getByLabel('Interface language', { exact: true })).toHaveCount(0);
   await page.screenshot({ path: 'tests/results/e2e-artifacts/audio-settings.png', fullPage: true });
   await expect(page.getByLabel('Meeting title', { exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: 'Save settings', exact: true }).click();
@@ -504,7 +557,7 @@ test('normal meeting entry saves setup once, starts audio in one intent and reve
   );
   expect(repeated.every((r: any) => r.value.meetingId === first)).toBe(true);
   await page.getByRole('button', { name: 'End meeting', exact: true }).click();
-  await page.getByRole('button', { name: '← Meetings', exact: true }).click();
+  await page.getByRole('button', { name: 'Meetings', exact: true }).click();
   await page.getByRole('button', { name: 'Start meeting' }).first().click();
   await expect
     .poll(async () => {

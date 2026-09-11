@@ -1,3 +1,29 @@
+import {
+  AudioLines,
+  ArrowLeft,
+  ArrowUpRight,
+  ArrowRight,
+  Settings2,
+  X,
+  Mic,
+  FileText,
+  Clock3,
+  Pause,
+  Play,
+  Square,
+  BookOpen,
+  History,
+  Download,
+  MessageSquare,
+  Sparkles,
+  ChevronRight,
+  Bookmark,
+  Check,
+  Search,
+  ListFilter,
+  ListTree,
+} from 'lucide-react';
+import { applyTheme } from './theme';
 import React, { useEffect, useState, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import type {
@@ -17,8 +43,16 @@ import './style.css';
 import { api } from './bridge';
 import { useLiveArtifact, ScenarioShelf } from './live';
 import { artifactIsStale } from '../domain/artifacts';
-import { NewMeeting, Settings, SourceDrawer, ScenarioEditor, DecisionModal } from './components';
+import {
+  Modal,
+  NewMeeting,
+  Settings,
+  SourceDrawer,
+  ScenarioEditor,
+  DecisionModal,
+} from './components';
 
+applyTheme();
 const role = new URLSearchParams(location.search).get('role') || 'workspace';
 function App() {
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null),
@@ -42,6 +76,20 @@ function App() {
     ),
     [renaming, setRenaming] = useState(false),
     [titleDraft, setTitleDraft] = useState('');
+  const [audioSetup, setAudioSetup] = useState(false);
+  const showSettings = () => {
+    setAudioSetup(false);
+    setSettings(true);
+  };
+  const [meetingFilter, setMeetingFilter] = useState<'all' | 'active' | 'ended'>('all');
+  const [search, setSearch] = useState('');
+  const [sourceTarget, setSourceTarget] = useState('');
+  const [outlineOpen, setOutlineOpen] = useState(false);
+  const [outlineSelection, setOutlineSelection] = useState('');
+  const openSources = (refs: Ref[], target = '') => {
+    setSourceRefs(refs);
+    setSourceTarget(target);
+  };
   const startRequest = useRef<string | null>(null);
   const current = snapshot?.meetings.find((m) => m.id === selected),
     locale = snapshot?.preferences.uiLocale || 'en',
@@ -78,7 +126,7 @@ function App() {
       }
       setSnapshot(value);
       if (value.selectMeetingId) setSelected(value.selectMeetingId);
-      if (value.openSettings) setSettings(true);
+      if (value.openSettings) showSettings();
     };
     const off = window.meeting.subscribe(update);
     let canceled = false;
@@ -99,25 +147,22 @@ function App() {
   useEffect(() => {
     document.documentElement.lang = locale;
     document.body.dataset.role = role;
-  }, [locale]);
+    document.documentElement.classList.toggle(
+      'reduce-transparency',
+      snapshot?.preferences.reduceTransparency ?? false,
+    );
+    document.documentElement.classList.toggle(
+      'reduce-motion',
+      snapshot?.preferences.reduceMotion ?? false,
+    );
+  }, [locale, snapshot?.preferences.reduceTransparency, snapshot?.preferences.reduceMotion]);
 
-  useEffect(() => {
-    const key = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setSourceRefs(null);
-        setSettings(false);
-        setNewMeeting(false);
-        setDecisionScope(null);
-      }
-    };
-    window.addEventListener('keydown', key);
-    return () => window.removeEventListener('keydown', key);
-  }, []);
   const openMeeting = (m: Meeting) => {
     setSelected(m.id);
     setView(null);
     setSourceRefs(null);
     setHistory(false);
+    setOutlineSelection('');
     setShowInput(false);
     setAsk('');
     setAskOpen(false);
@@ -125,12 +170,19 @@ function App() {
     setSourceText('');
   };
   const active = snapshot?.meetings.find((m) => m.status === 'active');
+  const filteredMeetings =
+    snapshot?.meetings.filter(
+      (m) =>
+        (meetingFilter === 'all' || m.status === meetingFilter) &&
+        m.title.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()),
+    ) ?? [];
   const drag = useRef<{ x: number; y: number; dragged: boolean } | null>(null);
   if (role === 'launcher')
     return (
       <button
         className="launcher"
-        aria-label={t('launcher.label')}
+        aria-label={`${t('launcher.label')} · ${t('status.' + (active?.capture || 'idle'))}`}
+        title={t('status.' + (active?.capture || 'idle'))}
         onMouseEnter={() => void api('hover', true)}
         onMouseLeave={() => void api('hover', false)}
         onContextMenu={(e) => {
@@ -166,7 +218,7 @@ function App() {
           drag.current = null;
         }}
       >
-        <span aria-hidden>◇</span>
+        <AudioLines size={24} aria-hidden="true" />
         <i className={`dot ${serviceError ? 'input_error' : active?.capture || 'idle'}`} />
       </button>
     );
@@ -178,7 +230,8 @@ function App() {
         onMouseLeave={() => void api('hover', false)}
       >
         <div className="eyebrow">
-          Meeting Agent <span className="status">{t('status.' + (active?.capture || 'idle'))}</span>
+          Agents, Everywhere{' '}
+          <span className="status">{t('status.' + (active?.capture || 'idle'))}</span>
         </div>
         <h2>{active?.focus || active?.title || t('emptyLibrary')}</h2>
         {active?.changes.slice(0, 3).map((s, i) => (
@@ -209,6 +262,7 @@ function App() {
     try {
       const result = await api('startMeeting', { requestId: startRequest.current });
       if (result.state === 'needs_setup') {
+        setAudioSetup(true);
         setSettings(true);
         if (result.reason !== 'AUDIO_SETUP_REQUIRED') setError(result.reason);
       } else if (result.meetingId) {
@@ -237,18 +291,33 @@ function App() {
     }
   };
   return (
-    <div className={snapshot.preferences.reduceMotion ? 'reduce-motion' : ''}>
+    <div
+      className={`app-shell ${current ? 'meeting-shell' : 'home-shell'} ${sourceRefs !== null ? 'has-source' : ''}`}
+    >
       <header className="toolbar">
-        <button
-          className="text-button"
-          onClick={() => {
-            setSelected(null);
-            setView(null);
-          }}
-        >
-          ← {t('navigation.meetings')}
-        </button>
-        <span className="toolbar-divider" />
+        {current ? (
+          <>
+            <button
+              className="text-button back-button"
+              onClick={() => {
+                setSelected(null);
+                setView(null);
+                setSourceRefs(null);
+              }}
+            >
+              <ArrowLeft size={17} />
+              {t('navigation.meetings')}
+            </button>
+            <span className="toolbar-divider" />
+          </>
+        ) : (
+          <div className="brand">
+            <span className="brand-mark">
+              <AudioLines size={20} />
+            </span>
+            <span>Agents, Everywhere</span>
+          </div>
+        )}
         {current ? (
           <button
             className="text-button meeting-name"
@@ -260,10 +329,10 @@ function App() {
             {current.title}
           </button>
         ) : (
-          <span className="meeting-name">Meeting Agent</span>
+          <span className="brand-subtitle">{t('design.personalWorkspace')}</span>
         )}
         {current && (
-          <span className="status">
+          <span className={`status status-${current.capture}`}>
             <i className={`dot ${current.capture}`} />
             {t('status.' + current.capture)}
           </span>
@@ -272,9 +341,10 @@ function App() {
           <button
             className="text-button"
             aria-label={t('settings.open')}
-            onClick={() => setSettings(true)}
+            title={t('settings.open')}
+            onClick={showSettings}
           >
-            ⚙
+            <Settings2 size={19} />
           </button>
           {current?.status === 'active' && (
             <>
@@ -290,20 +360,23 @@ function App() {
                     )
                   }
                 >
+                  {current.capture === 'capturing' ? <Pause size={15} /> : <Play size={15} />}
                   {t(current.capture === 'capturing' ? 'capture.pause' : 'record')}
                 </button>
               )}
               <button className="danger" onClick={() => void act(() => command('end'))}>
+                <Square size={13} />
                 {t('meeting.end')}
               </button>
             </>
           )}
           <button
             aria-label={t('action.close')}
+            title={t('action.close')}
             className="text-button"
             onClick={() => void api('hide')}
           >
-            ×
+            <X size={18} />
           </button>
         </div>
       </header>
@@ -320,23 +393,42 @@ function App() {
       )}
       {!current ? (
         <main className="library">
-          <div className="eyebrow">Meeting Agent</div>
-          <h1>{t('welcome')}</h1>
-          <p className="lead">{t('welcomeBody')}</p>
-          <button className="primary" disabled={starting} onClick={() => void startMeeting()}>
-            {t(active ? 'meeting.open' : 'meeting.start')} <span>↗</span>
-          </button>
-          <p className="device-summary">
-            {snapshot.preferences.audio?.deviceLabel || t('entry.defaultMic')} ·{' '}
-            {t(
-              snapshot.preferences.audio?.includeComputerAudio
-                ? 'entry.withComputer'
-                : 'entry.microphoneOnly',
-            )}{' '}
-            <button className="source-link" onClick={() => setSettings(true)}>
-              {t('entry.change')}
-            </button>
-          </p>
+          <section className="home-hero">
+            <div className="hero-kicker">
+              <AudioLines size={18} />
+              <span>{t('design.homeKicker')}</span>
+            </div>
+            <h1>{t('welcome')}</h1>
+            <p className="lead">{t('welcomeBody')}</p>
+            <div className="start-row">
+              <button
+                className="primary start-button"
+                disabled={starting}
+                onClick={() => void startMeeting()}
+              >
+                <Play size={17} fill="currentColor" />
+                {t(starting ? 'status.starting' : active ? 'meeting.open' : 'meeting.start')}
+                <ArrowRight size={18} />
+              </button>
+              <div className="device-summary">
+                <div>
+                  <Mic size={15} />
+                  <span>{snapshot.preferences.audio?.deviceLabel || t('entry.defaultMic')}</span>
+                </div>
+                <button className="source-link" onClick={showSettings}>
+                  {t(
+                    snapshot.preferences.audio?.includeComputerAudio
+                      ? 'entry.withComputer'
+                      : 'entry.microphoneOnly',
+                  )}
+                  <span aria-hidden="true">·</span>
+                  {t('entry.change')}
+                  <ChevronRight size={13} />
+                </button>
+              </div>
+            </div>
+            <p className="hero-footnote">{t('design.startHint')}</p>
+          </section>
           {snapshot.capabilities.developerInputs && (
             <details>
               <summary>{t('entry.development')}</summary>
@@ -347,67 +439,172 @@ function App() {
             <div className="setup-note">
               <strong>{t('setup')}</strong>
               <p>{t('setupBody')}</p>
-              <button className="source-link" onClick={() => setSettings(true)}>
+              <button className="source-link" onClick={showSettings}>
                 {t('provider')} ↗
               </button>
             </div>
           )}
-          <div className="section-label">{t('meeting.recent')}</div>
-          {snapshot.meetings.length === 0 ? (
-            <p className="muted">{t('emptyLibrary')}</p>
-          ) : (
-            snapshot.meetings.map((m) => (
-              <button className="meeting-row" key={m.id} onClick={() => openMeeting(m)}>
+          <section className="recent-meetings">
+            <div className="recent-heading">
+              <h2>{t('meeting.recent')}</h2>
+              <span>{t('design.recentHint')}</span>
+            </div>
+            {snapshot.meetings.length > 0 && (
+              <div className="library-tools">
+                <nav className="view-tabs" aria-label={t('design.filterMeetings')}>
+                  {(['all', 'active', 'ended'] as const).map((filter) => (
+                    <button
+                      key={filter}
+                      aria-pressed={meetingFilter === filter}
+                      onClick={() => setMeetingFilter(filter)}
+                    >
+                      {t('design.filter.' + filter)}
+                    </button>
+                  ))}
+                </nav>
+                <label className="search-field">
+                  <Search size={15} />
+                  <input
+                    aria-label={t('design.searchMeetings')}
+                    placeholder={t('design.searchMeetings')}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                  {search && (
+                    <button aria-label={t('design.clearSearch')} onClick={() => setSearch('')}>
+                      <X size={13} />
+                    </button>
+                  )}
+                </label>
+              </div>
+            )}
+
+            {snapshot.meetings.length === 0 ? (
+              <div className="library-empty">
+                <span className="quiet-icon">
+                  <FileText size={23} />
+                </span>
                 <div>
-                  <strong>{m.title}</strong>
-                  <p>
-                    {t(m.mode)} · {new Date(m.createdAt).toLocaleString(locale)}
-                  </p>
+                  <strong>{t('emptyLibrary')}</strong>
+                  <p>{t('design.emptyHint')}</p>
                 </div>
-                <span>{t('status.' + m.capture)} ↗</span>
-              </button>
-            ))
-          )}
+              </div>
+            ) : (
+              <div className="meeting-list">
+                {filteredMeetings.length === 0 && (
+                  <div className="no-results">
+                    <Search size={22} />
+                    <p>{t('design.noResults')}</p>
+                    <button
+                      className="source-link"
+                      onClick={() => {
+                        setSearch('');
+                        setMeetingFilter('all');
+                      }}
+                    >
+                      {t('design.clearFilters')}
+                    </button>
+                  </div>
+                )}
+                {filteredMeetings.map((m) => (
+                  <button className="meeting-row" key={m.id} onClick={() => openMeeting(m)}>
+                    <span className={`meeting-file ${m.status === 'active' ? 'is-active' : ''}`}>
+                      <FileText size={21} />
+                    </span>
+                    <div className="meeting-row-content">
+                      <strong>{m.title}</strong>
+                      <p>
+                        <Clock3 size={13} />
+                        {new Date(m.createdAt).toLocaleString(locale, {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                        <span>·</span>
+                        {t(m.mode)}
+                      </p>
+                    </div>
+                    <span className={`status status-${m.capture}`}>
+                      <i className={`dot ${m.capture}`} />
+                      {t('status.' + m.capture)}
+                    </span>
+                    <ChevronRight className="row-chevron" size={17} />
+                  </button>
+                ))}
+              </div>
+            )}
+          </section>
         </main>
       ) : (
         <>
           <div className="workspace-meta">
-            <div className="muted">
-              {t(
-                current.processing === 'working'
-                  ? 'processing.active'
-                  : 'status.' + current.capture,
-              )}
-            </div>
-            <div className="meta-actions">
-              <button className="text-button" onClick={() => setSourceRefs([])}>
-                {t('sources.open')} ↗
+            <nav className="view-tabs" aria-label={t('working')}>
+              <button
+                aria-pressed={!history && sourceRefs === null}
+                onClick={() => {
+                  setHistory(false);
+                  setSourceRefs(null);
+                }}
+              >
+                <FileText size={15} />
+                {t('design.workContent')}
               </button>
-              <button className="text-button" onClick={() => setHistory(!history)}>
+              <button aria-pressed={sourceRefs !== null} onClick={() => openSources([])}>
+                <BookOpen size={15} />
+                {t('sources.open')}
+              </button>
+              <button aria-pressed={history} onClick={() => setHistory(!history)}>
+                <History size={15} />
                 {t('history')}
               </button>
+            </nav>
+            <div className="meta-actions">
+              {artifact && (
+                <button
+                  className="text-button"
+                  aria-pressed={outlineOpen}
+                  onClick={() => setOutlineOpen(!outlineOpen)}
+                >
+                  <ListTree size={15} />
+                  {t('design.outline')}
+                </button>
+              )}
               <button
                 className="text-button"
                 onClick={() => void act(() => api('export', { meetingId: current.id }))}
               >
+                <Download size={15} />
                 {t('action.export')}
               </button>
             </div>
           </div>
           {(current.error || current.captureError) && (
             <div className="banner warning" role="status">
-              {errorText(locale, current.error || current.captureError!)}
-              <button onClick={() => void act(() => command('retry'))}>{t('action.retry')}</button>
+              {errorText(locale, current.captureError || current.error!)}
+              <button
+                onClick={() =>
+                  void act(() =>
+                    current.captureError
+                      ? api('capture', { action: 'start', meetingId: current.id })
+                      : command('retry'),
+                  )
+                }
+              >
+                {t('action.retry')}
+              </button>
             </div>
           )}
           {history && (
             <nav className="version-list" aria-label={t('history')}>
+              {!current.artifacts.length && <p className="muted">{t('design.noVersions')}</p>}
               {current.artifacts
                 .slice()
                 .reverse()
                 .map((a) => (
                   <button
                     key={`${a.id}-${a.rev}`}
+                    aria-pressed={view?.id === a.id && view?.rev === a.rev}
                     onClick={() => setView({ id: a.id, rev: a.rev })}
                   >
                     {a.question} · {t('revision')} {a.rev} · {a.locale}
@@ -416,31 +613,59 @@ function App() {
             </nav>
           )}
           <main className="workspace">
+            <div className="document-meta">
+              <span>
+                {new Date(current.createdAt).toLocaleDateString(locale, {
+                  month: 'short',
+                  day: 'numeric',
+                })}
+              </span>
+              <span>
+                {t(
+                  current.status === 'ended'
+                    ? 'design.closedContext'
+                    : current.processing === 'working'
+                      ? 'processing.active'
+                      : current.segments.length
+                        ? 'design.receivedContext'
+                        : 'design.waitingContext',
+                )}
+              </span>
+              {current.lastExpressionAt && (
+                <span>
+                  {t('design.updated')}{' '}
+                  {new Date(current.lastExpressionAt).toLocaleTimeString(locale, {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </span>
+              )}
+            </div>
+            {outlineOpen && artifact && (
+              <nav className="document-outline" aria-label={t('design.outline')}>
+                <span>{t('design.outline')}</span>
+                {artifact.blocks.map((block) => (
+                  <button
+                    className="text-button"
+                    key={block.id}
+                    aria-current={outlineSelection === block.id ? 'location' : undefined}
+                    onClick={() => {
+                      setOutlineSelection(block.id);
+                      const node = document.getElementById('block-' + block.id);
+                      node?.scrollIntoView({ block: 'start', behavior: 'instant' });
+                      node?.focus({ preventScroll: true });
+                    }}
+                  >
+                    {block.title}
+                  </button>
+                ))}
+              </nav>
+            )}
             {(current.audioPending ?? 0) > 1 && (
               <p className="muted" role="status">
                 {t('live.audioPending')}: {current.audioPending}
               </p>
             )}
-            <details className="processing-details">
-              <summary>{t('live.processingDetails')}</summary>
-              <p>
-                {t('live.calls')}: {current.usageTotals?.calls ?? current.metrics.calls} · Tokens:{' '}
-                {current.metrics.inputTokens + current.metrics.outputTokens}
-                {(current.usageTotals?.unknownUsageCalls ?? 0) > 0
-                  ? ' + ' + t('live.unknownUsage')
-                  : ''}
-              </p>
-              <p>
-                {t('live.lastUnderstanding')}:{' '}
-                {current.lastUnderstandingAt
-                  ? new Date(current.lastUnderstandingAt).toLocaleTimeString(locale)
-                  : '—'}{' '}
-                · {t('live.lastView')}:{' '}
-                {current.lastExpressionAt
-                  ? new Date(current.lastExpressionAt).toLocaleTimeString(locale)
-                  : '—'}
-              </p>
-            </details>
             {current.expressionStatus === 'working' && (
               <p className="muted" role="status">
                 {t('live.preparing')}
@@ -458,24 +683,38 @@ function App() {
             )}
             {view && latest && (
               <div className="update-notice">
-                {t('newVersion')}
+                {t('design.viewingHistory')}
                 <button onClick={() => setView(null)}>{t('artifact.applyUpdates')}</button>
               </div>
             )}
             {artifact ? (
               <>
                 <div className="eyebrow">
-                  {view ? t('live.history') : t('live.following')}
+                  <span className="focus-label">
+                    <Sparkles size={14} />
+                    {artifact.scope === 'personal'
+                      ? t('live.personal')
+                      : current.status === 'ended'
+                        ? t('design.savedView')
+                        : view
+                          ? t('live.history')
+                          : t('focus')}
+                  </span>
                   {artifactIsStale(artifact, current) && (
                     <span className="stale"> · {t('artifact.stale')}</span>
                   )}
                 </div>
-                <h1>{artifact.question}</h1>
-                <p className="lead">{artifact.summary}</p>
+                <h1 className="focus-title">{artifact.question}</h1>
+                <p className="lead focus-summary">{artifact.summary}</p>
+                {artifact.scope === 'personal' && (
+                  <p className="scope-note">{t('design.personalNote')}</p>
+                )}
                 <ArtifactView
                   artifact={artifact}
                   locale={locale}
-                  onSources={setSourceRefs}
+                  onSources={openSources}
+                  selectedSources={sourceRefs}
+                  selectedTarget={sourceTarget}
                   onAction={(prompt) => void act(() => command('ask', { text: prompt }))}
                 />
                 <ScenarioShelf
@@ -495,30 +734,125 @@ function App() {
                 />
                 <div className="artifact-actions">
                   <button onClick={() => setDecisionScope('personal')}>
+                    <Bookmark size={15} />
                     {t('action.savePersonal')}
                   </button>
                   <button className="text-button" onClick={() => setDecisionScope('meeting')}>
+                    <Check size={15} />
                     {t('action.recordDecision')}
                   </button>
                 </div>
               </>
             ) : (
               <div className="empty-work">
-                <span className="empty-symbol">◇</span>
-                <h1>{current.focus || t('noArtifact')}</h1>
+                <span className="empty-symbol">
+                  <AudioLines size={30} />
+                </span>
+                <h1>{current.focus || t('design.emptyTitle')}</h1>
                 <p>
                   {snapshot.capabilities.modelConfigured
-                    ? t('entry.listeningEmpty')
+                    ? t(
+                        current.capture === 'capturing'
+                          ? 'entry.listeningEmpty'
+                          : current.capture === 'stopped'
+                            ? 'design.endedEmpty'
+                            : 'design.waitingEmpty',
+                      )
                     : t('awaiting')}
                 </p>
                 {!snapshot.capabilities.modelConfigured && (
-                  <button onClick={() => setSettings(true)}>{t('provider')}</button>
+                  <button onClick={showSettings}>{t('provider')}</button>
                 )}
               </div>
             )}
+            {current.status === 'active' && artifact && (
+              <div className="explore-entry">
+                <button
+                  className="explore-toggle"
+                  onClick={() => {
+                    if (!askOpen && !ask.trim())
+                      setAskContext({ artifactId: artifact.id, artifactRev: artifact.rev });
+                    setAskOpen(!askOpen);
+                  }}
+                >
+                  <MessageSquare size={17} />
+                  {t(askOpen ? 'entry.closeExplore' : 'entry.explore')}
+                  <ChevronRight size={15} className={askOpen ? 'rotated' : ''} />
+                </button>
+              </div>
+            )}
+            {current.status === 'active' && artifact && askOpen && (
+              <form
+                className="ask-bar"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void submitAsk();
+                }}
+              >
+                {askContext &&
+                  (askContext.artifactId !== artifact.id ||
+                    askContext.artifactRev !== artifact.rev) && (
+                    <p className="ask-context-note">
+                      {t('entry.contextChanged')}{' '}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setAskContext({ artifactId: artifact.id, artifactRev: artifact.rev })
+                        }
+                      >
+                        {t('entry.useLatest')}
+                      </button>
+                    </p>
+                  )}
+                <p className="explore-note">{t('design.personalNote')}</p>
+                {askContext && (
+                  <div className="context-chip">
+                    <FileText size={13} />
+                    <span>
+                      {t('design.context')}:{' '}
+                      {current.artifacts.find(
+                        (a) => a.id === askContext.artifactId && a.rev === askContext.artifactRev,
+                      )?.question ?? artifact.question}
+                    </span>
+                    <button
+                      type="button"
+                      aria-label={t('design.removeContext')}
+                      onClick={() => setAskContext(null)}
+                    >
+                      <X size={13} />
+                    </button>
+                  </div>
+                )}
+                <textarea
+                  aria-label={t('ask.placeholder')}
+                  placeholder={t('ask.placeholder')}
+                  value={ask}
+                  rows={1}
+                  onChange={(e) => setAsk(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (
+                      e.key === 'Enter' &&
+                      !e.shiftKey &&
+                      !e.nativeEvent.isComposing &&
+                      e.keyCode !== 229
+                    ) {
+                      e.preventDefault();
+                      void submitAsk();
+                    }
+                  }}
+                />
+                <button className="text-button" type="submit" disabled={!ask.trim() || sending}>
+                  {t('ask.send')}
+                  <ArrowUpRight size={16} />
+                </button>
+              </form>
+            )}
             {current.changes.length > 0 && (
               <section className="changes">
-                <div className="section-label">{t('changes')}</div>
+                <div className="section-label">
+                  <Clock3 size={15} />
+                  {t('changes')}
+                </div>
                 {current.changes.map((c, i) => (
                   <p key={i}>{c}</p>
                 ))}
@@ -595,72 +929,34 @@ function App() {
                 )}
               </section>
             )}
+            <details className="processing-details">
+              <summary>{t('live.processingDetails')}</summary>
+              <p>
+                {t('live.calls')}: {current.usageTotals?.calls ?? current.metrics.calls} · Tokens:{' '}
+                {current.metrics.inputTokens + current.metrics.outputTokens}
+                {(current.usageTotals?.unknownUsageCalls ?? 0) > 0
+                  ? ' + ' + t('live.unknownUsage')
+                  : ''}
+              </p>
+              <p>
+                {t('live.lastUnderstanding')}:{' '}
+                {current.lastUnderstandingAt
+                  ? new Date(current.lastUnderstandingAt).toLocaleTimeString(locale)
+                  : '—'}{' '}
+                · {t('live.lastView')}:{' '}
+                {current.lastExpressionAt
+                  ? new Date(current.lastExpressionAt).toLocaleTimeString(locale)
+                  : '—'}
+              </p>
+            </details>
           </main>
-          {current.status === 'active' && artifact && (
-            <div className="explore-entry">
-              <button
-                className="source-link"
-                onClick={() => {
-                  if (!askOpen && !ask.trim())
-                    setAskContext({ artifactId: artifact.id, artifactRev: artifact.rev });
-                  setAskOpen(!askOpen);
-                }}
-              >
-                {t(askOpen ? 'entry.closeExplore' : 'entry.explore')}
-              </button>
-            </div>
-          )}
-          {current.status === 'active' && artifact && askOpen && (
-            <form
-              className="ask-bar"
-              onSubmit={(e) => {
-                e.preventDefault();
-                void submitAsk();
-              }}
-            >
-              {askContext &&
-                (askContext.artifactId !== artifact.id ||
-                  askContext.artifactRev !== artifact.rev) && (
-                  <p className="ask-context-note">
-                    {t('entry.contextChanged')}{' '}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setAskContext({ artifactId: artifact.id, artifactRev: artifact.rev })
-                      }
-                    >
-                      {t('entry.useLatest')}
-                    </button>
-                  </p>
-                )}
-              <span aria-hidden>✦</span>
-              <textarea
-                aria-label={t('ask.placeholder')}
-                placeholder={t('ask.placeholder')}
-                value={ask}
-                rows={1}
-                onChange={(e) => setAsk(e.target.value)}
-                onKeyDown={(e) => {
-                  if (
-                    e.key === 'Enter' &&
-                    !e.shiftKey &&
-                    !e.nativeEvent.isComposing &&
-                    e.keyCode !== 229
-                  ) {
-                    e.preventDefault();
-                    void submitAsk();
-                  }
-                }}
-              />
-              <button className="text-button" type="submit" disabled={!ask.trim() || sending}>
-                {t('ask.send')} ↗
-              </button>
-            </form>
-          )}
-          {sourceRefs !== null && (
+          {current && (
             <SourceDrawer
+              key={current.id}
+              open={sourceRefs !== null}
+              target={sourceTarget}
               meeting={current}
-              refs={sourceRefs}
+              refs={sourceRefs ?? []}
               locale={locale}
               onClose={() => setSourceRefs(null)}
               onCorrect={(payload) => act(() => command('correct', payload))}
@@ -684,11 +980,8 @@ function App() {
         />
       )}
       {renaming && current && (
-        <div className="modal-backdrop">
+        <Modal title={t('entry.rename')} close={() => setRenaming(false)}>
           <form
-            className="modal"
-            role="dialog"
-            aria-label={t('entry.rename')}
             onSubmit={(e) => {
               e.preventDefault();
               void act(async () => {
@@ -700,7 +993,6 @@ function App() {
               });
             }}
           >
-            <h2>{t('entry.rename')}</h2>
             <input
               autoFocus
               aria-label={t('meeting.title')}
@@ -715,10 +1007,11 @@ function App() {
               </button>
             </div>
           </form>
-        </div>
+        </Modal>
       )}
       {settings && (
         <Settings
+          setupOnly={audioSetup}
           preferences={snapshot.preferences}
           snapshot={snapshot}
           t={t}

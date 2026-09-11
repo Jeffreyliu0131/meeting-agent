@@ -1,16 +1,19 @@
+import { X, Mic, Languages, SlidersHorizontal, BookOpen, Clock3, ChevronRight } from 'lucide-react';
 import React, { useEffect, useState, useRef } from 'react';
 import type { Snapshot, Meeting, Ref, Segment, Formula, Preferences } from '../contracts/model';
 import { translator, errorText } from './i18n';
 import { calculate } from '../domain/calculator';
 import { api } from './bridge';
-function Modal({
+export function Modal({
   title,
   close,
   children,
+  className = '',
 }: {
   title: string;
   close: () => void;
   children: React.ReactNode;
+  className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -27,11 +30,15 @@ function Modal({
     >
       <div
         ref={ref}
-        className="modal"
+        className={`modal ${className}`}
         role="dialog"
         aria-modal="true"
         aria-label={title}
         onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            e.stopPropagation();
+            close();
+          }
           if (e.key === 'Tab') {
             const items = Array.from(
               ref.current!.querySelectorAll<HTMLElement>(
@@ -58,7 +65,7 @@ function Modal({
               'action.close',
             )}
           >
-            ×
+            <X size={18} />
           </button>
         </div>
         {children}
@@ -144,6 +151,7 @@ export function NewMeeting({
 }
 export function Settings({
   preferences,
+  setupOnly = false,
   snapshot,
   t,
   close,
@@ -152,6 +160,7 @@ export function Settings({
   changeOutput,
 }: {
   preferences: Preferences;
+  setupOnly?: boolean;
   snapshot: Snapshot;
   t: (s: string) => string;
   close: () => void;
@@ -163,6 +172,12 @@ export function Settings({
     [platform, setPlatform] = useState<any>(null),
     [devices, setDevices] = useState<Array<{ deviceId: string; label: string }>>([]),
     [audioError, setAudioError] = useState('');
+  const [activeSection, setActiveSection] = useState('settings-audio');
+  const sections = useRef<HTMLDivElement>(null);
+  const jumpTo = (id: string) => {
+    setActiveSection(id);
+    sections.current?.querySelector<HTMLElement>('#' + id)?.scrollIntoView({ block: 'start' });
+  };
   useEffect(() => {
     void api('platform').then(setPlatform);
     void api('devices')
@@ -170,189 +185,265 @@ export function Settings({
       .catch(() => {});
   }, []);
   return (
-    <Modal title={t('settings.open')} close={close}>
-      <section className="settings-section">
-        <h3>{t('entry.audioSetup')}</h3>
-        <label>
-          {t('entry.microphone')}
-          <select
-            value={draft.audio?.deviceId ?? 'default'}
-            onChange={(e) =>
-              setDraft({
-                ...draft,
-                audio: {
-                  deviceId: e.target.value,
-                  deviceLabel: devices.find((d) => d.deviceId === e.target.value)?.label ?? '',
-                  includeComputerAudio: draft.audio?.includeComputerAudio ?? false,
-                  setupCompleted: true,
-                },
-              })
-            }
-          >
-            <option value="default">{t('entry.defaultMic')}</option>
-            {draft.audio?.deviceId &&
-              draft.audio.deviceId !== 'default' &&
-              !devices.some((d) => d.deviceId === draft.audio!.deviceId) && (
-                <option value={draft.audio.deviceId}>
-                  {draft.audio.deviceLabel} · {t('entry.unavailable')}
-                </option>
-              )}
-            {devices
-              .filter((d) => d.deviceId && d.deviceId !== 'default')
-              .map((d, i) => (
-                <option key={d.deviceId} value={d.deviceId}>
-                  {d.label || t('entry.microphone') + ' ' + (i + 1)}
-                </option>
-              ))}
-          </select>
-        </label>
-        <label className="check">
-          <input
-            type="checkbox"
-            checked={draft.audio?.includeComputerAudio ?? false}
-            onChange={(e) =>
-              setDraft({
-                ...draft,
-                audio: {
-                  deviceId: draft.audio?.deviceId ?? 'default',
-                  deviceLabel: draft.audio?.deviceLabel ?? '',
-                  includeComputerAudio: e.target.checked,
-                  setupCompleted: true,
-                },
-              })
-            }
-          />
-          {t('entry.computerAudio')}
-        </label>
-        <p className="privacy">{t('entry.audioPrivacy')}</p>
-        {audioError && <p role="alert">{errorText(preferences.uiLocale, audioError)}</p>}
-        {!snapshot.capabilities.sttConfigured && <p className="warning-text">{t('sttMissing')}</p>}
-        {current?.status === 'active' && (
-          <>
-            <p className="muted">
-              {t('entry.currentDevice')}: {current.actualDevice?.label || t('entry.defaultMic')}
-            </p>
+    <Modal
+      title={t(setupOnly ? 'entry.audioSetup' : 'settings.open')}
+      close={close}
+      className={`settings-modal ${setupOnly ? 'audio-setup-modal' : ''}`}
+    >
+      <p className="settings-intro">{t(setupOnly ? 'design.setupHint' : 'design.settingsHint')}</p>
+      <div className="settings-layout">
+        {!setupOnly && (
+          <nav className="settings-nav" aria-label={t('settings.open')}>
             <button
-              onClick={async () => {
-                try {
-                  const saved = await save(
-                    {
-                      ...draft,
-                      audio: {
-                        deviceId: draft.audio?.deviceId ?? 'default',
-                        deviceLabel: draft.audio?.deviceLabel ?? '',
-                        includeComputerAudio: draft.audio?.includeComputerAudio ?? false,
-                        setupCompleted: true,
-                      },
-                    },
-                    true,
-                  );
-                  if (saved !== true) return;
-                  await api('applyAudioSettings');
-                  close();
-                } catch (e) {
-                  setAudioError((e as Error).message);
-                }
-              }}
+              aria-current={activeSection === 'settings-audio' ? 'location' : undefined}
+              onClick={() => jumpTo('settings-audio')}
             >
-              {t('entry.applyCurrent')}
+              <Mic size={17} />
+              {t('entry.audioSetup')}
             </button>
-          </>
+            <button
+              aria-current={activeSection === 'settings-language' ? 'location' : undefined}
+              onClick={() => jumpTo('settings-language')}
+            >
+              <Languages size={17} />
+              {t('design.language')}
+            </button>
+            <button
+              aria-current={activeSection === 'settings-experience' ? 'location' : undefined}
+              onClick={() => jumpTo('settings-experience')}
+            >
+              <SlidersHorizontal size={17} />
+              {t('design.experience')}
+            </button>
+          </nav>
         )}
-      </section>
-      <label>
-        {t('settings.interfaceLanguage')}
-        <select
-          aria-label={t('settings.interfaceLanguage')}
-          value={draft.uiLanguage ?? draft.uiLocale}
-          onChange={(e) => setDraft({ ...draft, uiLanguage: e.target.value as any })}
+        <div
+          className="settings-content"
+          ref={sections}
+          onScroll={(e) => {
+            const top = e.currentTarget.getBoundingClientRect().top;
+            const visible = Array.from(e.currentTarget.querySelectorAll<HTMLElement>('section[id]'))
+              .filter((el) => el.getBoundingClientRect().top <= top + 100)
+              .at(-1);
+            if (visible) setActiveSection(visible.id);
+          }}
         >
-          <option value="system">{t('entry.system')}</option>
-          <option value="en">English</option>
-          <option value="zh-CN">简体中文</option>
-        </select>
-      </label>
-      <label>
-        {t('settings.defaultOutputLanguage')}
-        <select
-          aria-label={t('settings.defaultOutputLanguage')}
-          value={draft.defaultOutputLanguage ?? draft.defaultOutputLocale}
-          onChange={(e) => setDraft({ ...draft, defaultOutputLanguage: e.target.value as any })}
+          <section className="settings-section" id="settings-audio">
+            <h3>
+              <Mic size={18} />
+              {t('entry.audioSetup')}
+            </h3>
+            <label>
+              {t('entry.microphone')}
+              <select
+                value={draft.audio?.deviceId ?? 'default'}
+                onChange={(e) =>
+                  setDraft({
+                    ...draft,
+                    audio: {
+                      deviceId: e.target.value,
+                      deviceLabel: devices.find((d) => d.deviceId === e.target.value)?.label ?? '',
+                      includeComputerAudio: draft.audio?.includeComputerAudio ?? false,
+                      setupCompleted: true,
+                    },
+                  })
+                }
+              >
+                <option value="default">{t('entry.defaultMic')}</option>
+                {draft.audio?.deviceId &&
+                  draft.audio.deviceId !== 'default' &&
+                  !devices.some((d) => d.deviceId === draft.audio!.deviceId) && (
+                    <option value={draft.audio.deviceId}>
+                      {draft.audio.deviceLabel} · {t('entry.unavailable')}
+                    </option>
+                  )}
+                {devices
+                  .filter((d) => d.deviceId && d.deviceId !== 'default')
+                  .map((d, i) => (
+                    <option key={d.deviceId} value={d.deviceId}>
+                      {d.label || t('entry.microphone') + ' ' + (i + 1)}
+                    </option>
+                  ))}
+              </select>
+            </label>
+            <label className="check">
+              <input
+                type="checkbox"
+                checked={draft.audio?.includeComputerAudio ?? false}
+                onChange={(e) =>
+                  setDraft({
+                    ...draft,
+                    audio: {
+                      deviceId: draft.audio?.deviceId ?? 'default',
+                      deviceLabel: draft.audio?.deviceLabel ?? '',
+                      includeComputerAudio: e.target.checked,
+                      setupCompleted: true,
+                    },
+                  })
+                }
+              />
+              {t('entry.computerAudio')}
+            </label>
+            <p className="privacy">{t('entry.audioPrivacy')}</p>
+            {audioError && <p role="alert">{errorText(preferences.uiLocale, audioError)}</p>}
+            {!snapshot.capabilities.sttConfigured && (
+              <p className="warning-text">{t('sttMissing')}</p>
+            )}
+            {current?.status === 'active' && (
+              <>
+                <p className="muted">
+                  {t('entry.currentDevice')}: {current.actualDevice?.label || t('entry.defaultMic')}
+                </p>
+                <button
+                  onClick={async () => {
+                    try {
+                      const saved = await save(
+                        {
+                          ...draft,
+                          audio: {
+                            deviceId: draft.audio?.deviceId ?? 'default',
+                            deviceLabel: draft.audio?.deviceLabel ?? '',
+                            includeComputerAudio: draft.audio?.includeComputerAudio ?? false,
+                            setupCompleted: true,
+                          },
+                        },
+                        true,
+                      );
+                      if (saved !== true) return;
+                      await api('applyAudioSettings');
+                      close();
+                    } catch (e) {
+                      setAudioError((e as Error).message);
+                    }
+                  }}
+                >
+                  {t('entry.applyCurrent')}
+                </button>
+              </>
+            )}
+          </section>
+          {!setupOnly && (
+            <>
+              <section className="settings-section" id="settings-language">
+                <h3>
+                  <Languages size={18} />
+                  {t('design.language')}
+                </h3>
+                <label>
+                  {t('settings.interfaceLanguage')}
+                  <select
+                    aria-label={t('settings.interfaceLanguage')}
+                    value={draft.uiLanguage ?? draft.uiLocale}
+                    onChange={(e) => setDraft({ ...draft, uiLanguage: e.target.value as any })}
+                  >
+                    <option value="system">{t('entry.system')}</option>
+                    <option value="en">English</option>
+                    <option value="zh-CN">简体中文</option>
+                  </select>
+                </label>
+                <label>
+                  {t('settings.defaultOutputLanguage')}
+                  <select
+                    aria-label={t('settings.defaultOutputLanguage')}
+                    value={draft.defaultOutputLanguage ?? draft.defaultOutputLocale}
+                    onChange={(e) =>
+                      setDraft({ ...draft, defaultOutputLanguage: e.target.value as any })
+                    }
+                  >
+                    <option value="system">{t('entry.system')}</option>
+                    <option value="en">English</option>
+                    <option value="zh-CN">简体中文</option>
+                  </select>
+                </label>
+                {current && (
+                  <label>
+                    {t('settings.outputLanguage')}
+                    <select
+                      value={current.outputLocale}
+                      onChange={(e) => void changeOutput(e.target.value)}
+                    >
+                      <option value="en">English</option>
+                      <option value="zh-CN">简体中文</option>
+                    </select>
+                  </label>
+                )}
+              </section>
+              <section className="settings-section" id="settings-experience">
+                <h3>
+                  <SlidersHorizontal size={18} />
+                  {t('design.experience')}
+                </h3>
+                <label className="check">
+                  <input
+                    type="checkbox"
+                    checked={draft.reduceMotion}
+                    onChange={(e) => setDraft({ ...draft, reduceMotion: e.target.checked })}
+                  />
+                  {t('settings.reduceMotion')}
+                </label>
+                <label className="check">
+                  <input
+                    type="checkbox"
+                    checked={draft.reduceTransparency}
+                    onChange={(e) => setDraft({ ...draft, reduceTransparency: e.target.checked })}
+                  />
+                  {t('settings.reduceTransparency')}
+                </label>
+                <label>
+                  {t('shortcut')}
+                  <input
+                    value={draft.shortcut}
+                    onChange={(e) => setDraft({ ...draft, shortcut: e.target.value })}
+                  />
+                </label>
+                <small>{t('shortcutHelp')}</small>
+              </section>
+              <details className="settings-diagnostics">
+                <summary>{t('live.processingDetails')}</summary>
+                <section className="settings-section">
+                  <h3>{t('provider')}</h3>
+                  <p>{t('providerHelp')}</p>
+                  <p className="muted">
+                    {snapshot.capabilities.model} · {snapshot.capabilities.modelHost}
+                    <br />
+                    {snapshot.capabilities.sttHost}
+                  </p>
+                </section>
+                {platform && (
+                  <section className="settings-section">
+                    <h3>{t('platform')}</h3>
+                    <p>
+                      {platform.os} · {platform.release}
+                      <br />
+                      {platform.audioRoute}
+                    </p>
+                    <small>{t('noPermission')}</small>
+                  </section>
+                )}
+              </details>
+            </>
+          )}
+        </div>
+      </div>
+      <div className="settings-footer">
+        <span>{t(setupOnly ? 'design.setupSaveHint' : 'design.saveHint')}</span>
+        <button
+          className="primary"
+          onClick={() =>
+            void save({
+              ...draft,
+              audio: {
+                deviceId: draft.audio?.deviceId ?? 'default',
+                deviceLabel: draft.audio?.deviceLabel ?? '',
+                includeComputerAudio: draft.audio?.includeComputerAudio ?? false,
+                setupCompleted: true,
+              },
+            })
+          }
         >
-          <option value="system">{t('entry.system')}</option>
-          <option value="en">English</option>
-          <option value="zh-CN">简体中文</option>
-        </select>
-      </label>
-      {current && (
-        <label>
-          {t('settings.outputLanguage')}
-          <select value={current.outputLocale} onChange={(e) => void changeOutput(e.target.value)}>
-            <option value="en">English</option>
-            <option value="zh-CN">简体中文</option>
-          </select>
-        </label>
-      )}
-      <label className="check">
-        <input
-          type="checkbox"
-          checked={draft.reduceMotion}
-          onChange={(e) => setDraft({ ...draft, reduceMotion: e.target.checked })}
-        />
-        {t('settings.reduceMotion')}
-      </label>
-      <label className="check">
-        <input
-          type="checkbox"
-          checked={draft.reduceTransparency}
-          onChange={(e) => setDraft({ ...draft, reduceTransparency: e.target.checked })}
-        />
-        {t('settings.reduceTransparency')}
-      </label>
-      <label>
-        {t('shortcut')}
-        <input
-          value={draft.shortcut}
-          onChange={(e) => setDraft({ ...draft, shortcut: e.target.value })}
-        />
-      </label>
-      <small>{t('shortcutHelp')}</small>
-      <section className="settings-section">
-        <h3>{t('provider')}</h3>
-        <p>{t('providerHelp')}</p>
-        <p className="muted">
-          {snapshot.capabilities.model} · {snapshot.capabilities.modelHost}
-          <br />
-          {snapshot.capabilities.sttHost}
-        </p>
-      </section>
-      {platform && (
-        <section className="settings-section">
-          <h3>{t('platform')}</h3>
-          <p>
-            {platform.os} · {platform.release}
-            <br />
-            {platform.audioRoute}
-          </p>
-          <small>{t('noPermission')}</small>
-        </section>
-      )}
-      <button
-        className="primary"
-        onClick={() =>
-          void save({
-            ...draft,
-            audio: {
-              deviceId: draft.audio?.deviceId ?? 'default',
-              deviceLabel: draft.audio?.deviceLabel ?? '',
-              includeComputerAudio: draft.audio?.includeComputerAudio ?? false,
-              setupCompleted: true,
-            },
-          })
-        }
-      >
-        {t('saveSettings')}
-      </button>
+          {t('saveSettings')}
+        </button>
+      </div>
     </Modal>
   );
 }
@@ -360,11 +451,15 @@ export function SourceDrawer({
   meeting,
   refs,
   locale,
+  open = true,
+  target = '',
   onClose,
   onCorrect,
 }: {
   meeting: Meeting;
   refs: Ref[];
+  open?: boolean;
+  target?: string;
   locale: 'en' | 'zh-CN';
   onClose: () => void;
   onCorrect: (payload: Record<string, unknown>) => Promise<any>;
@@ -374,17 +469,63 @@ export function SourceDrawer({
     [text, setText] = useState(''),
     [speaker, setSpeaker] = useState(''),
     [basis, setBasis] = useState('');
+  const drawer = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.activeElement as HTMLElement;
+    drawer.current?.querySelector<HTMLElement>('button')?.focus();
+    return () => previous?.focus();
+  }, [open]);
   const segments = refs.length
     ? meeting.segments.filter((s) => refs.some((r) => s.id === r.id && s.rev === r.rev))
     : meeting.segments.filter((s) => !meeting.segments.some((n) => n.id === s.id && n.rev > s.rev));
   return (
-    <aside className="source-drawer" role="dialog" aria-label={t('sources.open')}>
+    <aside
+      ref={drawer}
+      hidden={!open}
+      className="source-drawer"
+      role="dialog"
+      aria-modal="true"
+      aria-label={t('sources.open')}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') {
+          e.stopPropagation();
+          onClose();
+        }
+        if (e.key === 'Tab') {
+          const items = Array.from(
+            drawer.current!.querySelectorAll<HTMLElement>(
+              'button:not(:disabled),input,textarea,select,summary,[tabindex="0"]',
+            ),
+          );
+          const first = items[0],
+            last = items.at(-1);
+          if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last?.focus();
+          } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first?.focus();
+          }
+        }
+      }}
+    >
       <div className="modal-title">
-        <h2>{t('sources')}</h2>
+        <h2>
+          <BookOpen size={20} />
+          {t('sources')}
+        </h2>
         <button onClick={onClose} aria-label={t('action.close')}>
-          ×
+          <X size={18} />
         </button>
       </div>
+      {target && (
+        <div className="source-target">
+          <small>{t('design.checking')}</small>
+          <strong>{target}</strong>
+        </div>
+      )}
+      <p className="drawer-intro">{t('design.sourcesHint')}</p>
       {meeting.inputGaps.length > 0 && (
         <details>
           <summary>
@@ -402,14 +543,20 @@ export function SourceDrawer({
       {segments.map((s) => (
         <article className="source-card" key={`${s.id}-${s.rev}`}>
           <div className="eyebrow">
-            {t('sourceKind.' + s.kind)} · {t('revision')} {s.rev}
+            <Clock3 size={13} />
+            {new Date(s.captureStartMs ?? s.receivedAt).toLocaleTimeString(locale)}
+            <span>·</span>
+            {t('sourceKind.' + s.kind)}
           </div>
           <p className="muted">
             {s.speaker || t('sources.speakerUnknown')}
             {s.speaker && <span> · {t('mapping')}</span>}
           </p>
+          <div className="source-original-label">{t('source.original')}</div>
           <blockquote>{s.text}</blockquote>
-          <small>{new Date(s.captureStartMs ?? s.receivedAt).toLocaleTimeString(locale)}</small>
+          <small>
+            {t('revision')} {s.rev}
+          </small>
           <TranslationView meeting={meeting} segment={s} locale={locale} />
           {meeting.segments.some((n) => n.id === s.id && n.rev > s.rev) ? (
             <p className="stale">{t('sourceStale')}</p>
