@@ -1,0 +1,11 @@
+{
+  "packaged": true,
+  "platform": "darwin",
+  "release": "26.6.2",
+  "microphonePermission": "granted",
+  "screenPermission": "denied",
+  "events": 0,
+  "modelConfigured": false,
+  "rawAudioCaptured": false,
+  "ranAt": "2026-09-11T14:31:34.879Z"
+}

@@ -1,5 +1,6 @@
 # 数据与操作契约
 
+> 实施更新（2026-09-11）：本轮已开始并完成一版本地实现。本文保留原设计目标；“尚未开发／下一轮”等为设计阶段记录。当前实现差异与平台边界见 [ADR-003](adr/003-cross-platform-first-version.md)，实际通过与未测项目见 [验证记录](../tests/results/validation.md)。
 版本0.1｜建议接口，非已编译实现。下面的TypeScript是设计示意；下一轮在`src/contracts/`写运行时schema和类型。本文件定义业务职责，不将具体库写成不可替换前提。
 
 ## 1. 核心对象
@@ -13,6 +14,7 @@
 | Relation | 对象间语义关系 | typed edge，保留证据与推断状态 |
 | ExpressionPlan | 一次表达意图 | 回答的问题、载体、结构、依赖、动作 |
 | Artifact / ArtifactRevision | 生成的工作产物及不可变版本 | 原始描述／代码、依赖、绑定、校验状态，不代替业务事实 |
+| UserPreferences / MeetingLanguage | 界面偏好与会议表达配置 | UI locale与输出locale分开；来源不翻译覆写 |
 | Scenario | 独立条件分支 | 固定基础快照和覆盖条件，不能静默跟随最新事实 |
 | Decision | 个人／会议范围的确认记录 | 不可变，记录确认来源和范围；修订另建记录 |
 
@@ -74,12 +76,14 @@ type Carrier = 'text' | 'table' | 'diagram' | 'svg' | 'chart' | 'html';
 type RefVersion = { id: string; rev: number };
 type ExpressionPlan = {
   planId: string; meetingId: string;
+  outputLocale: 'en' | 'zh-CN'; languageRevision: number;
+  visualProfileId: 'editorial-light-v1';
   action: 'no_change' | 'patch_artifact' | 'create_artifact' |
           'propose_restructure' | 'request_clarification';
   targetArtifactId: string | null;
   purposeKey: string; userQuestion: string;
   objectRefs: RefVersion[]; relationRefs: RefVersion[];
-  carrier: Carrier; structureIntent: unknown;
+  carrier: Carrier | null; structureIntent: unknown;
   allowedActions: ArtifactAction[];
   sourceRefs: SourceRef[]; rationaleShort: string;
 };
@@ -91,6 +95,8 @@ type ArtifactAction =
   | { id: string; type: 'request_correction'; objectIds: string[] };
 type ArtifactRevision = {
   artifactId: string; meetingId: string; revision: number; generation: number;
+  locale: 'en' | 'zh-CN'; languageRevision: number;
+  visualProfileId: 'editorial-light-v1';
   carrier: Carrier; payload: unknown; schemaVersion: number;
   objectRefs: RefVersion[]; relationRefs: RefVersion[]; sourceRefs: SourceRef[];
   bindings: Array<{ elementId: string; objectId: string; actionIds: string[] }>;
@@ -101,9 +107,28 @@ type ArtifactRevision = {
 
 `structureIntent`按载体生成schema：文字层次、表格维度、图形节点边、SVG布局意图、chart编码或HTML区域与交互说明。`payload`以carrier作为判别联合；不得不经校验就直接注入DOM。
 
+`no_change`与`request_clarification`允许carrier和structureIntent为null，不创建生成任务；澄清内容作为question对象或单独clarification结果返回。生成类动作必须有非空载体与通过校验的结构，不能让无变化批次也生成占位产物。
+
+候选依赖由可信服务解析：新对象的临时ID映射为实际ID，同批被修改对象绑定到提交后的revision；模型自报版本不直接用于产物有效性判定。生成器使用这一份已规范化计划与快照。
+
+每种载体的最小payload建议如下，开发时需落实为运行时schema：
+
+| carrier | 必需字段 | 基本校验 |
+|---|---|---|
+| text | blocks：稳定id、kind、text、sourceRefs | kind限制标题／短段落／列表；文本按数据渲染 |
+| table | columns：key／label／unit；rows：id／cells | cell保留value、状态和来源；禁止编造空单元格数值 |
+| diagram | engine、definition、elementMap | 只启用已支持engine；elementMap绑定对象／关系；语法和语义分别校验 |
+| svg | markup、viewBox、elementMap | 有限尺寸、允许标签／属性、唯一元素ID、无外部资源 |
+| chart | engine、spec、datasets、dataSources | 数据为内联可信投影，轴单位齐全，转换和表达式受限 |
+| html | markup、styles、script可空、inputs、elementMap | 资源与行为限制；input有稳定ID、schema、初值和试算归属 |
+
+共同内容：sourceRefs、actionIds、依赖revision由产物外壳持有。复合HTML可包含图形和表格，但每个事实元素仍有绑定；不能用HTML包裹来绕过来源要求。
+
 Agent可以设计新组合，应用不提供“特定会议模板ID”要求它填数。新建通过会议＋目的＋对象角色定位；`purposeKey`要经服务校验，不能因每批随机改名创建重复产物。可并存有不同目的的同对象产物，例如解释与试算。
 
 固定模板版本与产物身份分离；同用途内容变化通常生成同一artifact的新revision。已保存revision不原地覆盖，供恢复和对比。
+
+同一artifact可保留不同locale的表示，均链接相同业务对象与来源。语言切换递增会议languageRevision，不增加虚假的语义变化；提交检查语言配置与对象版本。UI语言单独保存在UserPreferences，不触发整场理解。字段与并发规则详见[语言契约](language-spec.md)。
 
 ## 5. 操作契约与事务
 

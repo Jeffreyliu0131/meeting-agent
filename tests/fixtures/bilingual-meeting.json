@@ -1,0 +1,28 @@
+{
+  "fixtureId": "bilingual-meeting",
+  "schemaVersion": 1,
+  "synthetic": true,
+  "title": "中英混说与输出语言",
+  "meetingDate": "2026-09-14",
+  "timezone": "Asia/Singapore",
+  "defaultIdentity": "unknown",
+  "uiLocale": "en",
+  "outputLocale": "en",
+  "turns": [
+    {"id": "b1", "kind": "speech", "groundTruthSpeaker": "A", "text": "我们先邀请五位客户试用，前提是 support team 确认能支持，这还没有定。"},
+    {"id": "b2", "kind": "speech", "groundTruthSpeaker": "B", "text": "I agree only if the invite says this is a trial. This is not a general release."},
+    {"id": "b3", "kind": "speech", "groundTruthSpeaker": "C", "text": "The target is Friday, September 18. 准备要多久还不清楚，不能保证赶得上。"},
+    {"id": "b4", "kind": "user_request", "text": "请用英文整理条件与未决问题，保留原话供查看。"}
+  ],
+  "expected": [
+    {"id": "B-01", "check": "默认生成内容为英文，UI英文；原中文与混说转写保持原文", "sourceTurnIds": ["b1", "b2", "b3", "b4"]},
+    {"id": "B-02", "check": "五位客户不被改成其他人数，支持团队确认和试用告知都是条件，没有一般发布或会议已确认", "sourceTurnIds": ["b1", "b2"]},
+    {"id": "B-03", "check": "目标日期为2026-09-18但准备工期未知，不承诺准时完成", "sourceTurnIds": ["b3"]},
+    {"id": "B-04", "check": "切换为中文输出后保留相同对象、来源、数字和条件；不是重新生成会议事实", "sourceTurnIds": ["b1", "b2", "b3"]},
+    {"id": "B-05", "check": "UI切换不改变输出locale或停止采集；输出切换后旧英文生成任务不能覆盖中文目标", "sourceTurnIds": ["b4"]}
+  ],
+  "languageSwitchChecks": [
+    {"action": "set_ui_locale", "value": "zh-CN", "expectedOutputLocale": "en", "expectedInputRestart": false},
+    {"action": "set_output_locale", "value": "zh-CN", "expectedOutputLocale": "zh-CN", "rejectEarlierLanguageRevision": true, "preserveSemanticObjectIds": true}
+  ]
+}

@@ -12,6 +12,7 @@ coverage/
 .env
 .env.*
 !.env.example
+provider.env
 *.pem
 *.key
 credentials/
@@ -42,3 +43,9 @@ __pycache__/
 
 # Test input JSON is synthetic and intentionally tracked.
 # Inspect result files before a future commit; no real meeting text by default.
+
+# Local automated UI outputs contain host paths; regenerate when testing.
+tests/results/e2e-artifacts/
+tests/results/e2e-report.json
+test-results/
+playwright-report/

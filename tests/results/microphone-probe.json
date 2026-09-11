@@ -1,0 +1,15 @@
+{
+  "audioTracks": 1,
+  "sampleRate": 48000,
+  "contextState": "running",
+  "peakRms": 0.00036470867675357515,
+  "meanRms": 0.00015298352831758386,
+  "realPhysicalMicrophone": true,
+  "seconds": 3,
+  "providerCalls": 0,
+  "rawAudioSaved": false,
+  "speechRecognitionTested": false,
+  "multispeakerQualityTested": false,
+  "screenPermission": "denied",
+  "ranAt": "2026-09-11T14:09:43.575Z"
+}

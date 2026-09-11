@@ -1,0 +1,571 @@
+import React, { useEffect, useState, useRef } from 'react';
+import type { Snapshot, Meeting, Ref, Segment, Formula, Preferences } from '../contracts/model';
+import { translator, errorText } from './i18n';
+import { calculate } from '../domain/calculator';
+import { api } from './bridge';
+function Modal({
+  title,
+  close,
+  children,
+}: {
+  title: string;
+  close: () => void;
+  children: React.ReactNode;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const previous = document.activeElement as HTMLElement;
+    ref.current?.querySelector<HTMLElement>('button,input,select')?.focus();
+    return () => previous?.focus();
+  }, []);
+  return (
+    <div
+      className="modal-backdrop"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) close();
+      }}
+    >
+      <div
+        ref={ref}
+        className="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        onKeyDown={(e) => {
+          if (e.key === 'Tab') {
+            const items = Array.from(
+              ref.current!.querySelectorAll<HTMLElement>(
+                'button:not(:disabled),input,textarea,select,[tabindex="0"]',
+              ),
+            );
+            const first = items[0],
+              last = items.at(-1);
+            if (e.shiftKey && document.activeElement === first) {
+              e.preventDefault();
+              last?.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+              e.preventDefault();
+              first?.focus();
+            }
+          }
+        }}
+      >
+        <div className="modal-title">
+          <h2>{title}</h2>
+          <button
+            onClick={close}
+            aria-label={translator(document.documentElement.lang === 'zh-CN' ? 'zh-CN' : 'en')(
+              'action.close',
+            )}
+          >
+            ×
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+export function NewMeeting({
+  preferences,
+  t,
+  configured,
+  close,
+  start,
+  onError,
+}: {
+  preferences: Preferences;
+  t: (s: string) => string;
+  configured: boolean;
+  close: () => void;
+  start: (payload: Record<string, unknown>) => Promise<void>;
+  onError: (s: string) => void;
+}) {
+  const [title, setTitle] = useState(''),
+    [mode, setMode] = useState('manual'),
+    [output, setOutput] = useState(preferences.defaultOutputLocale),
+    [busy, setBusy] = useState(false);
+  return (
+    <Modal title={t('meeting.start')} close={close}>
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setBusy(true);
+          try {
+            await start({
+              title,
+              mode,
+              outputLocale: output,
+              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            });
+          } catch (e) {
+            onError((e as Error).message);
+            setBusy(false);
+          }
+        }}
+      >
+        <label>
+          {t('meeting.title')}
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            maxLength={120}
+            placeholder={t('meeting.titleOptional')}
+          />
+        </label>
+        <label>
+          {t('meeting.source')}
+          <select value={mode} onChange={(e) => setMode(e.target.value)}>
+            {['manual', 'microphone', 'online', 'replay'].map((m) => (
+              <option key={m} value={m}>
+                {t(m)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          {t('settings.outputLanguage')}
+          <select value={output} onChange={(e) => setOutput(e.target.value as any)}>
+            <option value="en">English</option>
+            <option value="zh-CN">简体中文</option>
+          </select>
+        </label>
+        <p className="privacy">{t('privacy')}</p>
+        {mode === 'online' && <p className="privacy">{t('onlineHint')}</p>}
+        {!configured && ['microphone', 'online'].includes(mode) && (
+          <p className="warning-text">{t('sttMissing')}</p>
+        )}
+        <button className="primary" disabled={busy}>
+          {t('meeting.start')}
+        </button>
+      </form>
+    </Modal>
+  );
+}
+export function Settings({
+  preferences,
+  snapshot,
+  t,
+  close,
+  save,
+  current,
+  changeOutput,
+}: {
+  preferences: Preferences;
+  snapshot: Snapshot;
+  t: (s: string) => string;
+  close: () => void;
+  save: (p: Preferences) => Promise<any>;
+  current?: Meeting;
+  changeOutput: (l: string) => Promise<any>;
+}) {
+  const [draft, setDraft] = useState(preferences),
+    [platform, setPlatform] = useState<any>(null);
+  useEffect(() => {
+    void api('platform').then(setPlatform);
+  }, []);
+  return (
+    <Modal title={t('settings.open')} close={close}>
+      <label>
+        {t('settings.interfaceLanguage')}
+        <select
+          value={draft.uiLocale}
+          onChange={(e) => setDraft({ ...draft, uiLocale: e.target.value as any })}
+        >
+          <option value="en">English</option>
+          <option value="zh-CN">简体中文</option>
+        </select>
+      </label>
+      <label>
+        {t('settings.defaultOutputLanguage')}
+        <select
+          value={draft.defaultOutputLocale}
+          onChange={(e) => setDraft({ ...draft, defaultOutputLocale: e.target.value as any })}
+        >
+          <option value="en">English</option>
+          <option value="zh-CN">简体中文</option>
+        </select>
+      </label>
+      {current && (
+        <label>
+          {t('settings.outputLanguage')}
+          <select value={current.outputLocale} onChange={(e) => void changeOutput(e.target.value)}>
+            <option value="en">English</option>
+            <option value="zh-CN">简体中文</option>
+          </select>
+        </label>
+      )}
+      <label className="check">
+        <input
+          type="checkbox"
+          checked={draft.reduceMotion}
+          onChange={(e) => setDraft({ ...draft, reduceMotion: e.target.checked })}
+        />
+        {t('settings.reduceMotion')}
+      </label>
+      <label className="check">
+        <input
+          type="checkbox"
+          checked={draft.reduceTransparency}
+          onChange={(e) => setDraft({ ...draft, reduceTransparency: e.target.checked })}
+        />
+        {t('settings.reduceTransparency')}
+      </label>
+      <label>
+        {t('shortcut')}
+        <input
+          value={draft.shortcut}
+          onChange={(e) => setDraft({ ...draft, shortcut: e.target.value })}
+        />
+      </label>
+      <small>{t('shortcutHelp')}</small>
+      <section className="settings-section">
+        <h3>{t('provider')}</h3>
+        <p>{t('providerHelp')}</p>
+        <p className="muted">
+          {snapshot.capabilities.model} · {snapshot.capabilities.modelHost}
+          <br />
+          {snapshot.capabilities.sttHost}
+        </p>
+      </section>
+      {platform && (
+        <section className="settings-section">
+          <h3>{t('platform')}</h3>
+          <p>
+            {platform.os} · {platform.release}
+            <br />
+            {platform.audioRoute}
+          </p>
+          <small>{t('noPermission')}</small>
+        </section>
+      )}
+      <button className="primary" onClick={() => void save(draft)}>
+        {t('saveSettings')}
+      </button>
+    </Modal>
+  );
+}
+export function SourceDrawer({
+  meeting,
+  refs,
+  locale,
+  onClose,
+  onCorrect,
+}: {
+  meeting: Meeting;
+  refs: Ref[];
+  locale: 'en' | 'zh-CN';
+  onClose: () => void;
+  onCorrect: (payload: Record<string, unknown>) => Promise<any>;
+}) {
+  const t = translator(locale),
+    [editing, setEditing] = useState<Segment | null>(null),
+    [text, setText] = useState(''),
+    [speaker, setSpeaker] = useState(''),
+    [basis, setBasis] = useState('');
+  const segments = refs.length
+    ? meeting.segments.filter((s) => refs.some((r) => s.id === r.id && s.rev === r.rev))
+    : meeting.segments.filter((s) => !meeting.segments.some((n) => n.id === s.id && n.rev > s.rev));
+  return (
+    <aside className="source-drawer" role="dialog" aria-label={t('sources.open')}>
+      <div className="modal-title">
+        <h2>{t('sources')}</h2>
+        <button onClick={onClose} aria-label={t('action.close')}>
+          ×
+        </button>
+      </div>
+      {!segments.length && <p>{t('emptySources')}</p>}
+      {segments.map((s) => (
+        <article className="source-card" key={`${s.id}-${s.rev}`}>
+          <div className="eyebrow">
+            {t('sourceKind.' + s.kind)} · {t('revision')} {s.rev}
+          </div>
+          <p className="muted">
+            {s.speaker || t('sources.speakerUnknown')}
+            {s.speaker && <span> · {t('mapping')}</span>}
+          </p>
+          <blockquote>{s.text}</blockquote>
+          <small>{new Date(s.receivedAt).toLocaleTimeString(locale)}</small>
+          <TranslationView meeting={meeting} segment={s} locale={locale} />
+          {meeting.segments.some((n) => n.id === s.id && n.rev > s.rev) ? (
+            <p className="stale">{t('sourceStale')}</p>
+          ) : (
+            <button
+              className="source-link"
+              onClick={() => {
+                setEditing(s);
+                setText(s.text);
+                setSpeaker(s.speaker || '');
+                setBasis('');
+              }}
+            >
+              {t('correction')}
+            </button>
+          )}
+          {editing?.id === s.id && editing.rev === s.rev && (
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const result = await onCorrect({
+                  segmentId: s.id,
+                  baseRevision: s.rev,
+                  text,
+                  speaker: speaker.trim() || null,
+                  basis,
+                });
+                if (result !== undefined) setEditing(null);
+              }}
+            >
+              <label>
+                {t('source.original')}
+                <textarea
+                  aria-label={t('source.original')}
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  required
+                />
+              </label>
+              <label>
+                {t('speaker')}
+                <input value={speaker} onChange={(e) => setSpeaker(e.target.value)} />
+              </label>
+              <label>
+                {t('basis')}
+                <input
+                  value={basis}
+                  onChange={(e) => setBasis(e.target.value)}
+                  required={!!speaker}
+                />
+              </label>
+              <button type="submit">{t('saveCorrection')}</button>
+            </form>
+          )}
+        </article>
+      ))}
+    </aside>
+  );
+}
+function TranslationView({
+  meeting,
+  segment,
+  locale,
+}: {
+  meeting: Meeting;
+  segment: Segment;
+  locale: 'en' | 'zh-CN';
+}) {
+  const t = translator(locale),
+    [open, setOpen] = useState(false),
+    [busy, setBusy] = useState(false),
+    [error, setError] = useState('');
+  const translated = meeting.translations?.find(
+    (v) => v.segmentId === segment.id && v.sourceRev === segment.rev && v.targetLocale === locale,
+  );
+  return (
+    <div>
+      <button
+        className="source-link"
+        disabled={busy}
+        onClick={async () => {
+          if (translated) {
+            setOpen(!open);
+            return;
+          }
+          setBusy(true);
+          try {
+            await api('translate', {
+              meetingId: meeting.id,
+              segmentId: segment.id,
+              revision: segment.rev,
+              targetLocale: locale,
+            });
+            setOpen(true);
+          } catch (e) {
+            setError((e as Error).message);
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        {t('sources.showTranslation')}
+      </button>
+      {open && translated && (
+        <div className="translated">
+          <small>
+            {t('sources.translation')} · {locale}
+          </small>
+          <p>{translated.text}</p>
+        </div>
+      )}
+      {error && <p className="error-text">{errorText(locale, error)}</p>}
+    </div>
+  );
+}
+export function ScenarioEditor({
+  formula,
+  locale,
+  onSave,
+}: {
+  formula: Formula;
+  locale: 'en' | 'zh-CN';
+  onSave: (values: Record<string, number | null>) => Promise<any>;
+}) {
+  const t = translator(locale),
+    base = () => Object.fromEntries(formula.parameters.map((p) => [p.id, p.value]));
+  const [values, setValues] = useState<Record<string, number | null>>(base),
+    [result, setResult] = useState<string | null | undefined>(),
+    [error, setError] = useState(''),
+    [saved, setSaved] = useState(false);
+  return (
+    <section className="scenario-editor">
+      <div className="eyebrow">{t('scenario')}</div>
+      <h2>{formula.label}</h2>
+      <p>
+        {t('formulaBasis')}: {formula.basis}
+      </p>
+      <code>
+        {formula.steps
+          .map(
+            (s) =>
+              `${s.id} = ${s.left} ${{ add: '+', subtract: '−', multiply: '×', divide: '÷' }[s.op]} ${s.right}`,
+          )
+          .join('; ')}
+      </code>
+      <div className="parameters">
+        {formula.parameters.map((p) => (
+          <label key={p.id}>
+            {p.label} ({p.unit})
+            <input
+              type="number"
+              min={p.min}
+              max={p.max}
+              step="any"
+              value={values[p.id] ?? ''}
+              onChange={(e) => {
+                setValues({
+                  ...values,
+                  [p.id]: e.target.value === '' ? null : Number(e.target.value),
+                });
+                setResult(undefined);
+                setSaved(false);
+              }}
+            />
+          </label>
+        ))}
+      </div>
+      <div className="button-row">
+        <button
+          onClick={() => {
+            try {
+              setResult(calculate(formula, values));
+              setError('');
+            } catch (e) {
+              setError((e as Error).message);
+            }
+          }}
+        >
+          {t('calculate')}
+        </button>
+        <button
+          onClick={() => {
+            setValues(base());
+            setResult(undefined);
+            setSaved(false);
+          }}
+        >
+          {t('reset')}
+        </button>
+      </div>
+      {error && <p role="alert">{errorText(locale, error)}</p>}
+      {result !== undefined && (
+        <div className="calculation-result">
+          <strong>
+            {result === null ? t('unknownResult') : `${t('result')}: ${result} ${formula.unit}`}
+          </strong>
+          <button
+            disabled={saved}
+            onClick={async () => {
+              const outcome = await onSave(values);
+              if (outcome) setSaved(true);
+            }}
+          >
+            {t(saved ? 'status.saved' : 'saveScenario')}
+          </button>
+        </div>
+      )}
+    </section>
+  );
+}
+export function DecisionModal({
+  scope,
+  meeting,
+  t,
+  close,
+  save,
+}: {
+  scope: 'personal' | 'meeting';
+  meeting: Meeting;
+  t: (s: string) => string;
+  close: () => void;
+  save: (p: Record<string, unknown>) => Promise<any>;
+}) {
+  const [basis, setBasis] = useState(''),
+    [participants, setParticipants] = useState(''),
+    [sourceIds, setSourceIds] = useState<string[]>([]);
+  return (
+    <Modal title={t(scope === 'personal' ? 'personal' : 'meetingScope')} close={close}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          void save({ basis, participants, sourceIds });
+        }}
+      >
+        <p>{t('confirmScope')}</p>
+        <label>
+          {t('basis')}
+          <textarea required value={basis} onChange={(e) => setBasis(e.target.value)} />
+        </label>
+        {scope === 'meeting' && (
+          <>
+            <label>
+              {t('participants')}
+              <input
+                required
+                value={participants}
+                onChange={(e) => setParticipants(e.target.value)}
+              />
+            </label>
+            <p>{t('evidence')}</p>
+            <div className="evidence-list">
+              {meeting.segments
+                .filter(
+                  (s) =>
+                    s.kind !== 'request' &&
+                    !meeting.segments.some((n) => n.id === s.id && n.rev > s.rev),
+                )
+                .map((s) => (
+                  <label key={s.id} className="check">
+                    <input
+                      type="checkbox"
+                      checked={sourceIds.includes(s.id)}
+                      onChange={(e) =>
+                        setSourceIds(
+                          e.target.checked
+                            ? [...sourceIds, s.id]
+                            : sourceIds.filter((id) => id !== s.id),
+                        )
+                      }
+                    />
+                    {s.text}
+                  </label>
+                ))}
+            </div>
+          </>
+        )}
+        <button className="primary" disabled={scope === 'meeting' && !sourceIds.length}>
+          {t('recordDecision')}
+        </button>
+      </form>
+    </Modal>
+  );
+}

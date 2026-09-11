@@ -16,6 +16,10 @@
 | S10 | [MDN SVG as an image](https://developer.mozilla.org/en-US/docs/Web/SVG/Guides/SVG_as_an_image) | 作为图片的SVG与直接嵌入文档的能力不同，不能混淆脚本和交互边界 |
 | S11 | [MDN iframe](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe#sandbox) | iframe sandbox能力和限制需与实际宿主隔离、导航、网络及资源控制组合 |
 | S12 | [pyannote官方模型评测](https://huggingface.co/pyannote/speaker-diarization-community-1#benchmark) | 不同数据集的分组表现不同；分组错误率不等于实名正确率，不能保证本产品90%／99% |
+| S13 | [Apple HIG Materials](https://developer.apple.com/design/human-interface-guidelines/materials) | 材质用于层级且须克制，重视可读性与减少透明度；前端参考原则，不代表原生效果已实现 |
+| S14 | [Apple HIG Typography](https://developer.apple.com/design/human-interface-guidelines/typography) | 字阶、可读性和字体一致性参考；本项目具体token为设计建议 |
+
+S13、S14的网页入口需要JavaScript，本轮通过Apple官方同源[Materials文档数据](https://developer.apple.com/tutorials/data/design/human-interface-guidelines/materials.json)和[Typography文档数据](https://developer.apple.com/tutorials/data/design/human-interface-guidelines/typography.json)读取；没有将搜索摘要当作原生实现验证。
 
 ## 工程设计与外部事实分开
 
@@ -24,3 +28,10 @@
 未验证：真实音频、身份准确率、模型可用性、渲染质量、沙箱隔离、所有端到端时延、成本、操作系统兼容、多人共享、打包与部署。无官方赛程、评分或提交要求的完整核验，因此不写具体比赛工时或成果。
 
 外部下载技术设计仅被作为比较参照；当前产品与契约已在本目录独立表述，不需要复制或访问原文件。
+
+## 实施时核对（2026-09-11）
+
+- [OpenAI Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs)：结构化响应接口；本地 schema 校验独立保留。
+- [OpenAI Speech to text](https://developers.openai.com/api/docs/guides/speech-to-text)：音频文件转写接口；本版为 PCM 切片上传，不宣称 Realtime API。
+- [Electron desktopCapturer](https://www.electronjs.org/docs/latest/api/desktop-capturer)：系统音频／平台权限差异；代码存在不代表两端音轨已实测。
+- 实际依赖精确版本在 package-lock.json。官方 Electron macOS arm64 与 Windows x64 压缩包 SHA-256 已与 npm electron 包内 checksums.json 比对。

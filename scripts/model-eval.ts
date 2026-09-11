@@ -1,0 +1,96 @@
+/** Real provider evaluation. Never falls back to fixed output. */
+import dotenv from 'dotenv';
+import { readFileSync, mkdtempSync, writeFileSync, mkdirSync } from 'node:fs';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
+import { SQLiteStore } from '../src/service/store';
+import { SessionService } from '../src/service/session';
+import { OpenAIProvider, configFromEnv } from '../src/agent/provider';
+import { uid } from '../src/domain/commands';
+dotenv.config({ quiet: true });
+const config = configFromEnv();
+if (!config.key) {
+  console.log(
+    'BLOCKED: MODEL_NOT_CONFIGURED. No model calls were made; synthetic fixtures are not model results.',
+  );
+  process.exitCode = 2;
+} else {
+  const dir = mkdtempSync(join(tmpdir(), 'meeting-real-model-'));
+  const service = new SessionService(
+    new SQLiteStore(join(dir, 'evaluation.sqlite')),
+    new OpenAIProvider(config),
+    config,
+  );
+  const results = [];
+  for (const name of [
+    'discussion-options',
+    'execution-plan',
+    'scenario-calculation',
+    'bilingual-meeting',
+  ]) {
+    const f = JSON.parse(readFileSync(`tests/fixtures/${name}.json`, 'utf8'));
+    const groups = f.turns ? [{ id: name, turns: f.turns }] : f.variants || f.cases || [];
+    for (const group of groups) {
+      const id = service.command({
+        id: uid(),
+        meetingId: null,
+        type: 'create',
+        payload: {
+          title: `Synthetic evaluation: ${group.id || name}`,
+          mode: 'replay',
+          outputLocale: group.outputLocale || 'en',
+          timezone: f.timezone || 'Asia/Singapore',
+        },
+      }) as string;
+      // Fixture clock applies only to this explicitly synthetic evaluation event.
+      if (f.meetingDate)
+        service.meetings.find((m) => m.id === id)!.createdAt = f.meetingDate + 'T00:00:00+08:00';
+      const turns = [];
+      for (const turn of group.turns || []) {
+        service.command({
+          id: uid(),
+          meetingId: id,
+          type: turn.kind === 'user_request' ? 'ask' : 'ingest',
+          payload: { text: turn.text, kind: 'replay', segmentId: turn.id || uid() },
+        });
+        await service.process(id);
+        const m = service.meetings.find((m) => m.id === id)!;
+        turns.push({
+          sourceId: turn.id,
+          inputVersion: m.inputVersion,
+          understoodVersion: m.understoodVersion,
+          error: m.error,
+          artifact: m.artifacts.at(-1),
+          metrics: m.metrics,
+        });
+      }
+      service.command({ id: uid(), meetingId: id, type: 'end', payload: {} });
+      results.push({
+        fixture: name,
+        variant: group.id,
+        turns,
+        semanticAssessment:
+          'Requires human assessment against fixture expected checks; schema success is not semantic success.',
+      });
+    }
+  }
+  mkdirSync('tests/results', { recursive: true });
+  writeFileSync(
+    'tests/results/model-evaluation.json',
+    JSON.stringify(
+      {
+        syntheticInput: true,
+        realModel: true,
+        model: config.model,
+        runAt: new Date().toISOString(),
+        results,
+      },
+      null,
+      2,
+    ),
+  );
+  service.close();
+  console.log(
+    'Real model outputs saved to tests/results/model-evaluation.json. Review semantic checks before claiming pass.',
+  );
+}
