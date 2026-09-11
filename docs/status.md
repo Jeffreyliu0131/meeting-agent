@@ -1,6 +1,6 @@
 # 当前状态与接手入口
 
-更新：2026-09-11 23:57（Asia/Singapore）。维护规则见 [AGENTS.md](../AGENTS.md) 与 [session 流程](sessions/README.md)。本页是工作快照，开始任务时须核对工作树和相关交接；不是实时监控。
+更新：2026-09-11 23:59（Asia/Singapore）。维护规则见 [AGENTS.md](../AGENTS.md) 与 [session 流程](sessions/README.md)。本页是工作快照，开始任务时须核对工作树和相关交接；不是实时监控。
 
 ## 当前认知
 
@@ -14,13 +14,13 @@
 |---|---|---|
 | 首版本地实现 | 本地 Git 提交 `5fcd90f`；[首版验证](../tests/results/validation.md) 记录构建、19 项领域测试、6 项桌面测试、macOS 打包启动和 Windows x64 构建 | 不表示后续工作树改动也通过；本页未重新核验远端 |
 | 真实输入／模型 | 首版记录 3 秒本地麦克风探针；真实模型、转写、多人数音频、线上双方和 Windows 真机尚未验收 | 测试服务／合成音源不能证明真实模型质量或完整会议可用 |
-| Agent与会议入口交付 | 本地提交 `3f6279a` 的源码指纹与[38项／7项验证记录](../tests/results/live-agent-summary.json)完全一致；本地origin/main亦指向此提交 | 本次仅核对本地提交与远端跟踪引用，未实时查询GitHub；正在进行的前端工作树不继承这些结果 |
+| Agent与会议入口交付 | 本地提交 `3f6279a` 的源码指纹与[38项／7项验证记录](../tests/results/live-agent-summary.json)完全一致；后续前端提交基于此版本 | 这些旧结果仅覆盖该基线；后续前端有独立验证与交付记录 |
 
 ## 进行中与最近交接
 
 | 工作 | 核实到的状态 | 接手记录 |
 |---|---|---|
-| StyledMD 前端改造 | 本地源码与构建完成；38项单元／8项桌面检查通过，含200%缩放；未提交、旧安装包未替换 | [前端改造](sessions/2026-09-11-frontend-refresh.md) |
+| StyledMD 前端改造 | 本地源码与构建完成；38项单元／8项桌面检查通过，含200%缩放；源码a587a92已推送origin/main，旧安装包未替换 | [前端改造](sessions/2026-09-11-frontend-refresh.md) |
 | 当前版本提交与本地重启 | 38项测试、格式／文档／构建和真实窗口检查通过；本次提交收录现有成果，本地应用已更新 | [提交与重启](sessions/2026-09-11-push-restart.md) |
 | 已认可视觉与 style.md | 生成端规范已完成；本地风格与页面整合、来源校准和文档检查完成，未改产品代码；原附件下载受 Chrome 组织策略限制 | [设计风格落地](sessions/2026-09-11-design-style.md) |
 | Agent 连续输入、增量理解、表达更新及成本控制 | 本轮本地实现完成：38项单元／架构、7项桌面及合成连续压力测试通过；macOS打包启动通过，Windows仅构建；真实供应商待验收；已纳入本地提交3f6279a，后续前端改动另行验证 | [Agent 迭代](sessions/2026-09-11-agent-iteration.md)／[结果](../tests/results/live-agent-validation.md) |

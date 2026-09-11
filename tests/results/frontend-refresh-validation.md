@@ -1,6 +1,6 @@
 # StyledMD 与飞书布局参考：前端验证
 
-2026-09-11，macOS 本地。基线 `3f6279a`，本轮为其后的未提交工作树；源码指纹和去除主机路径的测试汇总见 [summary](frontend-refresh-summary.json)。关联[执行记录](../../docs/sessions/2026-09-11-frontend-refresh.md)。
+2026-09-11，macOS 本地。基线 `3f6279a`，测试时为其后的未提交工作树，之后交付为 `a587a92`；源码指纹和去除主机路径的测试汇总见 [summary](frontend-refresh-summary.json)。关联[执行记录](../../docs/sessions/2026-09-11-frontend-refresh.md)。
 
 ## 实际变化
 
@@ -41,4 +41,4 @@
 
 未验收真实模型生成美感、真实语音／在线双方声音、Windows真机、系统辅助技术全量体验和长会议中所有内容组合。没有新增共享、代办或会议共识推断。用户确认整体方向，不等于最终每一细节已获审美验收。
 
-本轮源码和 `dist/` 已更新；此前 `release/mac-arm64/Meeting Agent.app` 仍为提交重启任务的 `3f6279a`，本轮未覆盖或重启该安装包。未 Git 提交、推送或部署。用仓库 `npm start` 可重新构建运行当前源码；真实采音仍须用户明确点击开始。
+本轮源码和 `dist/` 已更新；此前 `release/mac-arm64/Meeting Agent.app` 仍为提交重启任务的 `3f6279a`，本轮未覆盖或重启该安装包。验收后用户授权提交、推送，代码提交 `a587a92` 已同步至 origin/main；未部署。用仓库 `npm start` 可重新构建运行当前源码；真实采音仍须用户明确点击开始。

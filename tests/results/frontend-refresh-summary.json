@@ -89,5 +89,11 @@
     "skipped": 0,
     "flaky": 0,
     "duration": 15135.296
+  },
+  "delivery": {
+    "codeCommit": "a587a92",
+    "remote": "origin/main",
+    "push": "succeeded",
+    "packagedAppUpdated": false
   }
 }

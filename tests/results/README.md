@@ -17,4 +17,4 @@
 
 本轮独立包证据：[macOS启动](package-smoke-live.json)、[两端包内容](package-content-live.json)、[源码与测试汇总](live-agent-summary.json)。旧package-smoke.json／package-content.json保持首版证据。
 
-当前前端独立结果：[StyledMD 与飞书布局细化](frontend-refresh-validation.md)／[源码与测试汇总](frontend-refresh-summary.json)。此轮为 `3f6279a` 后的未提交前端改造，不覆盖旧包与真实供应商验收。
+当前前端独立结果：[StyledMD 与飞书布局细化](frontend-refresh-validation.md)／[源码与测试汇总](frontend-refresh-summary.json)。此轮为 `3f6279a` 后的前端改造，之后以 `a587a92` 提交并推送，不覆盖旧包与真实供应商验收。
