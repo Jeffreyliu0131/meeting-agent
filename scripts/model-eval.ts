@@ -46,6 +46,9 @@ if (!config.key) {
       if (f.meetingDate)
         service.meetings.find((m) => m.id === id)!.createdAt = f.meetingDate + 'T00:00:00+08:00';
       const turns = [];
+      const interval = Number(process.env.MEETING_EVAL_INTERVAL_MS ?? 2000);
+      if (!Number.isFinite(interval) || interval < 100 || interval > 30000)
+        throw new Error('INVALID_EVAL_INTERVAL');
       for (const turn of group.turns || []) {
         service.command({
           id: uid(),
@@ -53,7 +56,8 @@ if (!config.key) {
           type: turn.kind === 'user_request' ? 'ask' : 'ingest',
           payload: { text: turn.text, kind: 'replay', segmentId: turn.id || uid() },
         });
-        await service.process(id);
+        // Continue delivering input while earlier model work is in flight.
+        await new Promise((r) => setTimeout(r, interval));
         const m = service.meetings.find((m) => m.id === id)!;
         turns.push({
           sourceId: turn.id,
@@ -65,10 +69,33 @@ if (!config.key) {
         });
       }
       service.command({ id: uid(), meetingId: id, type: 'end', payload: {} });
+      let timeout: ReturnType<typeof setTimeout> | undefined;
+      try {
+        await Promise.race([
+          service.flush(),
+          new Promise((_, reject) => {
+            timeout = setTimeout(() => reject(new Error('EVALUATION_TIMEOUT')), 120000);
+          }),
+        ]);
+      } finally {
+        if (timeout) clearTimeout(timeout);
+      }
+      const final = service.meetings.find((m) => m.id === id)!;
       results.push({
         fixture: name,
         variant: group.id,
         turns,
+        inputCadenceMs: interval,
+        final: {
+          inputVersion: final.inputVersion,
+          understoodVersion: final.understoodVersion,
+          error: final.error,
+          expressionError: final.expressionError,
+          artifacts: final.artifacts,
+          calls: final.calls,
+          usage: final.usageTotals,
+        },
+        expectedChecks: group.expected ?? f.expected ?? [],
         semanticAssessment:
           'Requires human assessment against fixture expected checks; schema success is not semantic success.',
       });

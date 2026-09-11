@@ -9,7 +9,8 @@ let server: Server,
   base: string,
   app: ElectronApplication,
   dir: string,
-  calls = 0;
+  calls = 0,
+  sttDelay = 0;
 function reply(context: any) {
   const s = context.segments.at(-1),
     sources = [{ id: s.id, rev: s.rev }];
@@ -62,7 +63,7 @@ function reply(context: any) {
         context.outputLocale === 'zh-CN'
           ? '谁应参加试点？（协议测试）'
           : 'Who should join the pilot? · Protocol test',
-      summary: 'Synthetic provider output. Tests rendering and transport, not model understanding.',
+      summary: 'Synthetic provider output. Batch ' + context.inputVersion + ' — transport only.',
       layout: 'stack',
       objectIds: common.objectIds,
       sources,
@@ -120,6 +121,14 @@ function reply(context: any) {
         },
       ],
     },
+    titleProposal:
+      context.title?.origin === 'placeholder'
+        ? {
+            text: 'Pilot planning · Synthetic title',
+            baseRevision: context.title.revision,
+            sources,
+          }
+        : null,
     rationale: 'Deterministic provider contract fixture',
   };
   if (s.text === 'PASSIVE_CARRIER_PROTOCOL_TEST')
@@ -174,7 +183,7 @@ function reply(context: any) {
   return answer;
 }
 test.beforeEach(async () => {
-  calls = 0;
+  ((calls = 0), (sttDelay = 0));
   server = createServer(async (req, res) => {
     let data = '';
     for await (const chunk of req) data += chunk;
@@ -191,6 +200,7 @@ test.beforeEach(async () => {
       );
     } else {
       res.setHeader('Content-Type', 'application/json');
+      await new Promise((r) => setTimeout(r, sttDelay));
       res.end(
         JSON.stringify({
           text: 'Synthetic generated audio transport fixture; not a real meeting.',
@@ -205,6 +215,8 @@ test.beforeEach(async () => {
     args: [resolve('.'), '--use-fake-device-for-media-stream'],
     env: {
       ...process.env,
+      MEETING_DEV_INPUTS: test.info().title.startsWith('normal') ? '' : '1',
+      MEETING_SYSTEM_LOCALE: 'en',
       MEETING_DATA_DIR: dir,
       OPENAI_API_KEY: 'test-transport-only',
       MEETING_API_BASE: base,
@@ -216,7 +228,7 @@ test.beforeEach(async () => {
 test.afterEach(async () => {
   await app?.evaluate(({ app }) => app.exit(0)).catch(() => {});
   await new Promise<void>((r) => server.close(() => r()));
-  rmSync(dir, { recursive: true, force: true });
+  if (dir) rmSync(dir, { recursive: true, force: true });
 });
 test('provider transport, isolated preflight, generated structure, source binding, updates and personal calculator', async () => {
   let page: any;
@@ -233,7 +245,8 @@ test('provider transport, isolated preflight, generated structure, source bindin
     w?.show();
     w?.focus();
   });
-  await page.getByRole('button', { name: 'Start meeting' }).first().click();
+  await page.getByText('Development tools', { exact: true }).click();
+  await page.getByRole('button', { name: 'Development input', exact: true }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Start meeting' }).click();
   await page.getByRole('button', { name: 'Add a transcript excerpt' }).click();
   await page
@@ -251,6 +264,7 @@ test('provider transport, isolated preflight, generated structure, source bindin
   await expect(page.getByText('Result: 630 SGD')).toBeVisible();
   await page.getByRole('button', { name: 'Save this scenario', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Saved', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Explore this', exact: true }).click();
   await page
     .getByRole('textbox', { name: 'Ask about this meeting…' })
     .fill('Draft kept while a new version arrives');
@@ -258,11 +272,21 @@ test('provider transport, isolated preflight, generated structure, source bindin
     .getByRole('textbox', { name: 'Original words…' })
     .fill('Synthetic fixture correction: support capacity is still unknown.');
   await page.getByRole('button', { name: 'Add source', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Show latest version' })).toBeVisible();
+  await expect
+    .poll(async () => {
+      const state = await page.evaluate(() => window.meeting.call('snapshot'));
+      return state.value.meetings[0].artifacts.length;
+    })
+    .toBe(2);
+  await expect(page.getByRole('button', { name: 'Show latest version' })).toHaveCount(0);
   await expect(page.getByRole('textbox', { name: 'Ask about this meeting…' })).toHaveValue(
     'Draft kept while a new version arrives',
   );
-  await page.getByRole('button', { name: 'Show latest version' }).click();
+  await expect(page.getByLabel('People (people)', { exact: true })).toHaveValue('40');
+  await expect(
+    page.getByText('Synthetic provider output. Batch 2 — transport only.', { exact: true }),
+  ).toBeVisible();
+  await expect(page.getByText('Following meeting', { exact: false }).first()).toBeVisible();
   for (const size of [
     { width: 1440, height: 1024 },
     { width: 1024, height: 768 },
@@ -289,7 +313,8 @@ test('provider transport, isolated preflight, generated structure, source bindin
   expect(state.value.meetings[0].scenarios[0].result).toBe('630');
   expect(state.value.meetings[0].decisions).toHaveLength(0);
 });
-test('synthetic oscillator traverses the actual AudioWorklet, WAV upload and stop lifecycle', async () => {
+test('synthetic oscillator keeps capturing through a slow STT response and stops cleanly', async () => {
+  sttDelay = 6500;
   let page: any, capture: any;
   await expect
     .poll(async () => {
@@ -345,9 +370,11 @@ test('synthetic oscillator traverses the actual AudioWorklet, WAV upload and sto
         const r = await page.evaluate(() => window.meeting.call('snapshot'));
         return r.value.meetings[0].segments.length;
       },
-      { timeout: 15000 },
+      { timeout: 25000 },
     )
-    .toBeGreaterThan(0);
+    .toBeGreaterThan(1);
+  const live = await page.evaluate(() => window.meeting.call('snapshot'));
+  expect(live.value.meetings[0].capture).toBe('capturing');
   await page.evaluate(
     (id: string) =>
       window.meeting.call('command', {
@@ -382,7 +409,8 @@ test('text, timeline, chart, SVG and passive HTML render without a privileged br
     w?.show();
     w?.focus();
   });
-  await page.getByRole('button', { name: 'Start meeting' }).first().click();
+  await page.getByText('Development tools', { exact: true }).click();
+  await page.getByRole('button', { name: 'Development input', exact: true }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Start meeting' }).click();
   await page.getByRole('button', { name: 'Add a transcript excerpt' }).click();
   await page
@@ -403,5 +431,134 @@ test('text, timeline, chart, SVG and passive HTML render without a privileged br
   await page.screenshot({
     path: 'tests/results/e2e-artifacts/passive-carriers.png',
     fullPage: true,
+  });
+});
+
+test('normal meeting entry saves setup once, starts audio in one intent and reveals exploration only after content', async () => {
+  let page: any, capture: any;
+  await expect
+    .poll(async () => {
+      const windows = await app.windows();
+      page = windows.find((p) => p.url().includes('role=workspace'));
+      capture = windows.find((p) => p.url().includes('capture.html'));
+      return !!page && !!capture;
+    })
+    .toBe(true);
+  await app.evaluate(({ BrowserWindow }) => {
+    const w = BrowserWindow.getAllWindows().find((w) =>
+      w.webContents.getURL().includes('role=workspace'),
+    );
+    w?.show();
+    w?.focus();
+  });
+  await capture.evaluate(() => {
+    navigator.mediaDevices.getUserMedia = async (constraints: any) => {
+      if (constraints?.audio?.deviceId?.exact === 'missing-device')
+        throw new DOMException('Unavailable', 'OverconstrainedError');
+      const ctx = new AudioContext(),
+        oscillator = ctx.createOscillator(),
+        output = ctx.createMediaStreamDestination();
+      oscillator.connect(output);
+      oscillator.start();
+      await ctx.resume();
+      (window as any).testContexts ??= [];
+      (window as any).testContexts.push(ctx);
+      return output.stream;
+    };
+  });
+  await expect(page.getByText('Development tools', { exact: true })).toHaveCount(0);
+  await expect(page.getByRole('textbox', { name: 'Ask about this meeting…' })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Start meeting' }).first().click();
+  await expect(page.getByRole('dialog', { name: 'Settings' })).toBeVisible();
+  await page.screenshot({ path: 'tests/results/e2e-artifacts/audio-settings.png', fullPage: true });
+  await expect(page.getByLabel('Meeting title', { exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Save settings', exact: true }).click();
+  let state = await page.evaluate(() => window.meeting.call('snapshot'));
+  expect(state.value.meetings.length).toBe(0);
+  expect(state.value.preferences.audio.setupCompleted).toBe(true);
+  await page.getByRole('button', { name: 'Start meeting' }).first().click();
+  await expect
+    .poll(async () => {
+      const s = await page.evaluate(() => window.meeting.call('snapshot'));
+      return s.value.meetings[0]?.capture;
+    })
+    .toBe('capturing');
+  await expect(page.getByRole('textbox', { name: 'Ask about this meeting…' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Add a transcript excerpt' })).toHaveCount(0);
+  await expect(
+    page.getByRole('heading', { name: 'Who should join the pilot? · Protocol test' }),
+  ).toBeVisible({ timeout: 20000 });
+  await expect(
+    page.getByRole('button', { name: 'Pilot planning · Synthetic title', exact: true }),
+  ).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'Ask about this meeting…' })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Explore this', exact: true }).click();
+  await expect(page.getByRole('textbox', { name: 'Ask about this meeting…' })).toBeVisible();
+  state = await page.evaluate(() => window.meeting.call('snapshot'));
+  const first = state.value.meetings[0].id;
+  const repeated = await page.evaluate(() =>
+    Promise.all([
+      window.meeting.call('startMeeting', { requestId: 'duplicate-a' }),
+      window.meeting.call('startMeeting', { requestId: 'duplicate-b' }),
+    ]),
+  );
+  expect(repeated.every((r: any) => r.value.meetingId === first)).toBe(true);
+  await page.getByRole('button', { name: 'End meeting', exact: true }).click();
+  await page.getByRole('button', { name: '← Meetings', exact: true }).click();
+  await page.getByRole('button', { name: 'Start meeting' }).first().click();
+  await expect
+    .poll(async () => {
+      const s = await page.evaluate(() => window.meeting.call('snapshot'));
+      return s.value.meetings[0]?.capture;
+    })
+    .toBe('capturing');
+  state = await page.evaluate(() => window.meeting.call('snapshot'));
+  expect(state.value.meetings.length).toBe(2);
+  expect(state.value.meetings[0].id).not.toBe(first);
+  await page.getByRole('button', { name: 'End meeting', exact: true }).click();
+  const failedStart = await page.evaluate(async () => {
+    const s = await window.meeting.call('snapshot');
+    await window.meeting.call('command', {
+      id: crypto.randomUUID(),
+      meetingId: null,
+      type: 'preferences',
+      payload: {
+        ...s.value.preferences,
+        audio: { ...s.value.preferences.audio, deviceId: 'missing-device' },
+      },
+    });
+    return window.meeting.call('startMeeting', { requestId: 'missing-device-start' });
+  });
+  await expect
+    .poll(async () => {
+      const s = await page.evaluate(() => window.meeting.call('snapshot'));
+      return s.value.meetings[0].captureError;
+    })
+    .toBe('MICROPHONE_UNAVAILABLE');
+  const restored = await page.evaluate(async () => {
+    const s = await window.meeting.call('snapshot');
+    await window.meeting.call('command', {
+      id: crypto.randomUUID(),
+      meetingId: null,
+      type: 'preferences',
+      payload: {
+        ...s.value.preferences,
+        audio: { ...s.value.preferences.audio, deviceId: 'default' },
+      },
+    });
+    await window.meeting.call('applyAudioSettings');
+    return s.value.meetings[0].id;
+  });
+  expect(restored).toBe(failedStart.value.meetingId);
+  await expect
+    .poll(async () => {
+      const s = await page.evaluate(() => window.meeting.call('snapshot'));
+      return s.value.meetings[0].capture;
+    })
+    .toBe('capturing');
+  await page.getByRole('button', { name: 'End meeting', exact: true }).click();
+  await page.screenshot({ path: 'tests/results/e2e-artifacts/normal-entry.png', fullPage: true });
+  await capture.evaluate(async () => {
+    for (const ctx of (window as any).testContexts ?? []) await ctx.close();
   });
 });

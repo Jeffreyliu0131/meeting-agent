@@ -252,3 +252,105 @@ export function errorText(locale: Locale, code: string) {
   return t(key) === key ? `${t('unknownError')} (${code})` : t(key);
 }
 export { extra };
+
+Object.assign(extra.en, {
+  'live.audioPending': 'Audio excerpts queued',
+  'live.processingDetails': 'Processing details',
+  'live.calls': 'Provider calls',
+  'live.unknownUsage': 'unreported usage',
+  'live.lastUnderstanding': 'Understanding updated',
+  'live.lastView': 'View updated',
+  'live.inputGaps': 'Input gaps',
+  'live.following': 'Following meeting',
+  'live.history': 'Saved view',
+  'live.preparing': 'Understanding updated · preparing the view…',
+  'live.personal': 'Personal explorations',
+  'live.scenarioChanged': 'Meeting conditions changed. Your draft keeps its original assumptions.',
+  'live.useCurrent': 'Use current conditions',
+  'live.changed': 'Updated',
+  'error.AGENT_BUDGET_LIMIT':
+    'The processing budget has been reached. Input is retained; retry after the budget window resets.',
+  'error.CONTEXT_SOURCE_TOO_LARGE':
+    'This excerpt exceeds the processing limit. Split it into smaller excerpts to continue.',
+  'error.EXPRESSION_BACKLOG': 'Visual updates are catching up. Meeting understanding continues.',
+  'error.TRANSCRIPTION_BACKLOG':
+    'Some audio could not be queued. Capture continues; check the recorded input gaps.',
+  'error.ARTIFACT_CONFLICT':
+    'This view changed while being prepared. Retry using the latest version.',
+});
+Object.assign(extra['zh-CN'], {
+  'live.audioPending': '待转写片段',
+  'live.processingDetails': '处理详情',
+  'live.calls': '服务调用',
+  'live.unknownUsage': '未报告的用量',
+  'live.lastUnderstanding': '理解更新时间',
+  'live.lastView': '页面更新时间',
+  'live.inputGaps': '输入缺口',
+  'live.following': '实时跟随会议',
+  'live.history': '保存的视图',
+  'live.preparing': '理解已更新，正在准备表达…',
+  'live.personal': '个人推演',
+  'live.scenarioChanged': '会议条件已变化，你的草稿保留原来的假设。',
+  'live.useCurrent': '使用当前条件',
+  'live.changed': '已更新',
+  'error.AGENT_BUDGET_LIMIT': '已达到处理预算。输入继续保留，可在预算窗口重置后重试。',
+  'error.CONTEXT_SOURCE_TOO_LARGE': '这段内容超出处理上限，请拆成较小的段落再继续。',
+  'error.EXPRESSION_BACKLOG': '表达更新正在追赶，会议理解继续运行。',
+  'error.TRANSCRIPTION_BACKLOG': '部分音频未能排入队列，采集继续；请查看输入缺口。',
+  'error.ARTIFACT_CONFLICT': '准备期间视图已变化，请基于最新版本重试。',
+});
+Object.assign(extra.en, {
+  'entry.system': 'Follow system',
+  'entry.audioSetup': 'Meeting audio',
+  'entry.microphone': 'Microphone',
+  'entry.defaultMic': 'System default microphone',
+  'entry.computerAudio': 'Also listen to computer audio',
+  'entry.audioPrivacy':
+    'When you start, audio is sent to your configured transcription provider. Transcripts and generated work stay in this app’s local storage. Saving settings does not record audio.',
+  'entry.currentDevice': 'Current microphone',
+  'entry.applyCurrent': 'Save and apply to this meeting',
+  'entry.unavailable': 'unavailable',
+  'entry.withComputer': 'Microphone + computer audio',
+  'entry.microphoneOnly': 'Microphone only',
+  'entry.change': 'Change',
+  'entry.development': 'Development tools',
+  'entry.testInput': 'Development input',
+  'entry.explore': 'Explore this',
+  'entry.closeExplore': 'Close exploration',
+  'entry.contextChanged': 'This question still refers to the version you opened.',
+  'entry.useLatest': 'Use latest context',
+  'entry.rename': 'Rename meeting',
+  'entry.listeningEmpty':
+    'Listening. Useful notes and connections will appear here as the discussion develops.',
+  'error.MICROPHONE_UNAVAILABLE':
+    'Your selected microphone is unavailable. Choose a microphone in Settings, then resume this meeting.',
+  'error.AUDIO_SETUP_REQUIRED': 'Choose your audio settings before starting.',
+  'error.PAUSE_BEFORE_DEVICE_CHANGE':
+    'Pause capture before changing this meeting’s audio settings.',
+});
+Object.assign(extra['zh-CN'], {
+  'entry.system': '跟随系统',
+  'entry.audioSetup': '会议音频',
+  'entry.microphone': '麦克风',
+  'entry.defaultMic': '系统默认麦克风',
+  'entry.computerAudio': '同时收听电脑声音',
+  'entry.audioPrivacy':
+    '开始后，音频将发送至配置的转写服务；原话和生成内容保存在本机应用数据中。保存设置不会录音。',
+  'entry.currentDevice': '当前麦克风',
+  'entry.applyCurrent': '保存并应用到本场会议',
+  'entry.unavailable': '不可用',
+  'entry.withComputer': '麦克风＋电脑声音',
+  'entry.microphoneOnly': '仅麦克风',
+  'entry.change': '更改',
+  'entry.development': '开发测试工具',
+  'entry.testInput': '开发测试输入',
+  'entry.explore': '进一步讨论',
+  'entry.closeExplore': '收起讨论',
+  'entry.contextChanged': '这个问题仍关联你打开时的内容版本。',
+  'entry.useLatest': '使用最新上下文',
+  'entry.rename': '修改会议名称',
+  'entry.listeningEmpty': '正在收听。有值得整理的内容时，会在这里逐步呈现。',
+  'error.MICROPHONE_UNAVAILABLE': '选定的麦克风不可用，请在设置中选择设备，再恢复本场会议。',
+  'error.AUDIO_SETUP_REQUIRED': '开始前请完成音频设置。',
+  'error.PAUSE_BEFORE_DEVICE_CHANGE': '切换本场会议音源前请先暂停采集。',
+});

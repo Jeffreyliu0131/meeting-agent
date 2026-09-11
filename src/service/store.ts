@@ -1,6 +1,15 @@
 import { DatabaseSync } from 'node:sqlite';
+import { resolvePreferences } from '../domain/preferences';
 import type { Meeting, Preferences } from '../contracts/model';
 export const defaults: Preferences = {
+  uiLanguage: 'system',
+  defaultOutputLanguage: 'system',
+  audio: {
+    deviceId: 'default',
+    deviceLabel: '',
+    includeComputerAudio: false,
+    setupCompleted: false,
+  },
   uiLocale: 'en',
   defaultOutputLocale: 'en',
   reduceMotion: false,
@@ -27,9 +36,24 @@ export class SQLiteStore implements StorePort {
   }
   load() {
     const row = this.db.prepare('SELECT payload,schema_version FROM state WHERE id=1').get();
-    if (!row) return { meetings: [], preferences: { ...defaults } };
+    if (!row)
+      return {
+        meetings: [],
+        preferences: resolvePreferences(
+          { ...defaults },
+          process.env.MEETING_SYSTEM_LOCALE ?? Intl.DateTimeFormat().resolvedOptions().locale,
+        ),
+      };
     if (row.schema_version !== 1) throw new Error('STORAGE_VERSION');
-    return JSON.parse(row.payload as string) as { meetings: Meeting[]; preferences: Preferences };
+    const state = JSON.parse(row.payload as string) as {
+      meetings: Meeting[];
+      preferences: Preferences;
+    };
+    state.preferences = resolvePreferences(
+      state.preferences,
+      process.env.MEETING_SYSTEM_LOCALE ?? Intl.DateTimeFormat().resolvedOptions().locale,
+    );
+    return state;
   }
   save(
     meetings: Meeting[],

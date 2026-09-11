@@ -39,7 +39,7 @@ function wav(samples: Float32Array, rate: number) {
     v.setInt16(44 + i * 2, Math.max(-1, Math.min(1, samples[i])) * 32767, true);
   return new Uint8Array(bytes);
 }
-window.meeting.onCapture(async ({ action, meetingId, epoch, mode }: any) => {
+window.meeting.onCapture(async ({ action, meetingId, epoch, mode, deviceId }: any) => {
   if (action === 'drain') {
     await Promise.all(flushers.map((flush) => flush()));
     stop();
@@ -57,7 +57,11 @@ window.meeting.onCapture(async ({ action, meetingId, epoch, mode }: any) => {
   try {
     const streams: Array<{ stream: MediaStream; channel: string }> = [];
     const microphone = await navigator.mediaDevices.getUserMedia({
-      audio: { echoCancellation: mode === 'online', noiseSuppression: true },
+      audio: {
+        echoCancellation: mode === 'online',
+        noiseSuppression: true,
+        ...(deviceId && deviceId !== 'default' ? { deviceId: { exact: deviceId } } : {}),
+      },
       video: false,
     });
     if (gen !== generation) {
@@ -88,7 +92,8 @@ window.meeting.onCapture(async ({ action, meetingId, epoch, mode }: any) => {
       const node = new AudioWorkletNode(ctx, 'pcm-recorder');
       source.connect(node);
       node.connect(ctx.destination);
-      let busy = false;
+      const captureOrigin = Date.now() - ctx.currentTime * 1000;
+      let channelSequence = 0;
       let flushed: (() => void) | null = null;
       flushers.push(
         () =>
@@ -100,29 +105,47 @@ window.meeting.onCapture(async ({ action, meetingId, epoch, mode }: any) => {
       );
       node.port.onmessage = async ({
         data: packet,
-      }: MessageEvent<{ samples: Float32Array; final: boolean }>) => {
+      }: MessageEvent<{
+        samples: Float32Array;
+        final: boolean;
+        startFrame: number;
+        endFrame: number;
+      }>) => {
         const data = packet.samples;
-        if (packet.final && flushed) {
-          queueMicrotask(flushed);
-          flushed = null;
-        }
-        if (gen !== generation || !data.length) return;
-        const rms = Math.sqrt(data.reduce((sum, x) => sum + x * x, 0) / data.length);
-        if (rms < 0.003) return;
-        if (busy) {
-          await fail('TRANSCRIPTION_BACKLOG');
+        const finish = packet.final ? flushed : null;
+        if (packet.final) flushed = null;
+        if (gen !== generation || !data.length) {
+          finish?.();
           return;
         }
-        busy = true;
+        const rms = Math.sqrt(data.reduce((sum, x) => sum + x * x, 0) / data.length);
+        if (rms < 0.0002) {
+          finish?.();
+          return;
+        }
         const result = await window.meeting.call('audio', {
           meetingId,
           epoch,
           channel,
           wav: wav(data, ctx.sampleRate),
           segmentId: crypto.randomUUID(),
+          timing: {
+            captureStartMs: captureOrigin + (packet.startFrame / ctx.sampleRate) * 1000,
+            captureEndMs: captureOrigin + (packet.endFrame / ctx.sampleRate) * 1000,
+            channelSequence: channelSequence++,
+          },
         });
-        busy = false;
-        if (!result.ok && result.error !== 'CAPTURE_EXPIRED') await fail(result.error);
+        finish?.();
+        if (
+          !result.ok &&
+          ![
+            'CAPTURE_EXPIRED',
+            'TRANSCRIPTION_BACKLOG',
+            'TRANSCRIPTION_FAILED',
+            'AGENT_BUDGET_LIMIT',
+          ].includes(result.error)
+        )
+          await fail(result.error);
       };
       stream
         .getTracks()
@@ -130,13 +153,41 @@ window.meeting.onCapture(async ({ action, meetingId, epoch, mode }: any) => {
       await ctx.resume();
     }
     if (gen !== generation) return;
-    const ready = await window.meeting.call('captureReady', { meetingId, epoch });
+    const track = microphone.getAudioTracks()[0];
+    const deviceChanged = async () => {
+      if (gen !== generation) return;
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      if (
+        deviceId &&
+        deviceId !== 'default' &&
+        !devices.some((d) => d.kind === 'audioinput' && d.deviceId === deviceId)
+      ) {
+        await fail('MICROPHONE_UNAVAILABLE');
+        return;
+      }
+      const actual = track.getSettings();
+      await window.meeting.call('captureReady', {
+        meetingId,
+        epoch,
+        actualDevice: { deviceId: actual.deviceId ?? 'default', label: track.label },
+      });
+    };
+    navigator.mediaDevices.addEventListener('devicechange', deviceChanged);
+    cleanup.push(() => navigator.mediaDevices.removeEventListener('devicechange', deviceChanged));
+    const ready = await window.meeting.call('captureReady', {
+      meetingId,
+      epoch,
+      actualDevice: { deviceId: track.getSettings().deviceId ?? 'default', label: track.label },
+    });
     if (!ready.ok) stop();
   } catch (error) {
     await fail(
-      error instanceof Error && /^[A-Z_]+$/.test(error.message)
-        ? error.message
-        : 'INPUT_PERMISSION_OR_DEVICE',
+      error instanceof DOMException &&
+        ['NotFoundError', 'OverconstrainedError'].includes(error.name)
+        ? 'MICROPHONE_UNAVAILABLE'
+        : error instanceof Error && /^[A-Z_]+$/.test(error.message)
+          ? error.message
+          : 'INPUT_PERMISSION_OR_DEVICE',
     );
   }
 });

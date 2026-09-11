@@ -8,6 +8,7 @@ import {
   type Segment,
 } from '../contracts/model';
 import { calculate } from './calculator';
+import { AudioPreferences } from './preferences';
 import { validateRefs } from './evidence';
 export const uid = () => randomUUID();
 const limited = z.string().trim().min(1).max(12000);
@@ -23,7 +24,19 @@ export function createMeeting(payload: Record<string, unknown>, preferences: Pre
   new Intl.DateTimeFormat('en', { timeZone: p.timezone });
   return {
     id: uid(),
-    title: p.title || 'Untitled meeting',
+    title:
+      p.title ||
+      (p.outputLocale === 'zh-CN' ? '会议' : 'Meeting') +
+        ' · ' +
+        new Date().toLocaleString(p.outputLocale),
+    titleMeta: {
+      origin: payload.titleOrigin === 'placeholder' || !p.title ? 'placeholder' : 'user',
+      revision: 0,
+      sources: [],
+    },
+    audioSettings: payload.audioSettings
+      ? AudioPreferences.parse(payload.audioSettings)
+      : undefined,
     timezone: p.timezone,
     createdAt: new Date().toISOString(),
     endedAt: null,
@@ -37,6 +50,11 @@ export function createMeeting(payload: Record<string, unknown>, preferences: Pre
     languageRevision: 1,
     outputLocale: p.outputLocale || preferences.defaultOutputLocale,
     segments: [],
+    processedSources: {},
+    expressionJobs: [],
+    calls: [],
+    expressionStatus: 'idle',
+    expressionError: null,
     translations: [],
     inputGaps: [],
     objects: [],
@@ -63,6 +81,20 @@ export function reduceMeeting(
     if (m.status !== 'active') throw new Error('MEETING_ENDED');
   };
   switch (command.type) {
+    case 'rename': {
+      if (p.baseRevision !== (m.titleMeta?.revision ?? 0)) throw new Error('REV_CONFLICT');
+      m.title = z.string().trim().min(1).max(100).parse(p.title);
+      m.titleMeta = { origin: 'user', revision: (m.titleMeta?.revision ?? 0) + 1, sources: [] };
+      break;
+    }
+    case 'audioSettings': {
+      active();
+      if (m.capture === 'capturing' || m.capture === 'starting')
+        throw new Error('PAUSE_BEFORE_DEVICE_CHANGE');
+      m.audioSettings = AudioPreferences.parse(p.audio);
+      m.mode = m.audioSettings.includeComputerAudio ? 'online' : 'microphone';
+      break;
+    }
     case 'ingest':
     case 'ask': {
       active();
@@ -91,9 +123,21 @@ export function reduceMeeting(
           throw new Error('IDEMPOTENCY_CONFLICT');
         return { schedule: false, result: existing };
       }
+      let requestContext: Segment['requestContext'];
+      if (command.type === 'ask' && p.context) {
+        const context = z
+          .object({ artifactId: z.string(), artifactRev: z.number().int().positive() })
+          .strict()
+          .parse(p.context);
+        if (!m.artifacts.some((a) => a.id === context.artifactId && a.rev === context.artifactRev))
+          throw new Error('ARTIFACT_NOT_FOUND');
+        requestContext = context;
+      }
       const segment: Segment = {
+        requestContext,
         id: segmentId,
         rev: 1,
+        version: m.inputVersion + 1,
         text,
         kind,
         epoch: m.epoch,
@@ -125,6 +169,7 @@ export function reduceMeeting(
       m.segments.push({
         ...s,
         rev: s.rev + 1,
+        version: m.inputVersion + 1,
         text,
         speaker,
         identity: speaker ? 'user_mapped' : 'unknown',
@@ -154,8 +199,14 @@ export function reduceMeeting(
       break;
     case 'captureReady':
       active();
-      if (p.epoch !== m.epoch || m.capture !== 'starting') throw new Error('CAPTURE_EXPIRED');
+      if (p.epoch !== m.epoch || !['starting', 'capturing'].includes(m.capture))
+        throw new Error('CAPTURE_EXPIRED');
       m.capture = 'capturing';
+      if (p.actualDevice)
+        m.actualDevice = z
+          .object({ deviceId: z.string(), label: z.string() })
+          .strict()
+          .parse(p.actualDevice);
       break;
     case 'captureError':
       if (p.epoch !== m.epoch || m.status === 'ended') return { schedule: false, result: null };

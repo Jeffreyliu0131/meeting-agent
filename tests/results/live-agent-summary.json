@@ -1,0 +1,31 @@
+{
+  "baseline": "5fcd90f002c34bf90552307ba17f69299c0cb395",
+  "scope": "uncommitted live-agent and entry implementation",
+  "sourceSha256": "96a6fc6989e2a746f5b97e9d2d36e280b7b10a29fae23585df9f08020a23b4ca",
+  "sourceHashMethod": "sorted src/public files + package.json + package-lock.json; relative path NUL bytes NUL",
+  "unitTestsPassed": 38,
+  "desktopTestsPassed": 7,
+  "desktopDurationSeconds": 45.7,
+  "realModel": false,
+  "realSTT": false,
+  "windowsRuntimeTested": false,
+  "continuousSynthetic": {
+    "synthetic": true,
+    "realModel": false,
+    "realAudio": false,
+    "simulatedMeetingSeconds": 1800,
+    "events": 360,
+    "playbackIntervalMs": 2,
+    "elapsedMs": 1120,
+    "modelCalls": 56,
+    "maxPending": 14,
+    "processed": 360,
+    "understoodVersion": 360,
+    "latestArtifactVersion": 360,
+    "understandingBeforeFirstPreview": true,
+    "lastContextBytes": 3842,
+    "error": null,
+    "expressionError": null,
+    "pass": true
+  }
+}

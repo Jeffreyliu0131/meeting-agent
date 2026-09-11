@@ -12,7 +12,14 @@ let app: ElectronApplication, page: Page, dataDir: string;
 async function launch() {
   app = await electron.launch({
     args: [resolve('.')],
-    env: { ...process.env, MEETING_DATA_DIR: dataDir, OPENAI_API_KEY: '', MEETING_STT_API_KEY: '' },
+    env: {
+      ...process.env,
+      MEETING_DEV_INPUTS: '1',
+      MEETING_SYSTEM_LOCALE: 'en',
+      MEETING_DATA_DIR: dataDir,
+      OPENAI_API_KEY: '',
+      MEETING_STT_API_KEY: '',
+    },
   });
   await expect
     .poll(async () => {
@@ -46,7 +53,8 @@ test.afterEach(async () => {
   rmSync(dataDir, { recursive: true, force: true });
 });
 test('real Electron: event, manual original source, honest missing model, correction, UI locale, end and restore', async () => {
-  await page.getByRole('button', { name: 'Start meeting', exact: false }).first().click();
+  await page.getByText('Development tools', { exact: true }).click();
+  await page.getByRole('button', { name: 'Development input', exact: true }).click();
   await page.getByLabel('Meeting title', { exact: true }).fill('Local input verification');
   await page
     .getByRole('dialog')
@@ -80,7 +88,9 @@ test('real Electron: event, manual original source, honest missing model, correc
     .getByRole('dialog', { name: 'View sources' })
     .getByRole('button', { name: 'Close', exact: true })
     .click();
-  await page.getByRole('button', { name: 'EN', exact: true }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByLabel('Interface language', { exact: true }).selectOption('zh-CN');
+  await page.getByRole('button', { name: 'Save settings', exact: true }).click();
   await expect(page.getByRole('button', { name: '结束会议' })).toBeVisible();
   await page.getByRole('button', { name: '结束会议' }).click();
   await expect(page.getByText('会议已结束', { exact: true }).first()).toBeVisible();
@@ -96,7 +106,13 @@ test('real Electron: event, manual original source, honest missing model, correc
   await app.evaluate(({ app }) => app.exit(0));
   app = await electron.launch({
     args: [resolve('.')],
-    env: { ...process.env, MEETING_DATA_DIR: dataDir, OPENAI_API_KEY: '' },
+    env: {
+      ...process.env,
+      MEETING_DEV_INPUTS: '1',
+      MEETING_SYSTEM_LOCALE: 'en',
+      MEETING_DATA_DIR: dataDir,
+      OPENAI_API_KEY: '',
+    },
   });
   await expect
     .poll(async () => {
@@ -119,7 +135,8 @@ test('real Electron: event, manual original source, honest missing model, correc
     .toBe('stopped');
 });
 test('native launcher opens one workspace; hiding does not stop the event; hover uses real windows', async () => {
-  await page.getByRole('button', { name: 'Start meeting' }).first().click();
+  await page.getByText('Development tools', { exact: true }).click();
+  await page.getByRole('button', { name: 'Development input', exact: true }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Start meeting' }).click();
   await expect(page.getByRole('dialog', { name: 'Start meeting' })).toBeHidden();
   const launcher = (await app.windows()).find((p) => p.url().includes('role=launcher'))!;

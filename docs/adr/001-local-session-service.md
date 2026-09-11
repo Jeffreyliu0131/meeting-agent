@@ -2,7 +2,9 @@
 
 ## Status
 
-Proposed｜2026-09-11。产品采用桌面事件形态已获用户认可；Electron、TypeScript、SQLite等为本次工程建议，未实测、未被单独确认为最终技术栈。
+历史提案；采用／调整关系见 [ADR-003](003-cross-platform-first-version.md)，后续变化见[当前状态](../status.md)。以下正文保留提案时的论证，不代表当前仍未选型。
+
+提案时点：2026-09-11。产品采用桌面事件形态已获用户认可；Electron、TypeScript、SQLite等为本次工程建议，未实测、未被单独确认为最终技术栈。
 
 ## Context
 

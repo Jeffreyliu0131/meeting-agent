@@ -1,7 +1,9 @@
 # 数据与操作契约
 
-> 实施更新（2026-09-11）：本轮已开始并完成一版本地实现。本文保留原设计目标；“尚未开发／下一轮”等为设计阶段记录。当前实现差异与平台边界见 [ADR-003](adr/003-cross-platform-first-version.md)，实际通过与未测项目见 [验证记录](../tests/results/validation.md)。
-版本0.1｜建议接口，非已编译实现。下面的TypeScript是设计示意；下一轮在`src/contracts/`写运行时schema和类型。本文件定义业务职责，不将具体库写成不可替换前提。
+> 文件职责：产品／工程设计要求，不是完成清单。当前进度与最新修订见[状态页](status.md)；已交付首版取舍见[ADR-003](adr/003-cross-platform-first-version.md)，实际结果见[验证记录](../tests/results/README.md)。具体实现以代码核对，未实现的要求仍是目标。
+版本0.1｜业务设计契约。下面的TypeScript是设计示意；实际运行时 schema 与类型见 `src/contracts/model.ts`，需按当前状态核对差异。本文件定义业务职责，不将具体库写成不可替换前提。
+
+启动意图、持久化设备／语言偏好、自动标题版本与渐进提问上下文的最新增补见[会议入口规范](meeting-entry-spec.md)。这些是待接入契约，不因旧运行时仍要求创建表单字段而撤回新交互要求。
 
 ## 1. 核心对象
 
@@ -171,3 +173,10 @@ Decision保存`id, scope: personal|meeting, targetSnapshot, evidenceRefs, confir
 主要code：`SOURCE_UNAVAILABLE, IDENTITY_UNKNOWN, MODEL_UNAVAILABLE, INVALID_PROPOSAL, REV_CONFLICT, SOURCE_SUPERSEDED, INVALID_ARTIFACT, RENDER_FAILED, RENDER_TIMEOUT, INPUT_UNKNOWN, PERMISSION_DENIED, STORAGE_FAILED`。
 
 `IDENTITY_UNKNOWN`是提示性状态，基础理解继续。其他错误按模块恢复，不能统一成“Agent正在思考”。未保存成功就不能显示“已保存”。
+
+
+## 连续 Agent 实际协议（本轮接入）
+
+实际schema见 `src/contracts/model.ts`，工作流见 [ADR-004](adr/004-live-agent-pipeline.md)。Proposal增加互斥的patch／plan与有来源的titleProposal；来源增加输入version、采集起止时间、通道序号与可选requestContext。Meeting保存processedSources、独立expressionJobs、调用账目、标题来源／修订、音频偏好快照与实际设备。Preferences保存system语言选择与audio设置，旧数据保守迁移。
+
+桌面startMeeting意图由可信层解析设置、幂等创建与启动采集。个人请求保留绑定产物revision，生成个人对象不覆盖会议语义。历史产物仍为完整不可变快照，增量传输使用按块patch；来源／对象／关系依赖决定过期，普通新增发言不自动让无关内容过期。

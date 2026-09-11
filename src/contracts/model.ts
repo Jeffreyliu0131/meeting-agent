@@ -168,7 +168,21 @@ export const Formula = z
   })
   .strict();
 export type Formula = z.infer<typeof Formula>;
-export const Block = z.union([text, table, graph, timeline, chart, markup]);
+const actions = z
+  .object({
+    ...base,
+    type: z.literal('actions'),
+    items: z
+      .array(
+        z
+          .object({ id, label: z.string().max(100), prompt: z.string().max(600), sources: refs })
+          .strict(),
+      )
+      .min(1)
+      .max(4),
+  })
+  .strict();
+export const Block = z.union([text, table, graph, timeline, chart, markup, actions]);
 export type Block = z.infer<typeof Block>;
 export const Artifact = z
   .object({
@@ -184,6 +198,29 @@ export const Artifact = z
   })
   .strict();
 export type Artifact = z.infer<typeof Artifact>;
+/** A patch changes named blocks; omitted blocks and local UI state survive. */
+export const ArtifactPatch = z
+  .object({
+    artifactId: id,
+    baseRev: z.number().int().positive(),
+    question: z.string().max(180).nullable(),
+    summary: z.string().max(350).nullable(),
+    upsertBlocks: z.array(Block).max(6),
+    removeBlockIds: z.array(id).max(6),
+    formulas: z.array(Formula).max(3).nullable(),
+  })
+  .strict();
+export type ArtifactPatch = z.infer<typeof ArtifactPatch>;
+export const ExpressionPlan = z
+  .object({
+    purposeKey: id,
+    question: z.string().max(180),
+    instruction: z.string().max(1500),
+    objectIds: z.array(id).max(30),
+    sources: refs,
+  })
+  .strict();
+export type ExpressionPlan = z.infer<typeof ExpressionPlan>;
 export const Proposal = z
   .object({
     focus: z.string().max(180),
@@ -198,6 +235,17 @@ export const Proposal = z
       'request_clarification',
     ]),
     artifact: Artifact.nullable(),
+    patch: ArtifactPatch.nullable().optional(),
+    plan: ExpressionPlan.nullable().optional(),
+    titleProposal: z
+      .object({
+        text: z.string().min(1).max(100),
+        baseRevision: z.number().int().nonnegative(),
+        sources: refs,
+      })
+      .strict()
+      .nullable()
+      .optional(),
     rationale: z.string().max(400),
   })
   .strict();
@@ -215,6 +263,11 @@ export type Segment = {
   identity: 'unknown' | 'user_mapped';
   identityBasis: string | null;
   synthetic: boolean;
+  requestContext?: { artifactId: string; artifactRev: number };
+  version?: number;
+  captureStartMs?: number;
+  captureEndMs?: number;
+  channelSequence?: number;
 };
 export type ObjectState = z.infer<typeof SemanticObject> & { rev: number };
 export type RelationState = z.infer<typeof Relation> & { rev: number };
@@ -226,6 +279,10 @@ export type ArtifactRevision = Artifact & {
   inputVersion: number;
   objectRefs: Ref[];
   elementSources?: Record<string, Ref[]>;
+  relationRefs?: Ref[];
+  changedBlockIds?: string[];
+  updateKind?: 'patch' | 'create' | 'restructure';
+  scope?: 'meeting' | 'personal';
   createdAt: string;
 };
 export type Scenario = {
@@ -254,9 +311,44 @@ export type Translation = {
   text: string;
   createdAt: string;
 };
+export type CallRecord = {
+  id: string;
+  kind: 'understand' | 'generate' | 'translate' | 'transcribe';
+  startedAt: string;
+  durationMs: number;
+  status: 'pending' | 'ok' | 'failed';
+  inputTokens: number | null;
+  outputTokens: number | null;
+  reservedTokens: number;
+  audioSeconds?: number;
+  error?: string;
+};
+export type ExpressionJob = {
+  id: string;
+  inputVersion: number;
+  languageRevision: number;
+  objectRefs: Ref[];
+  relationRefs: Ref[];
+  sourceRefs: Ref[];
+  artifact: Artifact | null;
+  patch: ArtifactPatch | null;
+  plan: ExpressionPlan | null;
+  personalObjects?: ObjectState[];
+  personalRelations?: RelationState[];
+  scope: 'meeting' | 'personal';
+  updateKind: 'patch' | 'create' | 'restructure';
+};
 export type Meeting = {
   id: string;
   title: string;
+  titleMeta?: { origin: 'placeholder' | 'agent' | 'user'; revision: number; sources: Ref[] };
+  audioSettings?: {
+    deviceId: string;
+    deviceLabel: string;
+    includeComputerAudio: boolean;
+    setupCompleted: boolean;
+  };
+  actualDevice?: { deviceId: string; label: string };
   timezone: string;
   createdAt: string;
   endedAt: string | null;
@@ -277,6 +369,24 @@ export type Meeting = {
   artifacts: ArtifactRevision[];
   scenarios: Scenario[];
   decisions: Decision[];
+  processedSources?: Record<string, number>;
+  calls?: CallRecord[];
+  usageTotals?: {
+    reservedTokens: number;
+    calls: number;
+    inputTokens: number;
+    outputTokens: number;
+    unknownUsageCalls: number;
+    audioSeconds: number;
+  };
+  expressionJobs?: ExpressionJob[];
+  failedExpression?: ExpressionJob;
+  expressionStatus?: 'idle' | 'working' | 'error';
+  expressionError?: string | null;
+  lastUnderstandingAt?: string;
+  lastExpressionAt?: string;
+  lastContextBytes?: number;
+  audioPending?: number;
   focus: string;
   changes: string[];
   processing: 'idle' | 'working' | 'error';
@@ -285,6 +395,14 @@ export type Meeting = {
   metrics: { calls: number; inputTokens: number; outputTokens: number; lastLatencyMs: number };
 };
 export type Preferences = {
+  uiLanguage?: 'system' | 'en' | 'zh-CN';
+  defaultOutputLanguage?: 'system' | 'en' | 'zh-CN';
+  audio?: {
+    deviceId: string;
+    deviceLabel: string;
+    includeComputerAudio: boolean;
+    setupCompleted: boolean;
+  };
   uiLocale: Locale;
   defaultOutputLocale: Locale;
   reduceMotion: boolean;
@@ -295,6 +413,7 @@ export type Snapshot = {
   meetings: Meeting[];
   preferences: Preferences;
   capabilities: {
+    developerInputs?: boolean;
     modelConfigured: boolean;
     sttConfigured: boolean;
     model: string;
@@ -310,6 +429,7 @@ export const Command = z
     meetingId: id.nullable(),
     type: z.enum([
       'create',
+      'startMeeting',
       'ingest',
       'correct',
       'language',
@@ -323,6 +443,8 @@ export const Command = z
       'scenario',
       'decision',
       'preferences',
+      'rename',
+      'audioSettings',
     ]),
     payload: z.record(z.string(), z.unknown()),
   })

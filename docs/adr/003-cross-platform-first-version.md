@@ -1,6 +1,10 @@
 # ADR-003：macOS 与 Windows 共用核心、平台能力隔离
 
+> 适用版本：已提交首版本地实现（`5fcd90f`）。下文“当前”指该实现阶段；后续未提交 Agent 迭代可能改变上下文、调度、队列等细节，见[状态页](../status.md)与[迭代记录](../sessions/2026-09-11-agent-iteration.md)。新取舍应由对应实现任务记录并明确替代条款。
+
 2026-09-11｜本轮开发采用；真实验证范围见 [validation.md](../../tests/results/validation.md)。用户在开发中补充：macOS 和 Windows 同时属于首版目标，不能做成 Mac 专用架构。
+
+> 后续修订：连续Agent、上下文、音频缓冲与页面更新的当前决定见 [ADR-004](004-live-agent-pipeline.md)。本文相关限制保留为首版历史。
 
 ## 问题与决定
 

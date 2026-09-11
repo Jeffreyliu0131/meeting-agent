@@ -111,7 +111,19 @@ async function contextMenu() {
   preview.hide();
   const m = active();
   const items: Electron.MenuItemConstructorOptions[] = [
-    { label: t(m ? 'meeting.open' : 'meeting.start'), click: openWorkspace },
+    {
+      label: t(m ? 'meeting.open' : 'meeting.start'),
+      click: () => {
+        openWorkspace();
+        if (!m)
+          void startMeeting(randomUUID())
+            .then((result) => {
+              if (result.state === 'needs_setup')
+                workspace.webContents.send('snapshot', { ...state, openSettings: true });
+            })
+            .catch(() => {});
+      },
+    },
   ];
   if (m) {
     items.push(
@@ -126,25 +138,6 @@ async function contextMenu() {
   }
   items.push(
     { type: 'separator' },
-    {
-      label: t('settings.language'),
-      submenu: [
-        {
-          label: 'English',
-          type: 'radio',
-          checked: state?.preferences.uiLocale === 'en',
-          click: () =>
-            void dispatch('preferences', { ...state!.preferences, uiLocale: 'en' }, null),
-        },
-        {
-          label: '简体中文',
-          type: 'radio',
-          checked: state?.preferences.uiLocale === 'zh-CN',
-          click: () =>
-            void dispatch('preferences', { ...state!.preferences, uiLocale: 'zh-CN' }, null),
-        },
-      ],
-    },
     {
       label: t('settings.open'),
       click: () => {
@@ -177,7 +170,57 @@ async function captureAction(action: string, meetingId: string) {
     meetingId,
     epoch: fresh.epoch,
     mode: fresh.mode,
+    deviceId: fresh.audioSettings?.deviceId ?? 'default',
   });
+}
+const startingMeetings = new Map<
+  string,
+  Promise<{ meetingId: string | null; state: string; reason?: string }>
+>();
+async function startMeeting(requestId: string) {
+  if (typeof requestId !== 'string' || !/^[\w-]{1,100}$/.test(requestId))
+    throw new Error('INVALID_REQUEST');
+  const pending = startingMeetings.get(requestId);
+  if (pending) return pending;
+  const work = (async () => {
+    const snapshot = (await request('snapshot')) as Snapshot;
+    const current = snapshot.meetings.find((m) => m.status === 'active');
+    if (current) return { meetingId: current.id, state: current.capture };
+    if (!snapshot.preferences.audio?.setupCompleted)
+      return { meetingId: null, state: 'needs_setup', reason: 'AUDIO_SETUP_REQUIRED' };
+    if (!snapshot.capabilities.sttConfigured)
+      return { meetingId: null, state: 'needs_setup', reason: 'STT_NOT_CONFIGURED' };
+    const id = (await request('command', {
+      id: requestId,
+      meetingId: null,
+      type: 'startMeeting',
+      payload: { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone },
+    })) as string;
+    state = await request('snapshot');
+    openWorkspace();
+    if (state!.meetings.find((m) => m.id === id)?.status === 'ended')
+      return { meetingId: id, state: 'input_error', reason: 'MEETING_ENDED' };
+    if (['capturing', 'starting'].includes(state!.meetings.find((m) => m.id === id)!.capture))
+      return { meetingId: id, state: state!.meetings.find((m) => m.id === id)!.capture };
+    try {
+      await captureAction('start', id);
+      return { meetingId: id, state: 'starting' };
+    } catch (e) {
+      if (e instanceof Error && e.message === 'ALREADY_CAPTURING')
+        return { meetingId: id, state: 'starting' };
+      await dispatch(
+        'captureError',
+        {
+          epoch: state!.meetings.find((m) => m.id === id)!.epoch,
+          code: e instanceof Error ? e.message : 'INPUT_PERMISSION_OR_DEVICE',
+        },
+        id,
+      );
+      return { meetingId: id, state: 'input_error' };
+    }
+  })().finally(() => startingMeetings.delete(requestId));
+  startingMeetings.set(requestId, work);
+  return work;
 }
 async function quit() {
   if (quitting) return;
@@ -240,7 +283,11 @@ app.on('window-all-closed', () => {});
 app.whenReady().then(async () => {
   mkdirSync(app.getPath('userData'), { recursive: true });
   worker = utilityProcess.fork(join(__dirname, 'worker.cjs'), [], {
-    env: { ...process.env, MEETING_DB: join(app.getPath('userData'), 'meetings.sqlite') },
+    env: {
+      ...process.env,
+      MEETING_SYSTEM_LOCALE: process.env.MEETING_SYSTEM_LOCALE ?? app.getLocale(),
+      MEETING_DB: join(app.getPath('userData'), 'meetings.sqlite'),
+    },
     serviceName: 'Meeting session service',
   });
   worker.on('message', (message: any) => {
@@ -423,7 +470,11 @@ app.whenReady().then(async () => {
         if (method === 'captureReady')
           return {
             ok: true,
-            value: await dispatch('captureReady', { epoch: args.epoch }, args.meetingId),
+            value: await dispatch(
+              'captureReady',
+              { epoch: args.epoch, actualDevice: args.actualDevice },
+              args.meetingId,
+            ),
           };
         if (method === 'captureError') {
           sendStop();
@@ -440,6 +491,24 @@ app.whenReady().then(async () => {
       }
       let value: unknown;
       switch (method) {
+        case 'startMeeting':
+          value = await startMeeting(args.requestId);
+          break;
+        case 'devices':
+          value = await capture.webContents.executeJavaScript(
+            '(async()=>{const devices=await navigator.mediaDevices.enumerateDevices();return devices.filter(d=>d.kind==="audioinput").map(d=>({deviceId:d.deviceId,label:d.label}));})()',
+          );
+          break;
+        case 'applyAudioSettings': {
+          const m = active();
+          if (!m) throw new Error('MEETING_NOT_FOUND');
+          await captureAction('pause', m.id);
+          await dispatch('audioSettings', { audio: state!.preferences.audio }, m.id);
+          state = await request('snapshot');
+          await captureAction('start', m.id);
+          value = true;
+          break;
+        }
         case 'snapshot':
           value = await request('snapshot');
           break;
@@ -453,6 +522,7 @@ app.whenReady().then(async () => {
           if (
             ![
               'create',
+              'rename',
               'ingest',
               'correct',
               'language',
@@ -464,6 +534,8 @@ app.whenReady().then(async () => {
               'end',
             ].includes(args.type)
           )
+            throw new Error('PERMISSION_DENIED');
+          if (args.type === 'create' && process.env.MEETING_DEV_INPUTS !== '1')
             throw new Error('PERMISSION_DENIED');
           if (args.type === 'ingest' && !['manual', 'replay'].includes(args.payload?.kind))
             throw new Error('PERMISSION_DENIED');

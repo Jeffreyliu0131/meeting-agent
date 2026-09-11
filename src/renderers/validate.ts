@@ -89,7 +89,8 @@ export function safeMarkup(markup: string, type: 'html' | 'svg'): string {
               'transform',
             ],
           }
-        : { '*': ['id'] },
+        : { '*': ['id', 'class'] },
+    allowedClasses: { '*': ['grid', 'stack', 'muted', 'emphasis', 'callout'] },
     parser: { lowerCaseAttributeNames: false, lowerCaseTags: false },
     allowedSchemes: [],
   });
@@ -122,6 +123,8 @@ export function validateArtifact(
         validateRefs(row.sources, meeting, true);
       }
     }
+    if (block.type === 'actions')
+      for (const item of block.items) validateRefs(item.sources, meeting, true);
     if (block.type === 'timeline')
       for (const item of block.items) validateRefs(item.sources, meeting, true);
     if (block.type === 'chart')
@@ -155,11 +158,29 @@ export function validateArtifact(
   return a;
 }
 export function validateDelta(proposal: Proposal, meeting: Meeting) {
+  if ([proposal.artifact, proposal.patch, proposal.plan].filter(Boolean).length > 1)
+    throw new Error('AMBIGUOUS_EXPRESSION');
+  if (proposal.plan) {
+    validateRefs(proposal.plan.sources, meeting, true);
+    if (
+      proposal.plan.objectIds.some(
+        (id) => ![...meeting.objects, ...proposal.objects].some((o) => o.id === id),
+      )
+    )
+      throw new Error('INVALID_OBJECT');
+  }
   const seen = new Set<string>();
   for (const obj of proposal.objects) {
     if (seen.has(obj.id)) throw new Error('DUPLICATE_ID');
     seen.add(obj.id);
     validateRefs(obj.sources, meeting, true);
+    if (
+      obj.origin === 'stated' &&
+      obj.sources.every(
+        (r) => meeting.segments.find((s) => s.id === r.id && s.rev === r.rev)?.kind === 'request',
+      )
+    )
+      throw new Error('REQUEST_IS_NOT_FACT');
     if (obj.origin === 'tool_computed') throw new Error('UNTRUSTED_TOOL_RESULT');
   }
   const objects = new Set([
@@ -176,8 +197,11 @@ export function validateDelta(proposal: Proposal, meeting: Meeting) {
   }
   if (
     ['create_artifact', 'patch_artifact', 'propose_restructure'].includes(proposal.action) &&
-    !proposal.artifact
+    !proposal.artifact &&
+    !proposal.patch &&
+    !proposal.plan
   )
     throw new Error('MISSING_ARTIFACT');
-  if (proposal.action === 'no_change' && proposal.artifact) throw new Error('NO_CHANGE_ARTIFACT');
+  if (proposal.action === 'no_change' && (proposal.artifact || proposal.patch || proposal.plan))
+    throw new Error('NO_CHANGE_ARTIFACT');
 }

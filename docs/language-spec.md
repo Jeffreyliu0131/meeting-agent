@@ -1,24 +1,24 @@
 # 语言与本地化实施规范
 
-> 实施更新（2026-09-11）：本轮已开始并完成一版本地实现。本文保留原设计目标；“尚未开发／下一轮”等为设计阶段记录。当前实现差异与平台边界见 [ADR-003](adr/003-cross-platform-first-version.md)，实际通过与未测项目见 [验证记录](../tests/results/validation.md)。
-2026-09-11｜用户已确认：英文默认，中文可选；会议与Agent需支持中文、英文。对话与设计文档可以中文，呈现给用户的产品默认必须英文。
+> 文件职责：产品／工程设计要求，不是完成清单。当前进度与最新修订见[状态页](status.md)；已交付首版取舍见[ADR-003](adr/003-cross-platform-first-version.md)，实际结果见[验证记录](../tests/results/README.md)。具体实现以代码核对，未实现的要求仍是目标。
+2026-09-11｜最新用户确认：语言默认跟随系统，中文系统使用简体中文，其他语言系统默认英文；设置可手动覆盖。本条取代早期固定英文默认，会议与Agent继续支持中文、英文。交互与迁移见[会议入口规范](meeting-entry-spec.md)，本轮为规范修订，代码待接入。
 
 ## 1. 三种语言分开
 
 | 层次 | 默认值 | 切换影响 |
 |---|---|---|
-| Interface language | `en` | 固定UI、按钮、菜单、错误、辅助标签与设置；不修改原话和既有产物 |
-| Meeting output language | `en`，新会议可继承用户显式选择的默认值 | Agent标题、纪要、图标签、比较与解释；属于这场会议的属性 |
+| Interface language | `system`，解析为`en`或`zh-CN` | 固定UI、按钮、菜单、错误、辅助标签与设置；不修改原话和既有产物 |
+| Meeting output language | 新会议解析默认输出偏好（默认`system`），保存为本场明确的`en`或`zh-CN` | Agent标题、纪要、图标签、比较与解释；属于这场会议的属性 |
 | Spoken input languages | English＋Mandarin Chinese | STT预期语言及理解上下文；允许混说，不由UI语言限制 |
 
 中文界面首版指简体中文`zh-CN`，语音中文首版验证普通话；不把方言／其他地区语种自动纳入已验证范围。UI使用内部枚举`en | zh-CN`，供应商语言代码由适配器转换，不把UI locale原样当API参数。
 
-首次打开始终English，不因系统语言中文而静默覆盖；之后保存用户设置。全英文工作流不出现中文占位提示、未翻译错误、无障碍标签或图例。原始中文发言作为来源出现不算UI漏翻译。
+首次使用跟随系统语言：主语言为`zh`（含地区变体）映射简体中文，其余映射英文；这是界面回退规则，不承诺繁体本地化或方言语音质量。设置支持跟随系统／English／简体中文，手动选择优先并持久化。跟随系统时在启动／系统语言变化通知后重新解析界面；活动会议输出保持启动时快照。旧存储无选择来源时保留已保存值，不猜测是否手选；允许用户切回跟随系统。全英文工作流不出现中文占位提示、未翻译错误、无障碍标签或图例。原始中文发言作为来源出现不算UI漏翻译。
 
 ## 2. 语言切换规则
 
 - 修改Interface language立即更新可信外壳，不停止会议、不触发全场模型重跑，也不把当前输出语言偷偷改掉。
-- 新建会议显示Output language（English／简体中文），默认English或用户主动保存的默认值。可在会中设置更改。
+- 新建会议不询问Output language；服务从默认输出偏好解析本场语言并保存。可在会中设置明确更改，界面和系统语言变化不自动改变本场输出。页面与右键菜单不常驻语言快捷切换。
 - 更改当前Output language后，新生成内容使用新语言；当前可见产物基于相同事实与来源生成对应语言版本。保留旧版直至新版本通过校验，并显示`Updating language…`。
 - 未打开的历史产物按需生成语言版本，不因为一个设置重算全部历史。新旧语言不同的过渡状态可见，不混排成用户无法识别的半翻译内容。
 - 语言改写不得新增业务主张、改变条件、数字、责任或决定范围。对象ID和SourceRef不因翻译改变。
@@ -43,8 +43,9 @@ Segment保存供应商原始转写语言内容，不先统一翻译再当“原�
 ```ts
 type ProductLocale = 'en' | 'zh-CN';
 type UserPreferences = {
-  uiLocale: ProductLocale;
-  defaultOutputLocale: ProductLocale;
+  uiLanguage: "system" | ProductLocale;
+  defaultOutputLanguage: "system" | ProductLocale;
+  // UI有效locale由系统语言与偏好解析；会议outputLocale保存解析结果。
   reduceTransparency: boolean;
   reduceMotion: boolean;
 };

@@ -37,7 +37,10 @@ try {
     rawAudioCaptured: false,
     ranAt: new Date().toISOString(),
   };
-  writeFileSync('tests/results/package-smoke.json', JSON.stringify(result, null, 2));
+  writeFileSync(
+    process.env.MEETING_SMOKE_RESULT || 'tests/results/package-smoke.json',
+    JSON.stringify(result, null, 2),
+  );
   console.log(result);
 } finally {
   await application.evaluate(({ app }) => app.exit(0)).catch(() => {});

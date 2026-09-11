@@ -155,23 +155,119 @@ export function Settings({
   snapshot: Snapshot;
   t: (s: string) => string;
   close: () => void;
-  save: (p: Preferences) => Promise<any>;
+  save: (p: Preferences, keepOpen?: boolean) => Promise<any>;
   current?: Meeting;
   changeOutput: (l: string) => Promise<any>;
 }) {
   const [draft, setDraft] = useState(preferences),
-    [platform, setPlatform] = useState<any>(null);
+    [platform, setPlatform] = useState<any>(null),
+    [devices, setDevices] = useState<Array<{ deviceId: string; label: string }>>([]),
+    [audioError, setAudioError] = useState('');
   useEffect(() => {
     void api('platform').then(setPlatform);
+    void api('devices')
+      .then(setDevices)
+      .catch(() => {});
   }, []);
   return (
     <Modal title={t('settings.open')} close={close}>
+      <section className="settings-section">
+        <h3>{t('entry.audioSetup')}</h3>
+        <label>
+          {t('entry.microphone')}
+          <select
+            value={draft.audio?.deviceId ?? 'default'}
+            onChange={(e) =>
+              setDraft({
+                ...draft,
+                audio: {
+                  deviceId: e.target.value,
+                  deviceLabel: devices.find((d) => d.deviceId === e.target.value)?.label ?? '',
+                  includeComputerAudio: draft.audio?.includeComputerAudio ?? false,
+                  setupCompleted: true,
+                },
+              })
+            }
+          >
+            <option value="default">{t('entry.defaultMic')}</option>
+            {draft.audio?.deviceId &&
+              draft.audio.deviceId !== 'default' &&
+              !devices.some((d) => d.deviceId === draft.audio!.deviceId) && (
+                <option value={draft.audio.deviceId}>
+                  {draft.audio.deviceLabel} · {t('entry.unavailable')}
+                </option>
+              )}
+            {devices
+              .filter((d) => d.deviceId && d.deviceId !== 'default')
+              .map((d, i) => (
+                <option key={d.deviceId} value={d.deviceId}>
+                  {d.label || t('entry.microphone') + ' ' + (i + 1)}
+                </option>
+              ))}
+          </select>
+        </label>
+        <label className="check">
+          <input
+            type="checkbox"
+            checked={draft.audio?.includeComputerAudio ?? false}
+            onChange={(e) =>
+              setDraft({
+                ...draft,
+                audio: {
+                  deviceId: draft.audio?.deviceId ?? 'default',
+                  deviceLabel: draft.audio?.deviceLabel ?? '',
+                  includeComputerAudio: e.target.checked,
+                  setupCompleted: true,
+                },
+              })
+            }
+          />
+          {t('entry.computerAudio')}
+        </label>
+        <p className="privacy">{t('entry.audioPrivacy')}</p>
+        {audioError && <p role="alert">{errorText(preferences.uiLocale, audioError)}</p>}
+        {!snapshot.capabilities.sttConfigured && <p className="warning-text">{t('sttMissing')}</p>}
+        {current?.status === 'active' && (
+          <>
+            <p className="muted">
+              {t('entry.currentDevice')}: {current.actualDevice?.label || t('entry.defaultMic')}
+            </p>
+            <button
+              onClick={async () => {
+                try {
+                  const saved = await save(
+                    {
+                      ...draft,
+                      audio: {
+                        deviceId: draft.audio?.deviceId ?? 'default',
+                        deviceLabel: draft.audio?.deviceLabel ?? '',
+                        includeComputerAudio: draft.audio?.includeComputerAudio ?? false,
+                        setupCompleted: true,
+                      },
+                    },
+                    true,
+                  );
+                  if (saved !== true) return;
+                  await api('applyAudioSettings');
+                  close();
+                } catch (e) {
+                  setAudioError((e as Error).message);
+                }
+              }}
+            >
+              {t('entry.applyCurrent')}
+            </button>
+          </>
+        )}
+      </section>
       <label>
         {t('settings.interfaceLanguage')}
         <select
-          value={draft.uiLocale}
-          onChange={(e) => setDraft({ ...draft, uiLocale: e.target.value as any })}
+          aria-label={t('settings.interfaceLanguage')}
+          value={draft.uiLanguage ?? draft.uiLocale}
+          onChange={(e) => setDraft({ ...draft, uiLanguage: e.target.value as any })}
         >
+          <option value="system">{t('entry.system')}</option>
           <option value="en">English</option>
           <option value="zh-CN">简体中文</option>
         </select>
@@ -179,9 +275,11 @@ export function Settings({
       <label>
         {t('settings.defaultOutputLanguage')}
         <select
-          value={draft.defaultOutputLocale}
-          onChange={(e) => setDraft({ ...draft, defaultOutputLocale: e.target.value as any })}
+          aria-label={t('settings.defaultOutputLanguage')}
+          value={draft.defaultOutputLanguage ?? draft.defaultOutputLocale}
+          onChange={(e) => setDraft({ ...draft, defaultOutputLanguage: e.target.value as any })}
         >
+          <option value="system">{t('entry.system')}</option>
           <option value="en">English</option>
           <option value="zh-CN">简体中文</option>
         </select>
@@ -239,7 +337,20 @@ export function Settings({
           <small>{t('noPermission')}</small>
         </section>
       )}
-      <button className="primary" onClick={() => void save(draft)}>
+      <button
+        className="primary"
+        onClick={() =>
+          void save({
+            ...draft,
+            audio: {
+              deviceId: draft.audio?.deviceId ?? 'default',
+              deviceLabel: draft.audio?.deviceLabel ?? '',
+              includeComputerAudio: draft.audio?.includeComputerAudio ?? false,
+              setupCompleted: true,
+            },
+          })
+        }
+      >
         {t('saveSettings')}
       </button>
     </Modal>
@@ -274,6 +385,19 @@ export function SourceDrawer({
           ×
         </button>
       </div>
+      {meeting.inputGaps.length > 0 && (
+        <details>
+          <summary>
+            {t('live.inputGaps')} ({meeting.inputGaps.length})
+          </summary>
+          {meeting.inputGaps.map((gap, i) => (
+            <p key={i}>
+              {new Date(gap.receivedAt).toLocaleTimeString(locale)} · {gap.channel} ·{' '}
+              {errorText(locale, gap.code)}
+            </p>
+          ))}
+        </details>
+      )}
       {!segments.length && <p>{t('emptySources')}</p>}
       {segments.map((s) => (
         <article className="source-card" key={`${s.id}-${s.rev}`}>
@@ -285,7 +409,7 @@ export function SourceDrawer({
             {s.speaker && <span> · {t('mapping')}</span>}
           </p>
           <blockquote>{s.text}</blockquote>
-          <small>{new Date(s.receivedAt).toLocaleTimeString(locale)}</small>
+          <small>{new Date(s.captureStartMs ?? s.receivedAt).toLocaleTimeString(locale)}</small>
           <TranslationView meeting={meeting} segment={s} locale={locale} />
           {meeting.segments.some((n) => n.id === s.id && n.rev > s.rev) ? (
             <p className="stale">{t('sourceStale')}</p>
@@ -405,10 +529,12 @@ export function ScenarioEditor({
   formula,
   locale,
   onSave,
+  onDirty,
 }: {
   formula: Formula;
   locale: 'en' | 'zh-CN';
   onSave: (values: Record<string, number | null>) => Promise<any>;
+  onDirty?: () => void;
 }) {
   const t = translator(locale),
     base = () => Object.fromEntries(formula.parameters.map((p) => [p.id, p.value]));
@@ -442,6 +568,7 @@ export function ScenarioEditor({
               step="any"
               value={values[p.id] ?? ''}
               onChange={(e) => {
+                onDirty?.();
                 setValues({
                   ...values,
                   [p.id]: e.target.value === '' ? null : Number(e.target.value),

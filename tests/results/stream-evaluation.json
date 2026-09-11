@@ -1,0 +1,19 @@
+{
+  "synthetic": true,
+  "realModel": false,
+  "realAudio": false,
+  "simulatedMeetingSeconds": 1800,
+  "events": 360,
+  "playbackIntervalMs": 2,
+  "elapsedMs": 1120,
+  "modelCalls": 56,
+  "maxPending": 14,
+  "processed": 360,
+  "understoodVersion": 360,
+  "latestArtifactVersion": 360,
+  "understandingBeforeFirstPreview": true,
+  "lastContextBytes": 3842,
+  "error": null,
+  "expressionError": null,
+  "pass": true
+}

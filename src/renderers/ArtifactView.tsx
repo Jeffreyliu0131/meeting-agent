@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { RelationshipGraph } from './RelationshipGraph';
 import type { ArtifactRevision, Block, Ref, Locale } from '../contracts/model';
 import { translator } from '../ui/i18n';
 const csp =
   "default-src 'none'; script-src 'none'; style-src 'unsafe-inline'; img-src 'none'; connect-src 'none'; form-action 'none'; base-uri 'none'";
 export function Markup({ block }: { block: Extract<Block, { markup: string }> }) {
-  const css = `*{box-sizing:border-box}body{margin:16px;font:15px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1D2430;background:white;overflow-wrap:anywhere}h2{font-size:22px}h3{font-size:18px}table{border-collapse:collapse;width:100%}td,th{padding:12px;text-align:left;border-bottom:1px solid #E2E6EC}svg{max-width:100%;height:auto}section{margin-bottom:20px}`;
+  const css = `*{box-sizing:border-box}body{margin:16px;font:15px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1D2430;background:white;overflow-wrap:anywhere}h2{font-size:22px}h3{font-size:18px}table{border-collapse:collapse;width:100%}td,th{padding:12px;text-align:left;border-bottom:1px solid #E2E6EC}svg{max-width:100%;height:auto}section{margin-bottom:20px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}.stack{display:grid;gap:12px}.muted{color:#596575}.emphasis{font-weight:600}.callout{padding:12px;background:#F3F5F8;border-left:3px solid #607F9C}`;
   return (
     <iframe
       title={block.title}
@@ -19,16 +20,28 @@ export function ArtifactView({
   artifact,
   locale,
   onSources,
+  onAction,
 }: {
   artifact: ArtifactRevision;
   locale: Locale;
   onSources: (refs: Ref[]) => void;
+  onAction?: (prompt: string) => void;
 }) {
   const t = translator(locale);
+  const [highlight, setHighlight] = useState<string[]>([]);
+  useEffect(() => {
+    setHighlight(artifact.changedBlockIds ?? []);
+    const timer = setTimeout(() => setHighlight([]), 1800);
+    return () => clearTimeout(timer);
+  }, [artifact.id, artifact.rev]);
   return (
     <div className={`artifact-blocks ${artifact.layout}`}>
       {artifact.blocks.map((block) => (
-        <section className="expression" key={block.id}>
+        <section
+          data-block-id={block.id}
+          className={`expression ${highlight.includes(block.id) ? 'expression-changed' : ''}`}
+          key={block.id}
+        >
           <div className="expression-heading">
             <h2>{block.title}</h2>
             <button
@@ -43,6 +56,15 @@ export function ArtifactView({
             <span>{t(block.origin)}</span>
             <span>{t(block.status)}</span>
           </div>
+          {block.type === 'actions' && (
+            <div className="button-row">
+              {block.items.map((item) => (
+                <button key={item.id} disabled={!onAction} onClick={() => onAction?.(item.prompt)}>
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          )}
           {block.type === 'text' && (
             <ul className={block.items.length === 1 ? 'plain-list' : ''}>
               {block.items.map((item, i) => (
@@ -84,56 +106,7 @@ export function ArtifactView({
             </div>
           )}
           {block.type === 'diagram' && (
-            <div className="logic-graph">
-              {block.edges.map((edge, i) => {
-                const from = block.nodes.find((n) => n.id === edge.from),
-                  to = block.nodes.find((n) => n.id === edge.to);
-                return (
-                  <div className="logic-row" key={i}>
-                    <button
-                      className="logic-node"
-                      onClick={() =>
-                        onSources(artifact.elementSources?.[from?.objectId || ''] || block.sources)
-                      }
-                    >
-                      {from?.label}
-                    </button>
-                    <div className="logic-edge">
-                      <button
-                        className="source-link"
-                        onClick={() =>
-                          onSources(artifact.elementSources?.[edge.relationId] || block.sources)
-                        }
-                      >
-                        {edge.label}
-                      </button>
-                      <span aria-hidden>⟶</span>
-                    </div>
-                    <button
-                      className="logic-node"
-                      onClick={() =>
-                        onSources(artifact.elementSources?.[to?.objectId || ''] || block.sources)
-                      }
-                    >
-                      {to?.label}
-                    </button>
-                  </div>
-                );
-              })}
-              {block.nodes
-                .filter((n) => !block.edges.some((e) => e.from === n.id || e.to === n.id))
-                .map((n) => (
-                  <button
-                    className="logic-node"
-                    key={n.id}
-                    onClick={() =>
-                      onSources(artifact.elementSources?.[n.objectId] || block.sources)
-                    }
-                  >
-                    {n.label}
-                  </button>
-                ))}
-            </div>
+            <RelationshipGraph block={block} artifact={artifact} onSources={onSources} />
           )}
           {block.type === 'timeline' && (
             <ol className="timeline">

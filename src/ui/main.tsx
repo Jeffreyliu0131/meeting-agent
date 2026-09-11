@@ -15,6 +15,8 @@ import { ArtifactView } from '../renderers/ArtifactView';
 import { calculate } from '../domain/calculator';
 import './style.css';
 import { api } from './bridge';
+import { useLiveArtifact, ScenarioShelf } from './live';
+import { artifactIsStale } from '../domain/artifacts';
 import { NewMeeting, Settings, SourceDrawer, ScenarioEditor, DecisionModal } from './components';
 
 const role = new URLSearchParams(location.search).get('role') || 'workspace';
@@ -32,14 +34,30 @@ function App() {
     [decisionScope, setDecisionScope] = useState<'personal' | 'meeting' | null>(null);
   const [ask, setAsk] = useState(''),
     [sourceText, setSourceText] = useState(''),
-    [sending, setSending] = useState(false);
+    [sending, setSending] = useState(false),
+    [starting, setStarting] = useState(false),
+    [askOpen, setAskOpen] = useState(false),
+    [askContext, setAskContext] = useState<{ artifactId: string; artifactRev: number } | null>(
+      null,
+    ),
+    [renaming, setRenaming] = useState(false),
+    [titleDraft, setTitleDraft] = useState('');
+  const startRequest = useRef<string | null>(null);
   const current = snapshot?.meetings.find((m) => m.id === selected),
     locale = snapshot?.preferences.uiLocale || 'en',
     t = translator(locale);
-  const latest = current?.artifacts.at(-1),
-    artifact = view
-      ? current?.artifacts.find((a) => a.id === view.id && a.rev === view.rev)
-      : latest;
+  const latest =
+    current?.artifacts.filter((a) => (a.scope ?? 'meeting') === 'meeting').at(-1) ??
+    current?.artifacts.at(-1);
+  const requested = view
+    ? current?.artifacts.find((a) => a.id === view.id && a.rev === view.rev)
+    : latest;
+  const { artifact } = useLiveArtifact(requested);
+  const personal =
+    current?.artifacts.filter(
+      (a) =>
+        a.scope === 'personal' && !current.artifacts.some((b) => b.id === a.id && b.rev > a.rev),
+    ) ?? [];
   const act = async (fn: () => Promise<any>) => {
     try {
       return await fn();
@@ -82,9 +100,7 @@ function App() {
     document.documentElement.lang = locale;
     document.body.dataset.role = role;
   }, [locale]);
-  useEffect(() => {
-    if (current && !view && latest) setView({ id: latest.id, rev: latest.rev });
-  }, [current?.id, latest?.id, latest?.rev]);
+
   useEffect(() => {
     const key = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -104,6 +120,8 @@ function App() {
     setHistory(false);
     setShowInput(false);
     setAsk('');
+    setAskOpen(false);
+    setAskContext(null);
     setSourceText('');
   };
   const active = snapshot?.meetings.find((m) => m.status === 'active');
@@ -180,11 +198,37 @@ function App() {
         <p>Meeting Agent</p>
       </main>
     );
+  const startMeeting = async () => {
+    if (starting) return;
+    if (active) {
+      openMeeting(active);
+      return;
+    }
+    setStarting(true);
+    startRequest.current ??= crypto.randomUUID();
+    try {
+      const result = await api('startMeeting', { requestId: startRequest.current });
+      if (result.state === 'needs_setup') {
+        setSettings(true);
+        if (result.reason !== 'AUDIO_SETUP_REQUIRED') setError(result.reason);
+      } else if (result.meetingId) {
+        setSelected(result.meetingId);
+        setView(null);
+        setAskOpen(false);
+        setAskContext(null);
+        startRequest.current = null;
+      }
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setStarting(false);
+    }
+  };
   const submitAsk = async () => {
     if (!ask.trim() || sending) return;
     setSending(true);
     try {
-      await command('ask', { text: ask });
+      await command('ask', { text: ask, ...(askContext ? { context: askContext } : {}) });
       setAsk('');
     } catch (e) {
       setError((e as Error).message);
@@ -205,7 +249,19 @@ function App() {
           ← {t('navigation.meetings')}
         </button>
         <span className="toolbar-divider" />
-        <span className="meeting-name">{current?.title || 'Meeting Agent'}</span>
+        {current ? (
+          <button
+            className="text-button meeting-name"
+            onClick={() => {
+              setTitleDraft(current.title);
+              setRenaming(true);
+            }}
+          >
+            {current.title}
+          </button>
+        ) : (
+          <span className="meeting-name">Meeting Agent</span>
+        )}
         {current && (
           <span className="status">
             <i className={`dot ${current.capture}`} />
@@ -213,20 +269,6 @@ function App() {
           </span>
         )}
         <div className="toolbar-actions">
-          <button
-            className="text-button"
-            onClick={() =>
-              void act(() =>
-                command(
-                  'preferences',
-                  { ...snapshot.preferences, uiLocale: locale === 'en' ? 'zh-CN' : 'en' },
-                  null,
-                ),
-              )
-            }
-          >
-            {locale === 'en' ? 'EN' : '中文'}
-          </button>
           <button
             className="text-button"
             aria-label={t('settings.open')}
@@ -281,12 +323,26 @@ function App() {
           <div className="eyebrow">Meeting Agent</div>
           <h1>{t('welcome')}</h1>
           <p className="lead">{t('welcomeBody')}</p>
-          <button
-            className="primary"
-            onClick={() => (active ? openMeeting(active) : setNewMeeting(true))}
-          >
+          <button className="primary" disabled={starting} onClick={() => void startMeeting()}>
             {t(active ? 'meeting.open' : 'meeting.start')} <span>↗</span>
           </button>
+          <p className="device-summary">
+            {snapshot.preferences.audio?.deviceLabel || t('entry.defaultMic')} ·{' '}
+            {t(
+              snapshot.preferences.audio?.includeComputerAudio
+                ? 'entry.withComputer'
+                : 'entry.microphoneOnly',
+            )}{' '}
+            <button className="source-link" onClick={() => setSettings(true)}>
+              {t('entry.change')}
+            </button>
+          </p>
+          {snapshot.capabilities.developerInputs && (
+            <details>
+              <summary>{t('entry.development')}</summary>
+              <button onClick={() => setNewMeeting(true)}>{t('entry.testInput')}</button>
+            </details>
+          )}
           {!snapshot.capabilities.modelConfigured && (
             <div className="setup-note">
               <strong>{t('setup')}</strong>
@@ -317,10 +373,10 @@ function App() {
         <>
           <div className="workspace-meta">
             <div className="muted">
-              {t(current.mode)} · {current.segments.length} {t('sourceCount')} · {t('processed')}{' '}
-              {current.understoodVersion}/{current.inputVersion}
-              {current.processing === 'working' && (
-                <span className="processing"> · {t('processing.active')}</span>
+              {t(
+                current.processing === 'working'
+                  ? 'processing.active'
+                  : 'status.' + current.capture,
               )}
             </div>
             <div className="meta-actions">
@@ -360,42 +416,83 @@ function App() {
             </nav>
           )}
           <main className="workspace">
-            {artifact && latest && (artifact.id !== latest.id || artifact.rev !== latest.rev) && (
+            {(current.audioPending ?? 0) > 1 && (
+              <p className="muted" role="status">
+                {t('live.audioPending')}: {current.audioPending}
+              </p>
+            )}
+            <details className="processing-details">
+              <summary>{t('live.processingDetails')}</summary>
+              <p>
+                {t('live.calls')}: {current.usageTotals?.calls ?? current.metrics.calls} · Tokens:{' '}
+                {current.metrics.inputTokens + current.metrics.outputTokens}
+                {(current.usageTotals?.unknownUsageCalls ?? 0) > 0
+                  ? ' + ' + t('live.unknownUsage')
+                  : ''}
+              </p>
+              <p>
+                {t('live.lastUnderstanding')}:{' '}
+                {current.lastUnderstandingAt
+                  ? new Date(current.lastUnderstandingAt).toLocaleTimeString(locale)
+                  : '—'}{' '}
+                · {t('live.lastView')}:{' '}
+                {current.lastExpressionAt
+                  ? new Date(current.lastExpressionAt).toLocaleTimeString(locale)
+                  : '—'}
+              </p>
+            </details>
+            {current.expressionStatus === 'working' && (
+              <p className="muted" role="status">
+                {t('live.preparing')}
+              </p>
+            )}
+            {personal.length > 0 && (
+              <nav className="personal-work" aria-label={t('live.personal')}>
+                <span>{t('live.personal')}</span>
+                {personal.map((a) => (
+                  <button key={a.id} onClick={() => setView({ id: a.id, rev: a.rev })}>
+                    {a.question}
+                  </button>
+                ))}
+              </nav>
+            )}
+            {view && latest && (
               <div className="update-notice">
                 {t('newVersion')}
-                <button onClick={() => setView({ id: latest.id, rev: latest.rev })}>
-                  {t('artifact.applyUpdates')}
-                </button>
+                <button onClick={() => setView(null)}>{t('artifact.applyUpdates')}</button>
               </div>
             )}
             {artifact ? (
               <>
                 <div className="eyebrow">
-                  {t('working')} · {t('revision')} {artifact.rev} · {artifact.locale}
-                  {artifact.inputVersion < current.inputVersion && (
+                  {view ? t('live.history') : t('live.following')}
+                  {artifactIsStale(artifact, current) && (
                     <span className="stale"> · {t('artifact.stale')}</span>
                   )}
                 </div>
                 <h1>{artifact.question}</h1>
                 <p className="lead">{artifact.summary}</p>
-                <ArtifactView artifact={artifact} locale={locale} onSources={setSourceRefs} />
-                {artifact.formulas.map((formula) => (
-                  <ScenarioEditor
-                    key={`${artifact.id}-${artifact.rev}-${formula.id}`}
-                    formula={formula}
-                    locale={locale}
-                    onSave={(values) =>
-                      act(() =>
-                        command('scenario', {
-                          artifactId: artifact.id,
-                          artifactRev: artifact.rev,
-                          formulaId: formula.id,
-                          values,
-                        }),
-                      )
-                    }
-                  />
-                ))}
+                <ArtifactView
+                  artifact={artifact}
+                  locale={locale}
+                  onSources={setSourceRefs}
+                  onAction={(prompt) => void act(() => command('ask', { text: prompt }))}
+                />
+                <ScenarioShelf
+                  key={current.id}
+                  artifact={artifact}
+                  locale={locale}
+                  onSave={(base, formula, values) =>
+                    act(() =>
+                      command('scenario', {
+                        artifactId: base.id,
+                        artifactRev: base.rev,
+                        formulaId: formula.id,
+                        values,
+                      }),
+                    )
+                  }
+                />
                 <div className="artifact-actions">
                   <button onClick={() => setDecisionScope('personal')}>
                     {t('action.savePersonal')}
@@ -409,7 +506,11 @@ function App() {
               <div className="empty-work">
                 <span className="empty-symbol">◇</span>
                 <h1>{current.focus || t('noArtifact')}</h1>
-                <p>{snapshot.capabilities.modelConfigured ? t('artifact.empty') : t('awaiting')}</p>
+                <p>
+                  {snapshot.capabilities.modelConfigured
+                    ? t('entry.listeningEmpty')
+                    : t('awaiting')}
+                </p>
                 {!snapshot.capabilities.modelConfigured && (
                   <button onClick={() => setSettings(true)}>{t('provider')}</button>
                 )}
@@ -462,7 +563,7 @@ function App() {
                 ))}
               </details>
             )}
-            {current.status === 'active' && (
+            {current.status === 'active' && snapshot.capabilities.developerInputs && (
               <section className="manual-input">
                 <button className="text-button" onClick={() => setShowInput(!showInput)}>
                   ＋ {t('addSource')}
@@ -495,7 +596,21 @@ function App() {
               </section>
             )}
           </main>
-          {current.status === 'active' && (
+          {current.status === 'active' && artifact && (
+            <div className="explore-entry">
+              <button
+                className="source-link"
+                onClick={() => {
+                  if (!askOpen && !ask.trim())
+                    setAskContext({ artifactId: artifact.id, artifactRev: artifact.rev });
+                  setAskOpen(!askOpen);
+                }}
+              >
+                {t(askOpen ? 'entry.closeExplore' : 'entry.explore')}
+              </button>
+            </div>
+          )}
+          {current.status === 'active' && artifact && askOpen && (
             <form
               className="ask-bar"
               onSubmit={(e) => {
@@ -503,6 +618,21 @@ function App() {
                 void submitAsk();
               }}
             >
+              {askContext &&
+                (askContext.artifactId !== artifact.id ||
+                  askContext.artifactRev !== artifact.rev) && (
+                  <p className="ask-context-note">
+                    {t('entry.contextChanged')}{' '}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setAskContext({ artifactId: artifact.id, artifactRev: artifact.rev })
+                      }
+                    >
+                      {t('entry.useLatest')}
+                    </button>
+                  </p>
+                )}
               <span aria-hidden>✦</span>
               <textarea
                 aria-label={t('ask.placeholder')}
@@ -538,7 +668,7 @@ function App() {
           )}
         </>
       )}
-      {newMeeting && (
+      {newMeeting && snapshot.capabilities.developerInputs && (
         <NewMeeting
           preferences={snapshot.preferences}
           t={t}
@@ -553,16 +683,51 @@ function App() {
           onError={setError}
         />
       )}
+      {renaming && current && (
+        <div className="modal-backdrop">
+          <form
+            className="modal"
+            role="dialog"
+            aria-label={t('entry.rename')}
+            onSubmit={(e) => {
+              e.preventDefault();
+              void act(async () => {
+                await command('rename', {
+                  title: titleDraft,
+                  baseRevision: current.titleMeta?.revision ?? 0,
+                });
+                setRenaming(false);
+              });
+            }}
+          >
+            <h2>{t('entry.rename')}</h2>
+            <input
+              autoFocus
+              aria-label={t('meeting.title')}
+              value={titleDraft}
+              maxLength={100}
+              onChange={(e) => setTitleDraft(e.target.value)}
+            />
+            <div className="button-row">
+              <button type="submit">{t('saveSettings')}</button>
+              <button type="button" onClick={() => setRenaming(false)}>
+                {t('action.cancel')}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
       {settings && (
         <Settings
           preferences={snapshot.preferences}
           snapshot={snapshot}
           t={t}
           close={() => setSettings(false)}
-          save={(p) =>
+          save={(p, keepOpen) =>
             act(async () => {
               await command('preferences', p as unknown as Record<string, unknown>, null);
-              setSettings(false);
+              if (!keepOpen) setSettings(false);
+              return true;
             })
           }
           current={current}

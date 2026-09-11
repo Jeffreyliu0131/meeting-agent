@@ -16,7 +16,8 @@
     "pack:win": "npm run build && electron-builder --win --dir",
     "setup:desktop": "node node_modules/electron/install.js",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.{ts,tsx}\" \"scripts/*.{ts,mjs}\" *.ts package.json",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"tests/**/*.{ts,tsx}\" \"scripts/*.{ts,mjs}\" *.ts package.json"
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"tests/**/*.{ts,tsx}\" \"scripts/*.{ts,mjs}\" *.ts package.json",
+    "test:stream": "node --import tsx scripts/stream-eval.ts"
   },
   "dependencies": {
     "decimal.js": "10.6.0",

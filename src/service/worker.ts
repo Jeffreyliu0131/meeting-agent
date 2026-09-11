@@ -2,6 +2,7 @@ import { SQLiteStore } from './store';
 import { SessionService } from './session';
 import { OpenAIProvider, configFromEnv } from '../agent/provider';
 import type { AudioLease } from '../integrations/audio-leases';
+import { TranscriptionQueue } from '../integrations/transcription-queue';
 import { acceptAudio } from '../integrations/audio-leases';
 const parent = (process as any).parentPort;
 const previews = new Map<
@@ -27,8 +28,24 @@ const service = new SessionService(
   () => parent.postMessage({ type: 'snapshot', value: service.snapshot() }),
   preview,
 );
-const transcribing = new Map<string, Promise<unknown>>();
-const leases = new Map<string, AudioLease>();
+const audioQueue = new TranscriptionQueue<{
+  lease: AudioLease;
+  wav: Uint8Array;
+  bytes: number;
+  durationMs: number;
+}>(
+  async (item) => {
+    const text = await service.runCall(
+      item.lease.meetingId,
+      'transcribe',
+      (options) => provider.transcribe(item.wav, options),
+      item.durationMs / 1000,
+    );
+    if (text) service.completeAudio(item.lease, text);
+  },
+  (item, code) => service.recordInputGap(item.lease, code),
+  (pending) => service.audioQueueChanged(pending),
+);
 parent.on('message', async ({ data }: any) => {
   const { id, method, args } = data;
   if (method === 'previewResult') {
@@ -43,12 +60,8 @@ parent.on('message', async ({ data }: any) => {
   try {
     let value: unknown;
     if (method === 'shutdown') {
-      await Promise.race([
-        Promise.allSettled([...transcribing.values()]),
-        new Promise((r) => setTimeout(r, 2000)),
-      ]);
-      for (const lease of leases.values())
-        service.recordInputGap(lease, 'TRANSCRIPTION_INTERRUPTED');
+      await Promise.race([audioQueue.idle(), new Promise((r) => setTimeout(r, 2000))]);
+      audioQueue.close();
       value = true;
     } else if (method === 'snapshot') value = service.snapshot();
     else if (method === 'command') value = service.command(args);
@@ -57,7 +70,9 @@ parent.on('message', async ({ data }: any) => {
       const m = service.meetings.find((m) => m.id === meetingId);
       const source = m?.segments.find((s) => s.id === segmentId && s.rev === revision);
       if (!source || !['en', 'zh-CN'].includes(targetLocale)) throw new Error('INVALID_SOURCE');
-      const text = await provider.translate(source.text, targetLocale);
+      const text = await service.runCall(meetingId, 'translate', (options) =>
+        provider.translate(source.text, targetLocale, options),
+      );
       value = service.saveTranslation(meetingId, {
         segmentId,
         sourceRev: revision,
@@ -66,26 +81,21 @@ parent.on('message', async ({ data }: any) => {
         createdAt: new Date().toISOString(),
       });
     } else if (method === 'audio') {
-      const { meetingId, epoch, channel, wav, segmentId } = args;
+      const { meetingId, epoch, channel, wav, segmentId, timing } = args;
       const m = service.meetings.find((m) => m.id === meetingId);
-      const lease = acceptAudio(m, epoch, channel, segmentId);
-      if (!['microphone', 'system_audio'].includes(channel)) throw new Error('INVALID_CHANNEL');
-      if (!(wav instanceof Uint8Array) || wav.length > 2_000_000) throw new Error('INVALID_AUDIO');
-      const key = meetingId + channel;
-      if (transcribing.has(key)) throw new Error('TRANSCRIPTION_BACKLOG');
-      const task = provider.transcribe(wav);
-      transcribing.set(key, task);
-      leases.set(key, lease);
-      try {
-        const text = await task;
-        if (text) value = service.completeAudio(lease, text);
-      } catch (error) {
-        service.recordInputGap(lease, 'TRANSCRIPTION_FAILED');
-        throw error;
-      } finally {
-        transcribing.delete(key);
-        leases.delete(key);
-      }
+      const lease = acceptAudio(m, epoch, channel, segmentId, timing);
+      if (!(wav instanceof Uint8Array) || wav.length < 44 || wav.length > 2000000)
+        throw new Error('INVALID_AUDIO');
+      const rate = new DataView(wav.buffer, wav.byteOffset, wav.byteLength).getUint32(24, true);
+      if (![16000, 24000, 44100, 48000].includes(rate)) throw new Error('INVALID_AUDIO');
+      const durationMs = ((wav.length - 44) / 2 / rate) * 1000;
+      const accepted = audioQueue.enqueue(meetingId + ':' + epoch + ':' + channel, {
+        lease,
+        wav,
+        bytes: wav.length,
+        durationMs,
+      });
+      value = { accepted, pending: audioQueue.pending };
     } else throw new Error('INVALID_METHOD');
     parent.postMessage({ id, ok: true, value });
   } catch (error) {
