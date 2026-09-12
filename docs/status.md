@@ -22,7 +22,7 @@
 |---|---|---|
 | 界面语言与交互打磨 | 代码／两端本地包已同步：跟随系统及即时切换、文字与焦点打磨；86单元／14桌面、Mac包检查通过；Windows运行待验；91962b9已推送origin/main | [本轮记录](sessions/2026-09-12-interface-polish.md) |
 | Mac／Windows本地包同步 | 本地release均已更新至9b6886d产品源码，14文件及app.asar一致；11项桌面通过，Mac新包已打开；同步证据06f57d2已推送，当前日常库0会议，Windows真机待验 | [本轮记录](sessions/2026-09-12-cross-platform-sync.md) |
-| 跨会议文件夹与综合纪要 | 实现中：Phase 0–3 已完成，124项单元测试通过；UI 与文档已接入；真实模型语义与双端未验收。改动在 `xuwenzhe` 分支，未提交 | [本轮记录](sessions/2026-09-12-meeting-collections.md)／[ADR-006](adr/006-cross-meeting-collections.md) |
+| 跨会议文件夹与综合纪要 | 实现中：Phase 0–3 完成并已推送 `origin/xuwenzhe`（含本地代理随应用启动）；125项单元测试通过；真实模型语义与双端未验收 | [本轮记录](sessions/2026-09-12-meeting-collections.md)／[ADR-006](adr/006-cross-meeting-collections.md) |
 | Agent工作流验收与推送 | 独立验收通过：86项单元／11项Electron、双端包及macOS烟测；9b6886d已推送origin/main并核对远端SHA | [本轮记录](sessions/2026-09-12-agent-workflow-acceptance-push.md) |
 | Agent工作流实施 | W1–W6已随9b6886d交付；最新验收含边界修正，86项单元／11项Electron通过；日常包随后已在两端同步任务中更新，真实效果待验 | [实施记录](sessions/2026-09-12-agent-workflow-implementation.md)／[证据表](../tests/results/agent-workflow-validation.md) |
 | Agent业务对齐与实现交接 | 任务书与25项验收完成，已派发并核对接手；代码／验证状态由实现任务维护 | [交接](sessions/2026-09-12-business-aligned-handoff.md)／[任务书](agent-workflow-implementation.md) |

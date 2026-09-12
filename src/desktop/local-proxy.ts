@@ -82,9 +82,12 @@ export async function startLocalProxy(
     return { started: true, port };
   }
 
+  // Repo-relative, because the repository must not depend on a parent directory
+  // (AGENTS.md). Only meaningful for a dev run from the repo root: a packaged app
+  // ships dist/ alone and is not expected to autostart a local proxy anyway.
   const dir = process.env.MEETING_PROXY_DIR
     ? resolve(process.env.MEETING_PROXY_DIR)
-    : resolve(process.cwd(), '..', 'litellm-proxy');
+    : resolve(process.cwd(), 'tools', 'litellm-proxy');
   if (!existsSync(join(dir, 'config.yaml')))
     return { started: false, reason: 'PROXY_DIR_NOT_FOUND' };
 

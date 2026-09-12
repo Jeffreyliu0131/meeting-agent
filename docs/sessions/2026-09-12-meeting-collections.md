@@ -140,3 +140,20 @@ UI 上 `CollectionWorkspace` 在报告区**上方**渲染确定性面板，引�
 **本机模型配置**：理解模型经本地 LiteLLM 走 DeepSeek `deepseek-chat`，转写走 OpenAI `gpt-4o-transcribe`；探测七项中六项通过，唯一失败的 `json_schema strict` 是 DeepSeek 的已知限制，应用以 `MEETING_RESPONSE_FORMAT=json_object` 规避。该配置位于仓库外的 `Hackathon/litellm-proxy/`，不入库。
 
 **环境坑（非本仓库问题）**：本机卡巴斯基的 HTTPS 扫描会以自身根证书重签 TLS，`curl` 读 Windows 证书库因而正常，Python 读 `certifi` 因而 `CERTIFICATE_VERIFY_FAILED`。修法是导出 Windows 证书库并设 `SSL_CERT_FILE`，已在 `litellm-proxy/start.ps1` 固化。另：本机 Python 默认 GBK，运行 `scripts/check-docs.py` 须加 `PYTHONUTF8=1`，否则直接崩。
+
+## 补充：本地模型代理纳入仓库与随应用启动
+
+用户要求"前端启动的同时后端也启动，不用再敲 `./start`"，并指出仓库对文件放置有要求。查证后确认相关硬规定：AGENTS.md 第 3 行（不依赖父目录与个人绝对路径）、第 56 行（新增文件必须从入口可达）、第 67 行（密钥不进仓库）、以及 `check-docs.py` 的自我声明（无父目录依赖）。
+
+**查证发现原状态本身违规**：`local-proxy.ts` 默认路径 `resolve(process.cwd(), '..', 'litellm-proxy')` 依赖父目录，`.env` 里写着 `D:6第一学期\...` 的个人绝对路径。两条都违反第 3 行。
+
+处理：
+
+- **只把非密钥文件复制进 `tools/litellm-proxy/`**（config、两份启动脚本、README、`provider.env.example`）。真实的 `provider.env` 与 `windows-cas.pem` **未进入仓库工作树**——权限层正确拦截了包含真实密钥的整体移动，改为手工由用户放置更安全。
+- `.gitignore` 显式排除 `tools/litellm-proxy/provider.env`（`windows-cas.pem` 由既有的 `*.pem` 覆盖）。
+- `local-proxy.ts` 默认路径改为 `resolve(process.cwd(), 'tools', 'litellm-proxy')`；`.env` 删除个人绝对路径。
+- 根 `README.md` 增"本地模型代理（开发用）"一节作为入口。
+
+`MEETING_AUTOSTART_PROXY` 仍为显式开关且默认关闭：产品通过 `ModelPort` 访问任意兼容服务，本地 Python 代理是某台开发机的属性而非产品能力。打包应用只含 `dist/`，不含 `tools/`，故自动拉起仅对开发运行有意义——这是刻意的，不是缺口。
+
+**未验证**：迁移后未重新实测自动拉起（需用户先把 `provider.env` 放到新位置）。
