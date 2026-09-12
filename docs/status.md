@@ -2,7 +2,7 @@
 
 更新：2026-09-12 15:08（Asia/Singapore）。维护规则见 [AGENTS.md](../AGENTS.md) 与 [session 流程](sessions/README.md)。本页是工作快照，开始任务时须核对工作树和相关交接；不是实时监控。
 
-2026-09-12（Asia/Shanghai）增补：首版协作核心实现及Windows程序验证完成（115单元／17桌面）；完整设计仍有差距，见独立条目。其他任务记录的核验时间与证据范围保持原样。
+首版协作的115单元／17桌面属于原分支阶段证据，见[实施记录](sessions/2026-09-12-collaboration-implementation.md)；后续主线整合、包和各端运行以对应交接为准，不用旧通过数代表当前版本。
 
 ## 当前认知
 
@@ -25,14 +25,14 @@
 | 工作 | 核实到的状态 | 接手记录 |
 |---|---|---|
 | 代码实现与现行文字对齐 | 进行中：核对合入状态、接口、运行说明和缺口；仅修改文档，保留并行源码与交付状态 | [本轮记录](sessions/2026-09-12-code-doc-alignment.md) |
-| 并行任务收尾后推送main | 最终核对通过：悬浮与Demo任务已结束，108源码指纹一致；正在按用户明确要求直接提交／推送main | [本轮记录](sessions/2026-09-12-main-push-after-sessions.md) |
+| 并行任务收尾后推送main | 完成：悬浮与Demo任务已结束，108源码指纹一致；产品提交e1fba24已推送main并回读一致；独立Mac安装保持14:45快照 | [本轮记录](sessions/2026-09-12-main-push-after-sessions.md) |
 | 悬浮球实时画板速览 | 代码／双端包已同步：实时画板、原生悬停与拖动抑制；231单元、5专项＋10回归、Mac包5项通过；Windows真机待验，日常实例未重启 | [本轮记录](sessions/2026-09-12-hover-canvas.md) |
 | 本地最新版本部署 | 14:45验证快照已安装至用户Applications并启动；同源双端包在release/deployed-20260912-1445。main与远端55267d6一致但工作树有未提交及后续悬浮预览改动，后者未纳入本轮 | [本轮记录](sessions/2026-09-12-local-latest-deploy.md) |
 | Demo 可视化与实时编辑 | 代码／双端包已同步：主动图形、语义图标、2.4秒分段／250ms合并、真实SSE草稿与局部更新；227领域／34桌面及Mac包专项通过，Windows运行与真实模型质量待验 | [规范](demo-live-visuals.md)／[本轮记录](sessions/2026-09-12-demo-live-visuals.md) |
 | 最新 PR 与会议 Event 评测 | 本轮评测体系完成：24类Event／60条多轮／30指标／135规范路由；分阶段152领域、31桌面、360段及双端14文件匹配；真实模型／音频／Windows运行仍缺证据 | [评测](event-evaluation.md)／[验证](../tests/results/event-evaluation-validation.md)／[记录](sessions/2026-09-12-event-evals.md) |
 | GitHub 仓库公开 | 完成：已转为 PUBLIC；GitHub 回读与匿名访问通过 | [本轮记录](sessions/2026-09-12-repository-public.md) |
 | 新分支整合 | FTY与xuwenzhe均已合入55267d6，远端／本地main一致；双端验收快照包与Mac检查通过，221单元及受影响桌面通过；后续实时可视化未提交工作另验 | [本轮记录](sessions/2026-09-12-branch-integration.md) |
-| PR #3内容与本地MD对齐 | 完成：业务／源码／文档逐项映射，实施计划与G1–G5整合门槛已同步；14份MD，结构检查通过；PR修复仍由原任务推进 | [对照](pr3-doc-alignment.md)／[本轮记录](sessions/2026-09-12-pr3-doc-alignment.md) |
+| PR #3内容与本地MD对齐 | 原版对照完成；G1–G3后续已修复合入，当前文档已补合入结果，保留原审查提交的历史证据 | [对照](pr3-doc-alignment.md)／[原记录](sessions/2026-09-12-pr3-doc-alignment.md) |
 | PR #3修复与合并 | 已合并5878c20，本地main及双端日常包已同步；PR141单元／25桌面，整合152／31，Mac包通过；Windows真机待验，日常进程未重启 | [本轮记录](sessions/2026-09-12-pr3-fix-merge.md) |
 | 首屏HTML视觉预览 | v4完成待评审：用户选飞书客户端感，欢迎／操作分层、音源控件、11项核验；正式应用未改 | [本轮记录](sessions/2026-09-12-home-html-preview.md) |
 | 个人试算依据提示 | 代码／双端包已同步：无关发言不误报，依赖变化与缺依据分开提示；114领域、源码2项／Mac包2项及既有1项通过，Windows真机待验 | [本轮记录](sessions/2026-09-12-scenario-basis.md) |
@@ -49,10 +49,10 @@
 | 双平台每轮同步规则 | 完成：两层必读入口、每轮实现／本地包同步及分端验证要求；仅文档，检查通过 | [本轮记录](sessions/2026-09-12-cross-platform-rule.md) |
 
 
-| 四类协作意图 | a0a6a60已推送origin/FTY并核对：四类候选／私有草稿、手工保护与恢复；107单元／1定向Electron通过，真实模型未验 | [本轮记录](sessions/2026-09-12-four-intents.md) |
+| 四类协作意图 | 已随55267d6合入：私有草稿、手工保护、旧库迁移及显式转为正式组件预览；原107单元／1桌面为FTY阶段，整合另有证据；真实模型未验 | [原记录](sessions/2026-09-12-four-intents.md)／[整合](sessions/2026-09-12-branch-integration.md) |
 | 界面语言与交互打磨 | 代码／两端本地包已同步：跟随系统及即时切换、文字与焦点打磨；86单元／14桌面、Mac包检查通过；Windows运行待验；91962b9已推送origin/main | [本轮记录](sessions/2026-09-12-interface-polish.md) |
 | Mac／Windows本地包同步 | 本地release均已更新至9b6886d产品源码，14文件及app.asar一致；11项桌面通过，Mac新包已打开；同步证据06f57d2已推送，当前日常库0会议，Windows真机待验 | [本轮记录](sessions/2026-09-12-cross-platform-sync.md) |
-| 跨会议文件夹与综合纪要 | 实现中：Phase 0–3 完成并已推送 `origin/xuwenzhe`（含本地代理随应用启动）；125项单元测试通过；真实模型语义与双端未验收 | [本轮记录](sessions/2026-09-12-meeting-collections.md)／[ADR-006](adr/006-cross-meeting-collections.md) |
+| 跨会议文件夹与综合纪要 | 已随55267d6合入：文件夹、报告、正式决定引用和生成期间版本拒绝；整合双端包与Mac检查已有记录，Windows真机及真实语义待验；报告历史选择／导出未提供 | [原记录](sessions/2026-09-12-meeting-collections.md)／[整合](sessions/2026-09-12-branch-integration.md)／[ADR-006](adr/006-cross-meeting-collections.md) |
 | Agent工作流验收与推送 | 独立验收通过：86项单元／11项Electron、双端包及macOS烟测；9b6886d已推送origin/main并核对远端SHA | [本轮记录](sessions/2026-09-12-agent-workflow-acceptance-push.md) |
 | Agent工作流实施 | W1–W6已随9b6886d交付；最新验收含边界修正，86项单元／11项Electron通过；日常包随后已在两端同步任务中更新，真实效果待验 | [实施记录](sessions/2026-09-12-agent-workflow-implementation.md)／[证据表](../tests/results/agent-workflow-validation.md) |
 | Agent业务对齐与实现交接 | 任务书与25项验收完成，已派发并核对接手；代码／验证状态由实现任务维护 | [交接](sessions/2026-09-12-business-aligned-handoff.md)／[任务书](agent-workflow-implementation.md) |
@@ -80,7 +80,7 @@
 - PR #3原提交0cc0db0的首包、缺口门槛及旧异议问题已修复并合并5878c20，详见[本轮记录](sessions/2026-09-12-pr3-fix-merge.md)。协作完整双语、决定导出等其他差距仍见[整合待办](pr3-doc-alignment.md)。
 
 - 线上本机＋远端声音、多人重叠发言与归属、中英质量、真实时延／成本、Windows 真机体验仍需专门证据。
-- 首次仅音频设置、采集恢复入口与新视觉已接入；剩余目标包括独立麦克风测试、独立理解反馈与通用重排确认机制，见[实现边界](frontend-spec.md#11-当前实现与目标差距)。真实设备与完整审美／无障碍验收不由合成检查代替。
+- 首次仅音频设置、采集恢复、新视觉和“反馈理解”入口已接入；反馈通过待发送个人草稿承接，尚无独立修改会议理解的纠错命令。独立麦克风测试与通用重排确认仍为目标，见[实现边界](frontend-spec.md#11-当前实现与目标差距)。真实设备与完整审美／无障碍验收不由合成检查代替。
 - 官方比赛赛程、评分、提交方式与团队分工没有在本页发现新的核验记录；需要时回到官方材料或用户确认。
 
 ## 建议接续顺序
