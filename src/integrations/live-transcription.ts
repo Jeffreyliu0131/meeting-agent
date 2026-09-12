@@ -8,6 +8,7 @@ type Callbacks = {
     lease: AudioLease,
     seconds: () => number,
     run: (options: CallOptions) => Promise<string>,
+    signal: AbortSignal,
   ) => Promise<string>;
   partial: (lease: AudioLease, text: string) => void;
   complete: (lease: AudioLease, text: string) => void;
@@ -26,18 +27,21 @@ type Turn = {
   reject: (error: Error) => void;
   task: Promise<void>;
   timer: ReturnType<typeof setTimeout>;
+  authorized: boolean;
+  controller: AbortController;
   options?: CallOptions;
   abort?: () => void;
 };
 
-/** One trusted-process connection per meeting/epoch/audio channel. Never stores raw audio. */
+/** One trusted-process connection per meeting/epoch/channel; bounded PCM is held in memory only. */
 export class LiveTranscription {
   readonly ready: Promise<void>;
   private socket: WebSocket;
   private initialized = false;
   private closed = false;
   private draining = false;
-  private queued: string[] = [];
+  private queued: { turn: Turn; message: string }[] = [];
+  private failureCode?: string;
   private current?: Turn;
   private turns = new Set<Turn>();
   private committed: Turn[] = [];
@@ -131,7 +135,10 @@ export class LiveTranscription {
     turn.durationMs += duration;
     turn.silenceMs = silent ? turn.silenceMs + duration : 0;
     turn.lease.captureEndMs = lease.captureEndMs;
-    this.send({ type: 'input_audio_buffer.append', audio: Buffer.from(pcm).toString('base64') });
+    this.send(turn, {
+      type: 'input_audio_buffer.append',
+      audio: Buffer.from(pcm).toString('base64'),
+    });
     if (turn.silenceMs >= 600 || turn.durationMs >= 8000) this.commit();
     return !this.closed;
   }
@@ -153,23 +160,28 @@ export class LiveTranscription {
       resolve,
       reject,
       task: Promise.resolve(),
+      authorized: false,
+      controller: new AbortController(),
       timer: setTimeout(() => this.fail('TRANSCRIPTION_TIMEOUT'), 30000),
     };
     this.turns.add(turn);
     this.current = turn;
-    let authorized = false;
     turn.task = this.callbacks
       .run(
         turn.lease,
         () => turn.durationMs / 1000,
         (options) => {
-          authorized = true;
+          if (this.closed || turn.controller.signal.aborted)
+            return Promise.reject(new Error(this.failureCode ?? 'TRANSCRIPTION_INTERRUPTED'));
+          turn.authorized = true;
           turn.options = options;
           turn.abort = () => this.fail('TRANSCRIPTION_INTERRUPTED');
           if (options.signal?.aborted) turn.abort();
           else options.signal?.addEventListener('abort', turn.abort, { once: true });
+          this.flushQueue();
           return result;
         },
+        turn.controller.signal,
       )
       .then((text) => {
         this.callbacks.partial(turn.lease, '');
@@ -178,9 +190,10 @@ export class LiveTranscription {
       .catch((error) => {
         this.callbacks.partial(turn.lease, '');
         const code =
-          error instanceof Error && /^[A-Z0-9_]+$/.test(error.message)
+          this.failureCode ??
+          (error instanceof Error && /^[A-Z0-9_]+$/.test(error.message)
             ? error.message
-            : 'TRANSCRIPTION_FAILED';
+            : 'TRANSCRIPTION_FAILED');
         this.callbacks.gap(turn.lease, code);
         if (!this.closed) this.fail(code);
       })
@@ -191,16 +204,24 @@ export class LiveTranscription {
         this.callbacks.changed();
       });
     this.callbacks.changed();
-    // The service checks budgets synchronously before invoking run. No audio may precede it.
-    if (!authorized || this.closed) return undefined;
+    // Authorization can wait for the call pool. Retain all packets until it arrives.
+    if (this.closed) return undefined;
     return turn;
   }
 
-  private send(event: unknown) {
+  private send(turn: Turn, event: unknown) {
     if (this.closed) return;
-    const message = JSON.stringify(event);
-    if (!this.initialized) this.queued.push(message);
-    else this.socket.send(message);
+    this.queued.push({ turn, message: JSON.stringify(event) });
+    this.flushQueue();
+  }
+
+  private flushQueue() {
+    if (this.closed || !this.initialized) return;
+    // A later authorized turn must not overtake an earlier queued turn/commit.
+    while (this.queued[0]?.turn.authorized) {
+      const packet = this.queued.shift()!;
+      this.socket.send(packet.message);
+    }
   }
 
   private commit() {
@@ -208,14 +229,14 @@ export class LiveTranscription {
     if (!turn || turn.committed || this.closed) return;
     // Realtime requires at least 100 ms for a manually committed buffer.
     if (turn.durationMs < 100)
-      this.send({
+      this.send(turn, {
         type: 'input_audio_buffer.append',
         audio: Buffer.alloc(Math.ceil((100 - turn.durationMs) * 24) * 2).toString('base64'),
       });
     turn.committed = true;
     this.committed.push(turn);
     this.current = undefined;
-    this.send({ type: 'input_audio_buffer.commit' });
+    this.send(turn, { type: 'input_audio_buffer.commit' });
   }
 
   private event(event: any) {
@@ -224,8 +245,7 @@ export class LiveTranscription {
       if (this.initialized) return;
       this.initialized = true;
       clearTimeout(this.handshakeTimer);
-      for (const message of this.queued) this.socket.send(message);
-      this.queued = [];
+      this.flushQueue();
       this.readyResolve();
       return;
     }
@@ -291,11 +311,13 @@ export class LiveTranscription {
 
   private fail(code: string) {
     if (this.closed) return;
+    this.failureCode = code;
     this.dispose();
     for (const turn of this.turns)
       if (!turn.settled) {
         turn.settled = true;
         turn.reject(new Error(code));
+        turn.controller.abort();
       }
     this.callbacks.failed(code);
   }

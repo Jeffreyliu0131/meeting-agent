@@ -38,7 +38,7 @@ export class CallPool {
         background = total - (this.active.get('understand') ?? 0);
       if (
         total >= 4 ||
-        (this.active.get(q.lane) ?? 0) >= 1 ||
+        (this.active.get(q.lane) ?? 0) >= (q.lane === 'transcribe' ? 2 : 1) ||
         (q.lane !== 'understand' && background >= 3)
       ) {
         i++;

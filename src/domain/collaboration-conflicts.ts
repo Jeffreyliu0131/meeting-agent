@@ -1,5 +1,28 @@
-import type { CollaborationState, ConflictRecord } from '../contracts/collaboration';
+import type {
+  CollaborationState,
+  ConflictRecord,
+  ResponseRecord,
+} from '../contracts/collaboration';
 import { currentResponses, findRound } from './collaboration';
+
+/** An explicit report stays open until its author resolves it; accepting a revised task is separate. */
+export function responseIssueResolved(s: CollaborationState, response: ResponseRecord): boolean {
+  if (response.resolved) return true;
+  if (!['object', 'reserve', 'disagree', 'suggest_change'].includes(response.response.kind))
+    return false;
+  const component = s.components.find((c) => c.id === response.componentId);
+  const round = component && findRound(component);
+  return !!(
+    component &&
+    round &&
+    currentResponses(s, component, round).some(
+      (current) =>
+        current.actorId === response.actorId &&
+        current.subject === response.subject &&
+        ['accept', 'agree'].includes(current.response.kind),
+    )
+  );
+}
 
 /** Uses explicit exclusive intervals only; a due date never implies occupied time. */
 export function detectCollaborationConflicts(s: CollaborationState): ConflictRecord[] {
@@ -113,7 +136,6 @@ function detect(s: CollaborationState, scope: 'draft' | 'published'): ConflictRe
   for (const c of s.components) {
     const round = findRound(c);
     if (!round) continue;
-    const latest = currentResponses(s, c, round);
     for (const r of c.rounds.flatMap((previous) => currentResponses(s, c, previous))) {
       if (
         r.resolved ||
@@ -122,16 +144,7 @@ function detect(s: CollaborationState, scope: 'draft' | 'published'): ConflictRe
         )
       )
         continue;
-      if (
-        r.response.kind !== 'report_issue' &&
-        latest.some(
-          (response) =>
-            response.actorId === r.actorId &&
-            response.subject === r.subject &&
-            ['accept', 'agree'].includes(response.response.kind),
-        )
-      )
-        continue;
+      if (responseIssueResolved(s, r)) continue;
       const fingerprint = `participant_objection:${c.id}:${r.actorId}:${r.subject}`;
       const old = s.conflicts.find((f) => f.fingerprint === fingerprint);
       results.push({

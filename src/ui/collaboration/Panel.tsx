@@ -22,6 +22,7 @@ const errors: Record<string, string> = {
   INVALID_AUDIENCE: '请选择有效参与者。',
   ASSIGNEE_REQUIRED: '请为每项任务指定参与范围内的负责人。',
   ANALYSIS_INCOMPLETE: '正在核对已收到的讨论或异议，请稍后再试。',
+  INPUT_GAP_UNRESOLVED: '会议存在未补全的转写缺口，暂不能记录决定，请保留为待确认。',
   REVISION_CONFLICT: '内容已有新版本，请核对后再保存。',
   ROUND_REPLACED: '此轮已被新版替代，请重新核对并提交。',
   ROUND_CLOSED: '本轮已截止。',
@@ -401,7 +402,13 @@ function ComponentCard({
       return v;
     } catch (e) {
       const code = e instanceof Error ? e.message : 'SERVICE_ERROR';
-      setError(zh ? (errors[code] ?? code) : code);
+      setError(
+        zh
+          ? (errors[code] ?? code)
+          : code === 'INPUT_GAP_UNRESOLVED'
+            ? 'The meeting has an unresolved transcription gap. Keep this decision pending confirmation.'
+            : code,
+      );
       throw e;
     } finally {
       setBusy(false);

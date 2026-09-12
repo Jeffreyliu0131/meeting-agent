@@ -225,3 +225,118 @@ test('meeting understanding schedules the real component graph and persists its 
     service.close();
   }
 });
+
+async function confirmation() {
+  const x = setup();
+  const command = (type: string, payload: any, actorId: string) =>
+    x.service.collaborate(
+      { id: crypto.randomUUID(), meetingId: x.meetingId, type, payload },
+      actorId,
+    );
+  x.service.enableCollaboration(x.meetingId, ['A']);
+  const participants = x.service.meetings[0].collaboration!.participants;
+  const host = participants[0].id,
+    person = participants[1].id;
+  const content = emptyContent('decision_confirmation');
+  if (content.kind !== 'decision_confirmation') throw Error();
+  content.payload.statement = 'Proceed with internal pilot';
+  content.payload.scopeText = 'Participant A';
+  const cid = command('component.prepare', { content }, host);
+  await x.service.flush();
+  const component = () =>
+    x.service.meetings[0].collaboration!.components.find((c) => c.id === cid)!;
+  const publish = async () => {
+    let c = component();
+    command(
+      'component.publish',
+      {
+        componentId: cid,
+        draftRevision: c.draftRevision,
+        expectedAggregateVersion: c.aggregateVersion,
+        audienceIds: [person],
+        sourceDisclosure: [],
+      },
+      host,
+    );
+    await x.service.flush();
+  };
+  const respond = async (response: any, expectedResponseVersion: number) => {
+    command(
+      'component.respond',
+      {
+        componentId: cid,
+        publishedRevision: component().publishedRevision,
+        expectedResponseVersion,
+        response,
+      },
+      person,
+    );
+    await x.service.flush();
+  };
+  const record = () => {
+    const c = component();
+    return command(
+      'component.record_decision',
+      {
+        componentId: cid,
+        publishedRevision: c.publishedRevision,
+        expectedAggregateVersion: c.aggregateVersion,
+      },
+      host,
+    );
+  };
+  await publish();
+  return { ...x, command, host, person, cid, component, publish, respond, record };
+}
+test('explicit agreement to revised confirmation should clear the old objection', async () => {
+  const x = await confirmation();
+  try {
+    await x.respond({ kind: 'disagree', reason: 'Pilot needs to be limited' }, 0);
+    const state = x.service.meetings[0].collaboration!;
+    const reported = state.conflicts[0];
+    state.conflicts.push({
+      ...structuredClone(reported),
+      id: 'semantic-objection',
+      fingerprint: 'semantic-objection',
+      basis: 'agent_inferred',
+      verification: 'needs_confirmation',
+    });
+    const revised = structuredClone(x.component().revisions.at(-1)!.content);
+    if (revised.kind !== 'decision_confirmation') throw Error();
+    revised.payload.statement = 'Proceed with limited internal pilot';
+    x.command(
+      'component.edit_draft',
+      { componentId: x.cid, baseDraftRevision: x.component().draftRevision, content: revised },
+      x.host,
+    );
+    await x.service.flush();
+    await x.publish();
+    await x.respond({ kind: 'agree' }, 0);
+    assert.doesNotThrow(() => x.record());
+  } finally {
+    x.service.close();
+  }
+});
+test('recording a decision must not silently ignore a known input gap', async () => {
+  const x = await confirmation();
+  try {
+    await x.respond({ kind: 'agree' }, 0);
+    x.service.recordInputGap(
+      {
+        meetingId: x.meetingId,
+        epoch: x.service.meetings[0].epoch,
+        channel: 'microphone',
+        segmentId: 'missing-final',
+        receivedAt: new Date().toISOString(),
+        captureStartMs: 0,
+        captureEndMs: 1000,
+        channelSequence: 0,
+      },
+      'TRANSCRIPTION_FAILED',
+    );
+    assert.throws(() => x.record(), /INPUT_GAP_UNRESOLVED/);
+    assert.equal(x.service.meetings[0].collaboration!.decisions.length, 0);
+  } finally {
+    x.service.close();
+  }
+});

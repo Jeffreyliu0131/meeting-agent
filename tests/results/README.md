@@ -41,3 +41,5 @@ Agent三项可靠性迭代：[验证结果](agent-reliability-validation.md)／[
 - [会议候选提醒](meeting-reminder-validation.md)：99单元／19桌面通过，双端本地包同源、Mac包双语／隐藏验证；真实检测器与原生系统投递未验。
 
 - [设置即时保存](settings-autosave-validation.md)：104单元、22桌面全量及收尾6项设置复核；双端包一致、Mac包及日常刷新完成，Windows真机待验。
+
+- [PR #3修复与整合验证](pr3-fix-validation.md)：保留GPT Live Transcribe，首包／排队／收尾、异议重算及输入缺口门槛。

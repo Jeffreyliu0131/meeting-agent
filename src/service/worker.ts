@@ -163,8 +163,8 @@ parent.on('message', async ({ data }: any) => {
           const stream = new LiveTranscription(
             { key: config.sttKey, base: config.sttBase, model: config.sttModel },
             {
-              run: (lease, seconds, run) =>
-                service.runCall(lease.meetingId, 'transcribe', run, seconds),
+              run: (lease, seconds, run, signal) =>
+                service.runCall(lease.meetingId, 'transcribe', run, seconds, undefined, signal),
               partial: (lease, text) => service.partialAudio(lease, text),
               complete: (lease, text) => service.completeAudio(lease, text),
               gap: (lease, code) => service.recordInputGap(lease, code),

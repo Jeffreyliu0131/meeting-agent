@@ -14,7 +14,10 @@ import {
   publicationIssues,
   contentEvidence,
 } from '../domain/collaboration';
-import { detectCollaborationConflicts } from '../domain/collaboration-conflicts';
+import {
+  detectCollaborationConflicts,
+  responseIssueResolved,
+} from '../domain/collaboration-conflicts';
 import { runComponentWorkflow, runImpactWorkflow } from '../agent/collaboration';
 
 function job(
@@ -472,15 +475,27 @@ export class CollaborationRuntime {
         }
       }
     }
-    for (const old of s.conflicts)
+    for (const old of s.conflicts) {
+      // A rule-only pass must retain semantic findings unless all their response evidence
+      // has been explicitly resolved/superseded by its original author.
+      const responseEvidenceResolved =
+        old.evidence.length > 0 &&
+        old.evidence.every((e) => {
+          if (e.kind !== 'response') return false;
+          const response = s.responses.find(
+            (r) => r.id === e.responseId && r.version === e.responseVersion,
+          );
+          return !!response && responseIssueResolved(s, response);
+        });
       if (
-        old.basis !== 'agent_inferred' &&
+        (old.basis !== 'agent_inferred' || responseEvidenceResolved) &&
         old.resolution !== 'resolved' &&
         !found.has(old.fingerprint)
       ) {
         old.resolution = 'resolved';
         old.revision++;
       }
+    }
     for (const c of s.components) {
       c.validatedAnalysisSequence = Math.max(c.validatedAnalysisSequence, sourceSequence);
       if (!c.needsReview && c.draftState !== 'collecting' && c.draftState !== 'cancelled') {

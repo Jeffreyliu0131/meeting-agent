@@ -483,8 +483,12 @@ export class SessionService {
           } else throw new Error('SOURCE_NOT_SHAREABLE');
         }
     }
+    // Gap records have no proven component-level scope or resolution yet: fail closed.
+    if (command.type === 'component.record_decision' && m.inputGaps.length)
+      throw new Error('INPUT_GAP_UNRESOLVED');
     const result = applyCollaborationCommand(m.collaboration!, actorId, command);
     const response = command.type === 'component.respond' ? (result as any)?.response?.kind : null;
+    const resolvesObjection = response === 'accept' || response === 'agree';
     if (
       [
         'component.edit_draft',
@@ -500,9 +504,15 @@ export class SessionService {
         'suggest_change',
         'provide_context',
         'suggest_resolution',
-      ].includes(response)
+      ].includes(response) ||
+      resolvesObjection
     ) {
-      enqueueCollaborationImpact(m, command.id, !!response, String(command.payload.componentId));
+      enqueueCollaborationImpact(
+        m,
+        command.id,
+        !!response && !resolvesObjection,
+        String(command.payload.componentId),
+      );
     }
     if (
       command.type === 'component.prepare' &&
@@ -633,6 +643,7 @@ export class SessionService {
     run: (options: CallOptions) => Promise<T>,
     audioSeconds?: number | (() => number),
     requestId?: string,
+    externalSignal?: AbortSignal,
   ): Promise<T> {
     if (this.closed) throw new Error('SERVICE_CLOSED');
     const m = this.meetings.find((m) => m.id === id);
@@ -680,6 +691,9 @@ export class SessionService {
     m.usageTotals.audioSeconds += typeof audioSeconds === 'number' ? audioSeconds : 0;
     this.persist();
     const controller = new AbortController();
+    const abort = () => controller.abort();
+    if (externalSignal?.aborted) abort();
+    else externalSignal?.addEventListener('abort', abort, { once: true });
     this.controllers.add(controller);
     if (requestId) this.requestControllers.set(requestId, controller);
     let release: (() => void) | undefined;
@@ -702,6 +716,7 @@ export class SessionService {
       throw e;
     } finally {
       release?.();
+      externalSignal?.removeEventListener('abort', abort);
       if (requestId) this.requestControllers.delete(requestId);
       this.controllers.delete(controller);
       if (!this.closed) {

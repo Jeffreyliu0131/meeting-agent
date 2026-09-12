@@ -6,6 +6,7 @@
 
 | 记录 | 类型／状态 | 主要内容 |
 |---|---|---|
+| [PR #3修复与合并](2026-09-12-pr3-fix-merge.md) | 进行中 | 保留Live Transcribe；修复首包、异议重算及输入缺口门槛，双端同步 |
 | [首版协作组件实施](2026-09-12-collaboration-implementation.md) | 已提交／推送，[PR #3](https://github.com/Jeffreyliu0131/meeting-agent/pull/3) | 四类悬浮窗、M/C/R、本地三人闭环；合入main并解冲突，133单元／25桌面覆盖通过；完整设计差距另记 |
 | [首版协作组件与 LangGraph 设计](2026-09-12-collaboration-components-design.md) | 设计完成，已授权实施 | 四组件、完整图与触发矩阵、schema、角色投影和62项验收目标；实际覆盖见后续实施记录 |
 | [GPT Live Transcribe 接入](2026-09-12-live-transcribe.md) | 本地切换完成 | 44项单元／8项桌面测试及真实合成音频转写通过；重启保留暂停会议 |

@@ -46,3 +46,5 @@
 
 
 [ui/preference-writer.ts](ui/preference-writer.ts)串行发送字段补丁、保留最新用户意图、失败回滚／重试；[domain/preferences.ts](domain/preferences.ts)定义preferencesPatch的严格校验与嵌套合并。设置不再等待整份Save，快捷键注册由桌面层协调持久化失败回滚。
+
+流式授权队列及首包、短尾音、双音轨、取消和预算回归见`tests/unit/live-transcription-service.test.ts`；PR #3修复及交付证据见[验证](../tests/results/pr3-fix-validation.md)。
