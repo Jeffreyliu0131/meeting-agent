@@ -1,5 +1,6 @@
 import { EvidenceRequest } from './workflow';
 import { z } from 'zod';
+import { CollaborationProposal } from './collaboration';
 export const Locale = z.enum(['en', 'zh-CN']);
 export type Locale = z.infer<typeof Locale>;
 const id = z
@@ -246,6 +247,7 @@ export const ExpressionPlan = z
 export type ExpressionPlan = z.infer<typeof ExpressionPlan>;
 export const Proposal = z
   .object({
+    collaboration: CollaborationProposal.nullable().optional(),
     evidenceRequest: EvidenceRequest.nullable().optional(),
     clarification: z
       .object({
@@ -290,6 +292,7 @@ export const Proposal = z
   .strict();
 export type Proposal = z.infer<typeof Proposal>;
 export type Segment = {
+  finality?: 'partial' | 'final';
   id: string;
   rev: number;
   text: string;
@@ -401,6 +404,7 @@ export type ExpressionJob = {
   updateKind: 'patch' | 'create' | 'restructure';
 };
 export type Meeting = {
+  collaboration?: import('./collaboration').CollaborationState;
   clarifications?: Array<{
     id: string;
     key: string;
@@ -541,6 +545,11 @@ export const Command = z
       'preferences',
       'rename',
       'audioSettings',
+      'collaborationEnable',
+      'collaborationEdit',
+      'collaborationDismiss',
+      'collaborationFreeze',
+      'collaborationResolve',
     ]),
     payload: z.record(z.string(), z.unknown()),
   })

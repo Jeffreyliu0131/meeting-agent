@@ -1,3 +1,4 @@
+import { collaborationCommand, refreshCollaboration } from './collaboration';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import {
@@ -81,6 +82,14 @@ export function reduceMeeting(
     if (m.status !== 'active') throw new Error('MEETING_ENDED');
   };
   switch (command.type) {
+    case 'collaborationEnable':
+    case 'collaborationEdit':
+    case 'collaborationDismiss':
+    case 'collaborationFreeze':
+    case 'collaborationResolve': {
+      result = collaborationCommand(m, command.type, p);
+      break;
+    }
     case 'rename': {
       if (p.baseRevision !== (m.titleMeta?.revision ?? 0)) throw new Error('REV_CONFLICT');
       m.title = z.string().trim().min(1).max(100).parse(p.title);
@@ -153,6 +162,7 @@ export function reduceMeeting(
         requestContext = context;
       }
       const segment: Segment = {
+        finality: z.enum(['partial', 'final']).parse(p.finality ?? 'final'),
         requestContext,
         id: segmentId,
         rev: 1,
@@ -170,7 +180,7 @@ export function reduceMeeting(
       };
       m.segments.push(segment);
       m.inputVersion++;
-      schedule = true;
+      schedule = segment.finality !== 'partial';
       result = segment;
       break;
     }
@@ -226,6 +236,7 @@ export function reduceMeeting(
       const basis = speaker ? limited.parse(p.basis) : null;
       m.segments.push({
         ...s,
+        finality: z.enum(['partial', 'final']).parse(p.finality ?? 'final'),
         rev: s.rev + 1,
         version: m.inputVersion + 1,
         text,
@@ -354,5 +365,6 @@ export function reduceMeeting(
     m.error = null;
     m.processing = 'idle';
   }
+  refreshCollaboration(m);
   return { schedule, result };
 }

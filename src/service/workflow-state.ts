@@ -8,6 +8,7 @@ export const digest = (value: unknown) =>
 export function readSet(m: Meeting): ReadSet {
   const refs = (items: Ref[]) => items.map(({ id, rev }) => ({ id, rev }));
   return {
+    collaborationRevision: m.collaboration?.revision ?? 0,
     sources: refs(m.segments),
     objects: [
       ...refs(m.objects),
@@ -30,6 +31,8 @@ export function readsValid(read: ReadSet, m: Meeting) {
         !items.some((x) => x.id === r.id && x.rev > r.rev),
     );
   return (
+    (read.collaborationRevision === undefined ||
+      read.collaborationRevision === (m.collaboration?.revision ?? 0)) &&
     read.languageRevision === m.languageRevision &&
     read.titleRevision === (m.titleMeta?.revision ?? 0) &&
     valid(read.sources, m.segments) &&
@@ -104,6 +107,13 @@ export function resolveNewRefs(
       id: objectRef(r.id),
     }));
     p.clarification.affectedObjectIds = p.clarification.affectedObjectIds.map(objectRef);
+  }
+  for (const intent of p.collaboration?.intents ?? []) {
+    intent.referencedObjects = intent.referencedObjects.map((r) => ({ ...r, id: objectRef(r.id) }));
+    if (intent.topicRef) intent.topicRef.id = objectRef(intent.topicRef.id);
+    if (intent.content?.kind === 'assignment')
+      for (const item of intent.content.items)
+        item.dependencies = item.dependencies.map((r) => ({ ...r, id: objectRef(r.id) }));
   }
   return { proposal: p, idMap };
 }

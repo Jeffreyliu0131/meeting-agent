@@ -1,5 +1,7 @@
 # 数据与操作契约
 
+首轮协作意图的实际新增协议为Proposal.collaboration和Meeting.collaboration；候选、白名单草稿命令、finality与持久化边界见[意图契约说明](collaboration-intents.md)。
+
 > 文件职责：产品／工程设计要求，不是完成清单。当前进度与最新修订见[状态页](status.md)；已交付首版取舍见[ADR-003](adr/003-cross-platform-first-version.md)，实际结果见[验证记录](../tests/results/README.md)。具体实现以代码核对，未实现的要求仍是目标。
 版本0.1｜业务设计契约。下面的TypeScript是设计示意；实际运行时 schema 与类型见 `src/contracts/model.ts`，需按当前状态核对差异。本文件定义业务职责，不将具体库写成不可替换前提。
 

@@ -18,6 +18,7 @@ export function sourceVersion(s: Segment) {
 }
 export function pendingSegments(m: Meeting) {
   return latestSegments(m)
+    .filter((s) => s.finality !== 'partial')
     .filter((s) => m.quarantinedSources?.[s.id] !== s.rev)
     .filter((s) =>
       m.processedSources
@@ -276,7 +277,7 @@ export function scopedContext(meeting: Meeting, scope: 'meeting' | 'personal'): 
   m.expressionJobs = [];
   m.calls = [];
   if (scope === 'meeting') {
-    m.segments = m.segments.filter((s) => s.kind !== 'request');
+    m.segments = m.segments.filter((s) => s.kind !== 'request' && s.finality !== 'partial');
     m.clarifications = m.clarifications?.filter((c) => !c.branchId);
     m.objectHistory = m.objectHistory?.filter((o) =>
       objectSources(o).every((r) => m.segments.some((s) => s.id === r.id)),
@@ -302,6 +303,14 @@ export function contextPayload(meeting: Meeting) {
   const m = scopedContext(meeting, meeting.contextScope ?? 'meeting');
   const current = m.artifacts.at(-1);
   return {
+    collaboration:
+      m.contextScope !== 'personal' && m.collaboration?.enabled
+        ? {
+            ...m.collaboration,
+            processedEvents: undefined,
+            drafts: m.collaboration.drafts.map(({ history, ...d }) => d),
+          }
+        : null,
     clarifications: m.clarifications?.filter((c) => c.status === 'pending') ?? [],
     personalRequest:
       m.contextScope === 'personal' ? (m.segments.find((s) => s.kind === 'request') ?? null) : null,

@@ -1,3 +1,8 @@
+import {
+  applyCollaboration,
+  validateCollaboration,
+  refreshCollaboration,
+} from '../domain/collaboration';
 import { CallPool } from './call-pool';
 import { validatePresentationRepair } from '../domain/expression-repair';
 import { RenderFailure } from '../contracts/render-report';
@@ -602,7 +607,10 @@ export class SessionService {
               assertLease(currentJob(), fence);
               return result.proposal;
             },
-            validate: (p) => validateDelta(p, snapshot),
+            validate: (p) => {
+              validateDelta(p, snapshot);
+              validateCollaboration(p, snapshot);
+            },
             evidence: async (request) => {
               const j = currentJob();
               assertLease(j, fence);
@@ -709,7 +717,11 @@ export class SessionService {
       const originalObjects = structuredClone(next.objects),
         originalRelations = structuredClone(next.relations);
       validateDelta(proposal, personal ? snapshot : scopedContext(current, 'meeting'));
+      validateCollaboration(proposal, personal ? snapshot : scopedContext(current, 'meeting'));
       if (!languageOnly) commitMeaning(next, proposal);
+      if (!personal) validateCollaboration({ ...proposal, objects: [] }, next);
+      if (!personal && !languageOnly) applyCollaboration(next, proposal, batch.accepted, jobId!);
+      refreshCollaboration(next);
       if (
         !personal &&
         proposal.titleProposal &&

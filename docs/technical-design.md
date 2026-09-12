@@ -1,5 +1,7 @@
 # 技术设计：持续理解与生成式工作产物
 
+首轮四类意图共用理解调用与单事务提交，草稿领域规则独立于SessionService；架构及尚未拆分的组件工作流见[意图实现](collaboration-intents.md)。
+
 > 文件职责：产品／工程设计要求，不是完成清单。当前进度与最新修订见[状态页](status.md)；已交付首版取舍见[ADR-003](adr/003-cross-platform-first-version.md)，实际结果见[验证记录](../tests/results/README.md)。具体实现以代码核对，未实现的要求仍是目标。
 版本0.1｜2026-09-11｜状态：工程设计目标；已有首版采用和后续迭代，当前实现／验证见状态页。下文建议机制不自动等于已完成能力。业务要求见[产品定义](product-definition.md)，数据细节见[契约](contracts.md)。
 

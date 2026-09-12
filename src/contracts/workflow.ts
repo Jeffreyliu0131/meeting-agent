@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { Meeting, Proposal, Ref } from './model';
 export type ReadSet = {
+  collaborationRevision?: number;
   sources: Ref[];
   objects: Ref[];
   relations: Ref[];

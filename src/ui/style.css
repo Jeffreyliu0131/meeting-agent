@@ -1854,3 +1854,84 @@ body[data-role='preview'] {
   flex-wrap: wrap;
   gap: 8px;
 }
+
+.intent-panel {
+  margin: 24px 0;
+  padding: 20px;
+  border: 1px solid var(--borderSubtle, #dfe4ed);
+  border-radius: 12px;
+  background: white;
+}
+.intent-heading,
+.intent-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.intent-heading {
+  justify-content: space-between;
+}
+.intent-heading h2 {
+  margin: 0;
+  font-size: 20px;
+}
+.intent-panel > p,
+.intent-card small {
+  color: var(--textSecondary, #596579);
+}
+.intent-card {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #dfe4ed;
+  border-radius: 12px;
+  overflow-wrap: anywhere;
+}
+.intent-card h3 {
+  font-size: 18px;
+  margin: 0 0 12px;
+}
+.intent-card h3 small {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 400;
+}
+.intent-field {
+  margin: 12px 0;
+  min-width: 0;
+}
+.intent-field label {
+  display: grid;
+  gap: 6px;
+}
+.intent-field textarea {
+  width: 100%;
+  min-width: 0;
+  resize: vertical;
+  font: inherit;
+  padding: 8px 10px;
+  border: 1px solid #ccd5e3;
+  border-radius: 6px;
+  background: white;
+  color: inherit;
+}
+.intent-field button {
+  margin: 6px 8px 0 0;
+}
+.intent-card fieldset {
+  min-width: 0;
+  margin: 14px 0;
+  padding: 14px;
+  border: 1px solid #dfe4ed;
+  border-radius: 8px;
+}
+.intent-card [role='status'],
+.intent-panel [role='alert'] {
+  color: #8b4d16;
+}
+@media (max-width: 600px) {
+  .intent-panel,
+  .intent-card {
+    padding: 12px;
+  }
+}

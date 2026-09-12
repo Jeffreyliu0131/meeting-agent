@@ -1,3 +1,4 @@
+import { IntentPanel } from './IntentPanel';
 import { WorkflowPanel } from './WorkflowPanel';
 import launcherArtwork from './assets/launcher-dialogue-v1.png';
 import { launcherIndicator } from './launcher-status';
@@ -803,6 +804,13 @@ function App() {
                 )}
               </div>
             )}
+            <IntentPanel
+              key={current.id}
+              meeting={current}
+              locale={locale}
+              command={(type, payload) => command(type as any, payload)}
+              onSources={openSources}
+            />
             <WorkflowPanel
               meeting={current}
               locale={locale}
