@@ -1,0 +1,21 @@
+{
+  "ranAt": "2026-09-12 11:41 Asia/Singapore",
+  "base": "2661764 + uncommitted meeting reminder changes",
+  "unit": {
+    "passed": 99,
+    "failed": 0
+  },
+  "electron": {
+    "startTime": "2026-09-12T03:37:01.836Z",
+    "duration": 84933.60900000001,
+    "expected": 19,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "inputs": "synthetic candidates, oscillator audio, localhost STT and native notification doubles",
+  "realMeetingDetection": false,
+  "realAudio": false,
+  "realModelCalls": false,
+  "nativeNotificationDelivery": "unverified on both platforms; macOS signing and Windows registration required"
+}

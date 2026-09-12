@@ -1,3 +1,4 @@
+import type { ReminderView } from './meeting-candidate';
 import { EvidenceRequest } from './workflow';
 import { z } from 'zod';
 export const Locale = z.enum(['en', 'zh-CN']);
@@ -501,8 +502,12 @@ export type Preferences = {
   reduceMotion: boolean;
   reduceTransparency: boolean;
   shortcut: string;
+  launcherVisible?: boolean;
+  meetingReminders?: boolean;
 };
 export type Snapshot = {
+  reminder?: ReminderView | null;
+  notificationUnavailable?: boolean;
   meetings: Meeting[];
   preferences: Preferences;
   capabilities: {

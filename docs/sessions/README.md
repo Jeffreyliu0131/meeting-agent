@@ -6,6 +6,7 @@
 
 | 记录 | 类型／状态 | 主要内容 |
 |---|---|---|
+| [会议候选提醒](2026-09-12-meeting-reminder.md) | 提醒代码／双端包已同步，未提交 | 99单元／19桌面与Mac包通过；真实检测待接入、系统投递／Windows真机待验 |
 | [界面语言与交互打磨](2026-09-12-interface-polish.md) | 代码／两端本地包已同步，91962b9已推送；Windows运行待验 | 跟随系统、即时保存及交互细节；86单元／14桌面、Mac包验证通过 |
 | [Mac／Windows本地包同步](2026-09-12-cross-platform-sync.md) | 本地同步及推送完成，Windows真机待验 | 两端14个文件及app.asar一致；11项桌面通过；同步证据06f57d2已推送，日常库0事件 |
 | [Agent工作流验收与推送](2026-09-12-agent-workflow-acceptance-push.md) | 完成，9b6886d已推送 | 修复审查问题；86项单元／11项Electron、双端包与macOS烟测 |

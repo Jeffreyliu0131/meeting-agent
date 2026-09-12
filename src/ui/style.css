@@ -1854,3 +1854,77 @@ body[data-role='preview'] {
   flex-wrap: wrap;
   gap: 8px;
 }
+
+html[data-role='reminder'],
+html[data-role='reminder'] body,
+html[data-role='reminder'] #root {
+  background: transparent;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.meeting-reminder {
+  display: flex;
+  position: relative;
+  height: 100%;
+  border: 1px solid var(--divider);
+  border-radius: 14px;
+  background: var(--surface, #fff);
+  color: var(--text, #101828);
+  overflow: hidden;
+}
+.reminder-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 13px;
+  background: #fff;
+  padding: 14px 34px 14px 16px;
+  text-align: left;
+  color: #2463d8;
+}
+.reminder-action:hover {
+  background: #f6f8fb;
+}
+.reminder-action:disabled {
+  opacity: 1;
+  color: #475467;
+  cursor: default;
+}
+.reminder-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.reminder-copy strong {
+  font-size: 14px;
+  line-height: 1.45;
+  font-weight: 600;
+  color: #101828;
+}
+.reminder-copy > span {
+  font-size: 13px;
+  line-height: 1.45;
+  color: #475467;
+}
+.reminder-dismiss {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 26px;
+  min-height: 26px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #475467;
+}
+.reminder-action:focus-visible,
+.reminder-dismiss:focus-visible {
+  outline-offset: -3px;
+}

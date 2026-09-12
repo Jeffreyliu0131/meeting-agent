@@ -15,6 +15,8 @@ export const defaults: Preferences = {
   reduceMotion: false,
   reduceTransparency: false,
   shortcut: '',
+  launcherVisible: true,
+  meetingReminders: true,
 };
 export interface StorePort {
   load(): { meetings: Meeting[]; preferences: Preferences };

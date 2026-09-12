@@ -419,6 +419,28 @@ export function Settings({
                 <label className="check">
                   <input
                     type="checkbox"
+                    checked={draft.launcherVisible ?? true}
+                    onChange={(e) => setDraft({ ...draft, launcherVisible: e.target.checked })}
+                  />
+                  {t('settings.launcherVisible')}
+                </label>
+                <small>{t('settings.launcherHelp')}</small>
+                {snapshot.notificationUnavailable && (
+                  <p className="muted">{t('settings.notificationUnavailable')}</p>
+                )}
+                <label className="check">
+                  <input
+                    type="checkbox"
+                    checked={draft.meetingReminders ?? true}
+                    onChange={(e) => setDraft({ ...draft, meetingReminders: e.target.checked })}
+                  />
+                  {t('settings.meetingReminders')}
+                </label>
+                <small>{t('settings.reminderHelp')}</small>
+                <label className="check">
+                  <input
+                    type="checkbox"
+                    name="reduceMotion"
                     checked={draft.reduceMotion}
                     onChange={(e) => setDraft({ ...draft, reduceMotion: e.target.checked })}
                   />

@@ -92,3 +92,7 @@ type ArtifactPresentation = {
 界面本地化属于有限增量工作；实际转写与生成质量没有“切一个按钮就完成”的保证。按实际输出测试，不因模型自称多语言就验收。用户本轮已选择双语，不能自行退回English-only；若时间受限，报告未完成项，不暗改需求。
 
 开发新增[双语合成样例](../tests/fixtures/bilingual-meeting.json)用于语义和语言版本逻辑；它不能证明实际中文音频或口音识别效果。
+
+## 会议提醒文案
+
+[提醒规范](meeting-reminder-spec.md)使用集中ui-copy字典：中文“你可能正在开会／点击开始记录”，英文“You might be in a meeting / Click to start recording”。连接、记录中、关闭及设置全部双语。气泡即时切换；已投递系统通知保留投递时语言，不因语言切换重发。

@@ -33,3 +33,5 @@ Agent三项可靠性迭代：[验证结果](agent-reliability-validation.md)／[
 - [Mac／Windows本地包同步](cross-platform-sync-validation.md)：当前release双端包统一、11项桌面回归、Mac日常启动与事件库核对；Windows真机仍未验收。
 
 - [界面语言与交互打磨](interface-polish-validation.md)：实际Mac包系统语言前后对照、即时切换／失败恢复、86项单元与14项桌面回归、双端包同源；Windows运行待验。
+
+- [会议候选提醒](meeting-reminder-validation.md)：99单元／19桌面通过，双端本地包同源、Mac包双语／隐藏验证；真实检测器与原生系统投递未验。

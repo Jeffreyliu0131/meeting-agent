@@ -200,3 +200,7 @@ Decision保存`id, scope: personal|meeting, targetSnapshot, evidenceRefs, confir
 实际schema见 `src/contracts/model.ts`，工作流见 [ADR-004](adr/004-live-agent-pipeline.md)。Proposal增加互斥的patch／plan与有来源的titleProposal；来源增加输入version、采集起止时间、通道序号与可选requestContext。Meeting保存processedSources、独立expressionJobs、调用账目、标题来源／修订、音频偏好快照与实际设备。Preferences保存system语言选择与audio设置，旧数据保守迁移。
 
 桌面startMeeting意图由可信层解析设置、幂等创建与启动采集。个人请求保留绑定产物revision，生成个人对象不覆盖会议语义。历史产物仍为完整不可变快照，增量传输使用按块patch；来源／对象／关系依赖决定过期，普通新增发言不自动让无关内容过期。
+
+## 会议候选与提醒
+
+新增[MeetingCandidate契约](../src/contracts/meeting-candidate.ts)与[提醒流程](meeting-reminder-spec.md)。候选只可由主进程可信适配器报告，带稳定ID、递增revision、present及限时expiresAt；不能从转写或模型获得启动权限。Preferences新增可选launcherVisible／meetingReminders，迁移默认true；桌面快照reminder及notificationUnavailable是瞬态展示元数据，不存入会议。气泡IPC仅允许snapshot、reminderAccept、reminderDismiss、reminderHold；开始复用现有幂等接口。真实检测器未接入。

@@ -16,6 +16,8 @@ export const PreferencesSchema = z
     reduceMotion: z.boolean(),
     reduceTransparency: z.boolean(),
     shortcut: z.string().max(100),
+    launcherVisible: z.boolean().optional(),
+    meetingReminders: z.boolean().optional(),
     uiLanguage: LanguageChoice.optional(),
     defaultOutputLanguage: LanguageChoice.optional(),
     audio: AudioPreferences.optional(),
@@ -28,6 +30,8 @@ export function resolvePreferences(value: Preferences, system: string): Preferen
   const p = PreferencesSchema.parse(value);
   return {
     ...p,
+    launcherVisible: p.launcherVisible ?? true,
+    meetingReminders: p.meetingReminders ?? true,
     uiLanguage: p.uiLanguage ?? p.uiLocale,
     defaultOutputLanguage: p.defaultOutputLanguage ?? p.defaultOutputLocale,
     uiLocale: p.uiLanguage === 'system' ? systemLocale(system) : (p.uiLanguage ?? p.uiLocale),
