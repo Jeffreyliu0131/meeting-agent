@@ -1,0 +1,227 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/bin/node",
+      "/private/tmp/meeting-hover-build-7r1xr14g/node_modules/.bin/playwright",
+      "test",
+      "tests/e2e/hover-preview.spec.ts",
+      "-g",
+      "sources open|display edges"
+    ],
+    "configFile": "/private/tmp/meeting-hover-build-7r1xr14g/playwright.config.ts",
+    "rootDir": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/private/tmp/meeting-hover-build-7r1xr14g/tests/results/hover-canvas-interactions-run",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "tests/results/hover-canvas-interactions.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "hover-preview.spec.ts",
+      "file": "hover-preview.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "sources open the displayed revision and suggested actions only prepare a draft",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2961,
+                  "error": {
+                    "message": "TypeError: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoHaveLength\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\n\u001b[1mMatcher error\u001b[22m: \u001b[31mreceived\u001b[39m value must have a length property whose value must be a number\n\nReceived has value: \u001b[31mundefined\u001b[39m",
+                    "stack": "TypeError: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoHaveLength\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\n\u001b[1mMatcher error\u001b[22m: \u001b[31mreceived\u001b[39m value must have a length property whose value must be a number\n\nReceived has value: \u001b[31mundefined\u001b[39m\n    at /private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:337:38",
+                    "location": {
+                      "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                      "column": 38,
+                      "line": 337
+                    },
+                    "snippet": "  335 |   const state = await call(workspace, 'snapshot');\n  336 |   expect(state.meetings[0].segments).toHaveLength(1);\n> 337 |   expect(state.meetings[0].requests).toHaveLength(0);\n      |                                      ^\n  338 | });\n  339 |\n  340 | test('preview follows display edges, stays readable at 200 percent, and clears ended content', async () => {"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                        "column": 38,
+                        "line": 337
+                      },
+                      "message": "TypeError: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoHaveLength\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\n\u001b[1mMatcher error\u001b[22m: \u001b[31mreceived\u001b[39m value must have a length property whose value must be a number\n\nReceived has value: \u001b[31mundefined\u001b[39m\n\n  335 |   const state = await call(workspace, 'snapshot');\n  336 |   expect(state.meetings[0].segments).toHaveLength(1);\n> 337 |   expect(state.meetings[0].requests).toHaveLength(0);\n      |                                      ^\n  338 | });\n  339 |\n  340 | test('preview follows display edges, stays readable at 200 percent, and clears ended content', async () => {\n    at /private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:337:38"
+                    }
+                  ],
+                  "stdout": [
+                    {
+                      "text": "Hover failure state {\"meeting\":[{\"error\":null,\"understoodVersion\":1,\"calls\":[{\"id\":\"d32402dd-00d8-4573-90c2-4873464d11f9\",\"kind\":\"understand\",\"startedAt\":\"2026-09-12T06:53:15.638Z\",\"durationMs\":32,\"status\":\"ok\",\"inputTokens\":10,\"outputTokens\":10,\"reservedTokens\":62500,\"audioSeconds\":0}]}],\"workspace\":{\"visible\":true,\"focused\":true,\"bounds\":{\"x\":166,\"y\":50,\"width\":1180,\"height\":840}},\"launcher\":{\"visible\":true,\"focused\":false,\"bounds\":{\"x\":1448,\"y\":133,\"width\":44,\"height\":44}},\"preview\":{\"visible\":false,\"focused\":false,\"bounds\":{\"x\":680,\"y\":121,\"width\":760,\"height\":560}}}\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T06:53:13.986Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/private/tmp/meeting-hover-build-7r1xr14g/tests/results/hover-canvas-interactions-run/hover-preview-sources-open-5d63f-ctions-only-prepare-a-draft/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                    "column": 38,
+                    "line": 337
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "714f016c699f2eb8d498-731fb16d66d091c5614f",
+          "file": "hover-preview.spec.ts",
+          "line": 318,
+          "column": 1
+        },
+        {
+          "title": "preview follows display edges, stays readable at 200 percent, and clears ended content",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 12408,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('还没有正在进行的会议')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('还没有正在进行的会议') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText('还没有正在进行的会议')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('还没有正在进行的会议')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('还没有正在进行的会议') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText('还没有正在进行的会议')\u001b[22m\n\n    at /private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:380:49",
+                    "location": {
+                      "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                      "column": 49,
+                      "line": 380
+                    },
+                    "snippet": "  378 |   await command('end');\n  379 |   await expect(preview.locator('.preview-canvas')).toHaveCount(0);\n> 380 |   await expect(preview.getByText('还没有正在进行的会议')).toBeVisible();\n      |                                                 ^\n  381 |   await command('preferencesPatch', { uiLanguage: 'en' }, null);\n  382 |   await expect(preview.getByText('No meeting in progress')).toBeVisible();\n  383 | });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                        "column": 49,
+                        "line": 380
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('还没有正在进行的会议')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('还没有正在进行的会议') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText('还没有正在进行的会议')\u001b[22m\n\n\n  378 |   await command('end');\n  379 |   await expect(preview.locator('.preview-canvas')).toHaveCount(0);\n> 380 |   await expect(preview.getByText('还没有正在进行的会议')).toBeVisible();\n      |                                                 ^\n  381 |   await command('preferencesPatch', { uiLanguage: 'en' }, null);\n  382 |   await expect(preview.getByText('No meeting in progress')).toBeVisible();\n  383 | });\n    at /private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:380:49"
+                    }
+                  ],
+                  "stdout": [
+                    {
+                      "text": "Preview error: Cannot read properties of undefined (reading 'segments')\n"
+                    },
+                    {
+                      "text": "Hover failure state {\"meeting\":[{\"error\":null,\"understoodVersion\":1,\"calls\":[{\"id\":\"c2696903-4d79-422d-8170-d71d7c5aa6dc\",\"kind\":\"understand\",\"startedAt\":\"2026-09-12T06:53:18.016Z\",\"durationMs\":20,\"status\":\"ok\",\"inputTokens\":10,\"outputTokens\":10,\"reservedTokens\":62500,\"audioSeconds\":0}]}],\"workspace\":{\"visible\":false,\"focused\":false,\"bounds\":{\"x\":166,\"y\":53,\"width\":1180,\"height\":840}},\"launcher\":{\"visible\":true,\"focused\":false,\"bounds\":{\"x\":1456,\"y\":833,\"width\":44,\"height\":44}},\"preview\":{\"visible\":true,\"focused\":false,\"bounds\":{\"x\":1108,\"y\":645,\"width\":340,\"height\":240}}}\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T06:53:17.206Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/private/tmp/meeting-hover-build-7r1xr14g/tests/results/hover-canvas-interactions-run/hover-preview-preview-foll-08e30-nt-and-clears-ended-content/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                    "column": 49,
+                    "line": 380
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "714f016c699f2eb8d498-701c8454b990c02c0892",
+          "file": "hover-preview.spec.ts",
+          "line": 340,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-12T06:53:13.629Z",
+    "duration": 16008.599,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

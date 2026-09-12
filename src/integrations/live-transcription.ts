@@ -139,7 +139,9 @@ export class LiveTranscription {
       type: 'input_audio_buffer.append',
       audio: Buffer.from(pcm).toString('base64'),
     });
-    if (turn.silenceMs >= 600 || turn.durationMs >= 8000) this.commit();
+    // Frequent final segments let understanding advance even during uninterrupted speech.
+    // Preserve complete source leases; provisional words never become meeting facts.
+    if (turn.silenceMs >= 600 || turn.durationMs >= 2400) this.commit();
     return !this.closed;
   }
 

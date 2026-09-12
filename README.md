@@ -1,16 +1,20 @@
 # Meeting Agent
 
-首轮四类意图已接入本地源码：会议工作页 →“协作意图”→“开启自动准备”。理解模型会准备投票、分工、冲突和决定确认的私有草稿；不含多人发布／回应。范围与使用见[意图说明](docs/collaboration-intents.md)。
+[Demo实时表达](docs/demo-live-visuals.md)：主动选择思路／关系／流程图、语义图标、真实生成草稿和局部编辑反馈；连续语音分段2.4秒、理解合并默认250ms。参数不等于端到端时延；源码、双端包和真实效果分别见[本轮验证](tests/results/demo-live-visuals-validation.md)。
+
+四类协作意图已接入：会议工作页 →“协作意图”→“开启自动准备”。模型准备投票、分工、冲突和决定确认的私有草稿；用户检查后可转为本地协作组件，再明确发放并由参与者回应。私有准备和正式发放分开，范围见[意图说明](docs/collaboration-intents.md)与[协作运行说明](docs/collaboration-v1-runtime.md)。
 
 支持 macOS 与 Windows 的会议桌面助手。每场会议是独立事件，Agent 根据自然讨论选择、生成和修订简短的工作表达；用户按需查看、追溯、纠正和推演。
 
 **进度入口：[当前状态](docs/status.md)；跨任务接手：[AGENTS.md](AGENTS.md) → [session 索引](docs/sessions/README.md)。** 已有 0.1.0 首版本地实现；首版结果见[验证记录](tests/results/validation.md)，后续工作树改动和新规范的接入程度以状态及对应 session 为准，不把旧测试视为当前全部通过。
 
-首版协作已接入当前工作树：在会议内点击“开启本地协作模拟”，可准备投票、分工、冲突和决定确认。组件在独立悬浮窗预览／发放，准备好后悬浮球显示数量，点击提示打开；参与者A／B／C用独立窗口回应。自动准备衔接LangGraph，正式发放仍由发起者点击。见[设计](docs/collaboration-v1-design.md)、[实际运行与边界](docs/collaboration-v1-runtime.md)、[本轮验证](tests/results/collaboration-v1-validation.md)。
+首版协作已合入主线：在会议内点击“开启本地协作模拟”，可准备投票、分工、冲突和决定确认。组件在独立悬浮窗预览／发放，准备好后悬浮球显示数量，点击提示打开；参与者A／B／C用独立窗口回应。自动准备衔接LangGraph，正式发放仍由发起者点击。见[设计](docs/collaboration-v1-design.md)、[实际运行与边界](docs/collaboration-v1-runtime.md)、[本轮验证](tests/results/collaboration-v1-validation.md)。
 
-连续 Agent 与新会议入口已纳入基线 `3f6279a`；前端改造已完成独立本地验证，见[前端记录](docs/sessions/2026-09-11-frontend-refresh.md)。架构见 [ADR-004](docs/adr/004-live-agent-pipeline.md)，本轮证据见 [连续 Agent 验证](tests/results/live-agent-validation.md)。2026-09-12 Windows 本地已配置 DeepSeek V4.1 Flash 与 Whisper，并通过单条合成文本／语音的实际调用及桌面启动，见 [本地启动记录](docs/sessions/2026-09-12-windows-local-start.md)；这些检查不等于真实连续会议效果达标。
+连续 Agent 与新会议入口已纳入基线 `3f6279a`；前端改造已完成独立本地验证，见[前端记录](docs/sessions/2026-09-11-frontend-refresh.md)。架构见 [ADR-004](docs/adr/004-live-agent-pipeline.md)，本轮证据见 [连续 Agent 验证](tests/results/live-agent-validation.md)。首版当时缺少真实模型和转写凭证；PR #3 保留对方 Windows 的单次合成供应商调用记录，不能推导此 Mac 已配置或真实会议达标，见[证据与整合边界](docs/pr3-doc-alignment.md)。
 
-本地Mac arm64与Windows x64目录包已于2026-09-12同步至`9b6886d`产品源码：两端14个构建文件及app.asar完全一致，11项桌面回归和Mac实际启动通过，见[同步验证](tests/results/cross-platform-sync-validation.md)。Mac应用已更新并打开；Windows真机尚未验收，也未远程替换其他机器的安装。Git源码同步与本地应用打包是两步，代码提交不会自动更新已有应用。
+当前接手查[实施计划](docs/implementation-plan.md)与[状态页](docs/status.md)。PR #1–#3、四类意图与跨会议集合已合入main基线 `55267d6`；随后新增的会中原话精修、试算依据、Event评测、实时可视化与悬浮画板按[本轮整合交付](docs/sessions/2026-09-12-main-push-after-sessions.md)记录最终源码、包和验证范围。源码、日常应用与真实效果分别核对。
+
+两端本地包随各次实现更新，准确基线与范围查对应 session 和包指纹；`9b6886d` 的[双端同步验证](tests/results/cross-platform-sync-validation.md)属于历史证据。源码、包内容、日常进程和各机器安装版本分别核对。
 
 ## 本地启动
 
@@ -22,7 +26,7 @@ npm run setup:desktop
 npm start
 ```
 
-当前工作目录已安装依赖并下载运行时，可直接 `npm start`。启动只出现桌面小入口，不自动采音。悬停速览、点击打开工作页、右键菜单；关闭工作页保留后台服务，退出软件才结束。
+当前工作目录已安装依赖并下载运行时，可直接 `npm start`。启动只出现桌面小入口，不自动采音。悬停直接查看当前会议的实时画板，移开后收起；点击打开工作页，右键显示菜单。关闭工作页保留后台服务，退出软件才结束。
 
 ```sh
 npm run start:built   # 启动上次构建
@@ -45,19 +49,21 @@ MEETING_STT_MODEL=gpt-live-transcribe
 MEETING_STT_API_BASE=https://api.openai.com/v1
 ```
 
-这是可修改的默认配置，不保证账号具有对应模型权限。模型使用 Chat Completions JSON Schema；兼容服务不支持时可设置 `MEETING_RESPONSE_FORMAT=json_object`，服务仍执行本地 schema 校验。转写可单独设置 `MEETING_STT_API_KEY`。远端地址必须 HTTPS；仅本机回环地址允许 HTTP，供本地服务与测试使用。
+当前默认转写为 `gpt-live-transcribe`；显式设置文件转写模型时使用HTTP路径。可用配置以本目录 `.env.example` 和实际供应商账号为准。历史接入及修复证据见[PR #3交付](docs/sessions/2026-09-12-pr3-fix-merge.md)。
 
-`gpt-live-transcribe` 使用可信后台到 OpenAI Realtime 的 WebSocket：24 kHz PCM、约 100 毫秒采音包；按麦克风／电脑声音独立连接。工作页显示标为“暂定”的流式转写，只有最终文本入库并进入 Agent。停顿约 600 毫秒或累计 8 秒时提交当前段落，暂停／结束也提交尾音。密钥不进入采音窗口。显式设置 `whisper-1` 等文件转写模型仍使用旧 HTTP 路径；连接失败会提示并停止本轮采音，不静默换模型。更改配置后重启应用。此次实际接入和验证见 [流式转写记录](docs/sessions/2026-09-12-live-transcribe.md)。
+这是可修改的默认配置，不保证账号具有对应模型权限。模型使用 Chat Completions JSON Schema 与流式请求；兼容服务不支持结构化格式时可设置 `MEETING_RESPONSE_FORMAT=json_object`，服务仍执行本地 schema 校验。若端点拒绝 `stream`／`stream_options`，只切换格式不能解决；当前不会自动改用非流式请求。返回完整 JSON 的兼容响应仍可读取，但没有中途草稿。转写可单独设置 `MEETING_STT_API_KEY`。远端地址必须 HTTPS；仅本机回环地址允许 HTTP，供本地服务与测试使用。
+
+`gpt-live-transcribe` 使用可信后台到 OpenAI Realtime 的 WebSocket：24 kHz PCM、约 100 毫秒采音包；按麦克风／电脑声音独立连接。工作页显示标为“暂定”的流式转写，只有最终文本入库并进入 Agent。停顿约 600 毫秒或累计 2.4 秒时提交当前段落，暂停／结束也提交尾音。密钥不进入采音窗口。显式设置 `whisper-1` 等文件转写模型仍使用旧 HTTP 路径；连接失败会提示并停止本轮采音，不静默换模型。更改配置后重启应用。此次实际接入和验证见 [流式转写记录](docs/sessions/2026-09-12-live-transcribe.md)。
 
 缺STT凭证时正常开始会提示配置；缺理解模型凭证时不生成假内容。开发入口可独立测试文字、来源和保存；添加凭证后重启可恢复未处理输入。
 
 ## 本地模型代理（开发用）
 
-`tools/litellm-proxy/` 把 DeepSeek（理解）与 OpenAI（转写）包装成同一个 OpenAI 形态的本地地址，供本机开发使用。**它是开发工具，不是产品的一部分**：应用本身通过 `ModelPort` 与凭证访问任意兼容服务，不依赖这个目录。
+[tools/litellm-proxy](tools/litellm-proxy/README.md) 已在仓库内，是可选开发工具，不随应用打包。其配置提供理解模型 `meeting-chat` 和文件转写 `meeting-transcribe`；当前 GPT Live Transcribe 默认仍由后台直连 Realtime，不通过这个 HTTP 文件转写别名。
 
-macOS 与 Windows 各有一份启动脚本（`start.sh` / `start.ps1`）。设 `MEETING_AUTOSTART_PROXY=1` 后，桌面应用会在启动时自行拉起它，无需另开终端；未开启时行为不变。
+开发应用仅在 `MEETING_AUTOSTART_PROXY=1` 且理解地址指向 HTTP 回环地址时尝试自动启动。已有健康服务会复用；缺少 LiteLLM 时可创建目录内 `.venv` 并安装依赖，安装／健康检查不阻塞窗口启动。打包运行不执行此流程，端点不可用仍按真实错误展示。
 
-真实凭证放在该目录下的 `provider.env`（已 gitignore，模板见 `provider.env.example`），不进仓库。打包后的应用不包含 `tools/`，因此自动拉起只在开发运行时有效。
+代理真实凭证仅保存在其忽略的 `provider.env` 中。理解使用本地代理 key 时，Live STT 必须单独配置 `MEETING_STT_API_KEY`，避免回退为代理 key；配置和两种手动启动脚本的差异见工具说明。
 
 ## 使用闭环
 
@@ -74,7 +80,7 @@ macOS 与 Windows 各有一份启动脚本（`start.sh` / `start.ps1`）。设 `
 
 ## Agent运行参数
 
-配置示例见 `.env.example`：上下文24,000字节、单次输出2,500 tokens、每场会议滚动一小时2,400次供应商调用／4,000,000文本tokens预算、批次合并1,500毫秒。额度是运行上限，不是承诺时延或价格。缺少用量数据会保守预留并标未知。流式转写在每段发出前检查调用预算，完成后记录该段音频秒数；连接握手限时10秒，每段从开始到完成限时30秒。每通道待完成音频累计上限30秒，WebSocket发送积压上限2MB，超限明确记录缺口，不能承诺持续过载无损。显式文件模型仍用约5秒切片与有界队列。
+默认参数见 `.env.example` 与 `src/agent/provider.ts`：理解上下文24,000字节、集合上下文32,000字节（`MEETING_COLLECTION_CONTEXT_BYTES`）、单次输出2,500 tokens、每场会议／每个集合各自滚动一小时2,400次供应商调用／4,000,000文本tokens预算、批次合并250毫秒。额度是运行上限，不是承诺时延或价格。缺少用量数据会保守预留并标未知。流式转写在每段发出前检查调用预算，完成后记录该段音频秒数；连接握手限时10秒，每段从开始到完成限时30秒。每通道待完成音频累计上限30秒，WebSocket发送积压上限2MB，超限明确记录缺口，不能承诺持续过载无损。显式文件模型仍用约5秒切片与有界队列。
 
 ## 数据与平台
 
@@ -83,7 +89,7 @@ macOS 与 Windows 各有一份启动脚本（`start.sh` / `start.ps1`）。设 `
 - macOS：`~/Library/Application Support/Meeting Agent/`
 - Windows：`%APPDATA%/Meeting Agent/`
 
-各机器的会议数据库独立，不随Git或应用包自动同步；新库默认无会议，测试事件不会自动注入日常首页。测试使用独立临时目录。数据未加密，随本机账号权限保护；尚无应用内删除功能，可在退出后由用户管理数据目录。供应商保留政策取决于实际账号，不能把本地不录音解释为云端零留存。
+各机器的会议数据库独立，不随Git或应用包自动同步；新库默认无会议，测试事件不会自动注入日常首页。测试使用独立临时目录。数据未加密，随本机账号权限保护；尚无单场会议的应用内删除功能，可在退出后由用户管理数据目录。应用内删除文件夹仅删除该分组及其报告，不删除成员会议。供应商保留政策取决于实际账号，不能把本地不录音解释为云端零留存。
 
 ```sh
 npm run pack:mac     # 在 macOS 构建应用目录
@@ -104,7 +110,7 @@ npm run pack:win     # 在 Windows 构建应用目录
 
 设计文档定义目标；实际 schema 以 `src/contracts/model.ts` 为准，首版实现差异见 ADR-003；后续变化先查状态与对应 session／新 ADR，验证以对应版本结果为准。尚未通过的验收不会因“已有代码”自动变为通过。
 
-本目录是独立 Git 仓库，对应 [Jeffreyliu0131/meeting-agent](https://github.com/Jeffreyliu0131/meeting-agent)（私有）。运行不依赖父目录资料。未提交工作须在对应 session 中说明。提交不包含凭证、真实会议数据、依赖目录或应用构建包。
+本目录是独立 Git 仓库，对应 [Jeffreyliu0131/meeting-agent](https://github.com/Jeffreyliu0131/meeting-agent)。运行不依赖父目录资料。未提交工作须在对应 session 中说明。提交不包含凭证、真实会议数据、依赖目录或应用构建包。
 
 
 ## 条件、修订与会议结束核对
@@ -115,11 +121,21 @@ npm run pack:win     # 在 Windows 构建应用目录
 
 当前本地实现采用LangGraph JS 1.4.14，支持本会议主动检索、独立个人推演、持久提案／任务恢复、澄清与表达修复。运行方式不变；完整实现与限制见[运行时说明](docs/agent-workflow-runtime.md)，逐项结果见[工作流验证](tests/results/agent-workflow-validation.md)。离线人工评分清单：`node --import tsx scripts/workflow-eval.ts`（零模型调用）。不要将`test:model`误作免费离线检查。
 
-提醒阶段本地包：两端release已按[会议候选提醒](docs/sessions/2026-09-12-meeting-reminder.md)更新到提醒源码5c7c0a5；14个构建文件和app.asar一致。99单元／19桌面与Mac包隔离检查通过，Windows真机及两端真实系统通知投递待验；真实检测器尚未接入。此前91962b9界面源码已推送，本轮交付见[PR #1](https://github.com/Jeffreyliu0131/meeting-agent/pull/1)。
-
 ## 会议候选提醒
 
 已接入[双语提醒链路](docs/meeting-reminder-spec.md)：球可见时气泡，隐藏时系统通知，点击才开始记录。显示设置可隐藏球，托盘可恢复，已有记录继续。当前没有生产会议检测器，正常运行不会自动产生候选；本轮验证使用合成信号。未正式签名的Mac本地包及未注册的Windows目录包，均不能据此保证系统通知投递。实现与验证见[本轮记录](docs/sessions/2026-09-12-meeting-reminder.md)。
 
 
-最新设置源码a47cf8c通过[PR #2](https://github.com/Jeffreyliu0131/meeting-agent/pull/2)交付；两端本地包同源，Windows代码／构建核对通过。详情见[即时生效记录](docs/sessions/2026-09-12-settings-autosave.md)，真机不在用户本轮要求内。
+即时设置已通过[PR #2](https://github.com/Jeffreyliu0131/meeting-agent/pull/2)进入主线；`a47cf8c` 是该阶段源码，不是当前最新版本。阶段验证见[记录](docs/sessions/2026-09-12-settings-autosave.md)，当前两端包／安装状态见[状态页](docs/status.md)。
+
+会中工作页采用[正文与窄原话边注](docs/design/meeting-editorial.md)：编号可回到精确原话，核对时保留正在阅读的产物，反馈理解先形成个人草稿。当前实现与双端验证见[本轮记录](docs/sessions/2026-09-12-meeting-editorial.md)。
+
+## 跨会议文件夹与综合纪要
+
+在会议列表创建并命名文件夹，选择1–8场会议；可编辑名称、说明和成员。工作区先展示确定性的决定／未决项／分歧，再由用户手动生成综合报告。引用可返回对应会议，成员或文件夹变化后标记过期，用户决定是否重新生成。
+
+报告不写回成员会议、不共享身份，已记录的协作决定可作为业务依据。当前界面显示最新报告，历史修订仍保存，但无历史选择器或独立导出；生成中重启不会自动续跑。单会议 JSON 导出包含原话、产物、私有草稿和正式协作状态，集合与报告保存在数据库而不随该文件导出。完整边界见[运行说明](docs/agent-workflow-runtime.md#跨会议集合与报告)。
+
+## 会议 Event 与统一评测
+
+[评测方案](docs/event-evaluation.md)提供24类会议Event、60条多轮语料、30项指标和135项规范路由。运行 `node scripts/evaluate.mjs --offline` 执行离线评测；明确需要真实模型评估时再添加 `--model`，它会发起供应商调用。报告绑定源码版本；缺凭证明确阻塞，不把替身当语义成绩。

@@ -4,7 +4,13 @@ import { ScenarioEditor } from './components';
 import { translator } from './i18n';
 
 /** Protect only a selected block; typing in the ask bar never freezes the meeting. */
-export function useLiveArtifact(incoming: ArtifactRevision | undefined) {
+export function useLiveArtifact(
+  incoming: ArtifactRevision | undefined,
+  hold = false,
+  scopeKey?: string,
+  inspectedBlockId?: string,
+) {
+  const previousScope = useRef(scopeKey);
   const [displayed, setDisplayed] = useState(incoming),
     [protectedId, setProtectedId] = useState<string | null>(null);
   useEffect(() => {
@@ -21,26 +27,34 @@ export function useLiveArtifact(incoming: ArtifactRevision | undefined) {
     document.addEventListener('selectionchange', selection);
     return () => document.removeEventListener('selectionchange', selection);
   }, []);
+  const pinnedBlockId = protectedId ?? inspectedBlockId;
   useLayoutEffect(() => {
     if (!incoming) {
       setDisplayed(undefined);
       return;
     }
+    const scopeChanged = previousScope.current !== scopeKey;
+    previousScope.current = scopeKey;
     setDisplayed((previous) => {
+      if (scopeChanged) return incoming;
+      if (hold && previous) return previous;
       if (!previous) return incoming;
-      if (previous.id !== incoming.id) return protectedId ? previous : incoming;
+      // The service may assign a new identity when a discussion gains another object.
+      // Keep a cited block while allowing the same question's other blocks to advance.
+      if (previous.id !== incoming.id && previous.purposeKey !== incoming.purposeKey)
+        return pinnedBlockId ? previous : incoming;
       const map = new Map(incoming.blocks.map((b) => [b.id, b]));
       const blocks = previous.blocks
         .flatMap((old) => {
           const next = map.get(old.id);
           map.delete(old.id);
-          if (old.id === protectedId) return [old];
+          if (old.id === pinnedBlockId) return [old];
           return next ? [next] : [];
         })
         .concat([...map.values()]);
       const elementSources = { ...incoming.elementSources };
-      if (protectedId) {
-        const old = previous.blocks.find((b) => b.id === protectedId);
+      if (pinnedBlockId) {
+        const old = previous.blocks.find((b) => b.id === pinnedBlockId);
         for (const id of old?.objectIds ?? [])
           if (previous.elementSources?.[id]) elementSources[id] = previous.elementSources[id];
         if (old?.type === 'diagram')
@@ -51,12 +65,27 @@ export function useLiveArtifact(incoming: ArtifactRevision | undefined) {
       return {
         ...incoming,
         elementSources,
-        changedBlockIds: incoming.changedBlockIds?.filter((id) => id !== protectedId),
-        blocks: incoming.updateKind === 'restructure' && !protectedId ? incoming.blocks : blocks,
+        changedBlockIds: incoming.changedBlockIds?.filter((id) => id !== pinnedBlockId),
+        blocks: incoming.updateKind === 'restructure' && !pinnedBlockId ? incoming.blocks : blocks,
       };
     });
-  }, [incoming, protectedId]);
-  return { artifact: displayed, protectedId };
+  }, [incoming, pinnedBlockId, hold, scopeKey]);
+  const pending =
+    !!incoming &&
+    !!displayed &&
+    (incoming.id !== displayed.id ||
+      incoming.rev !== displayed.rev ||
+      (!!pinnedBlockId &&
+        JSON.stringify(incoming.blocks.find((b) => b.id === pinnedBlockId)) !==
+          JSON.stringify(displayed.blocks.find((b) => b.id === pinnedBlockId))));
+  return {
+    artifact: displayed,
+    protectedId,
+    pending,
+    applyPending: () => {
+      if (!protectedId) setDisplayed(incoming);
+    },
+  };
 }
 type Slot = { artifact: ArtifactRevision; formula: Formula; dirty: boolean };
 /** Drafts hold their exact formula revision while the rest of the page continues following. */

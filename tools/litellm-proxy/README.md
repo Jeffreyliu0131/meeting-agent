@@ -1,120 +1,67 @@
-# LiteLLM 代理 —— DeepSeek 理解 + OpenAI 转写
+# LiteLLM 本地开发代理
 
-这个目录不属于 `meeting-agent` 仓库，是独立的外部工具。
+本目录属于 `meeting-agent` 仓库，随 xuwenzhe 分支合入主线；它是可选开发工具，不包含在打包应用中。产品通过 `ModelPort` 连接供应商，不依赖本地 Python 代理。整合与验证范围见[交接](../../docs/sessions/2026-09-12-branch-integration.md)。
 
-## 为什么需要它
+## 当前配置与转写路线
 
-Meeting Agent 说 OpenAI 的线格式，两个端点：
+[config.yaml](config.yaml) 提供两个本地模型别名：
 
-**两个端点来自不同服务商**，因为它们的能力不重合：
-
-| 端点 | 服务商 | 原因 |
+| 别名 | 配置中的上游 | 应用路径 |
 |---|---|---|
-| `{base}/chat/completions` | **DeepSeek** | 便宜、国内好访问 |
-| `{base}/audio/transcriptions` | **OpenAI** | **DeepSeek 根本没有转写 API** |
+| `meeting-chat` | `deepseek/deepseek-chat` | Chat Completions 理解与生成 |
+| `meeting-transcribe` | `openai/gpt-4o-transcribe` | 显式选择后的 HTTP 文件转写 |
 
-LiteLLM 把两家包成同一个 OpenAI 形态的地址，顺带翻译各家不认的参数（`max_completion_tokens` → DeepSeek 的 `max_tokens` 等）。
+当前应用默认 `gpt-live-transcribe` 由可信后台直连 Realtime WebSocket；该路线不通过 `meeting-transcribe` 文件转写别名。模型可用性、响应格式和额度以实际账号调用为准；配置文件中的名称不是成功证据。
 
-> 注意：`deepseek-chat` **不要换成 `deepseek-reasoner`**。推理模型会把应用的 2500 token 输出预算花在思考上，表现为 `MODEL_OUTPUT_LIMIT`。
+## 随开发应用自动启动
 
-## 一、拿 key
-
-需要**两个** key：
-
-| 用途 | 地址 | 格式 |
-|---|---|---|
-| 理解模型 | https://platform.deepseek.com/api_keys | `sk-` 开头 |
-| 转写 | https://platform.openai.com/api-keys | `sk-` 开头 |
-
-## 二、填 key
-
-```powershell
-Copy-Item provider.env.example provider.env
-notepad provider.env        # 在 DEEPSEEK_API_KEY= 和 OPENAI_API_KEY= 后面粘贴
-```
-
-## 三、启动
-
-```powershell
-.\start.ps1
-```
-
-首次运行会自动 `pip install "litellm[proxy]"`。看到这行就成了：
-
-```
-LiteLLM listening on http://127.0.0.1:4000
-```
-
-**保持这个窗口开着。**
-
-## 四、验证
-
-另开一个终端：
-
-```powershell
-cd ..
-$env:PROBE_BASE="http://127.0.0.1:4000/v1"
-$env:PROBE_KEY="sk-1234"
-$env:PROBE_MODEL="meeting-chat"
-$env:PROBE_STT_MODEL="meeting-transcribe"
-node provider-probe.mjs
-```
-
-**六项全绿**才说明代理通了。（`max_completion_tokens` 和 `json_schema` 是两个服务商都不一定原生支持的，走 LiteLLM 会被翻译成各自认的形态。）
-
-## 五、接到应用上
-
-在 `meeting-agent/.env` 写：
+在本目录从 [provider.env.example](provider.env.example) 创建本地 `provider.env`，按启用的上游填写凭证；该文件被 Git 忽略。保留两个配置别名时分别准备对应凭证。理解走本地代理、Live 转写直连的应用根目录 `.env` 示例：
 
 ```dotenv
 OPENAI_API_KEY=sk-1234
 MEETING_API_BASE=http://127.0.0.1:4000/v1
 MEETING_MODEL=meeting-chat
-MEETING_STT_API_BASE=http://127.0.0.1:4000/v1
-MEETING_STT_MODEL=meeting-transcribe
 MEETING_RESPONSE_FORMAT=json_object
+MEETING_AUTOSTART_PROXY=1
+MEETING_STT_API_BASE=https://api.openai.com/v1
+MEETING_STT_MODEL=gpt-live-transcribe
+MEETING_STT_API_KEY=你的OpenAI凭证
 ```
 
-`http://` 能过是因为 `src/agent/provider.ts` 的 `endpoint()` 显式放行了
-`127.0.0.1` / `localhost` / `[::1]`，其他明文 HTTP 地址会被拒。
+`sk-1234` 是当前配置中的本地代理示例 key，不是上游凭证。使用代理 key 时必须单独设置 `MEETING_STT_API_KEY`，否则转写适配器会回退到 `OPENAI_API_KEY` 中的代理 key。
 
----
+从仓库根目录 `npm start`，桌面层只在非打包运行、`MEETING_AUTOSTART_PROXY=1`、理解地址为无用户名密码的 HTTP 回环地址时尝试启动。端口取自理解地址；工具目录默认 `tools/litellm-proxy`，可用 `MEETING_PROXY_DIR` 覆盖。
 
-## ⚠️ 坑
+[local-proxy.ts](../../src/desktop/local-proxy.ts) 先检查 `/health/readiness`，已有健康服务直接复用；否则优先目录内 `.venv`，再找 PATH 中的 LiteLLM，仍缺失时创建私有虚拟环境并安装 `litellm[proxy]`。首次准备需要 Python、包下载网络和安装时间；不会阻塞应用窗口启动，失败记录原因，应用继续显示实际供应商状态。
 
-### 1. 额度撑不住这个应用（最重要）
+Windows 在缺少 `windows-cas.pem` 时尝试导出本机证书库，作为 Python TLS 信任来源；未关闭证书校验。代理未在启动检查期内就绪时会停止本次启动的进程；退出应用也只停止自己启动的代理，不关闭原先已在运行的服务。当前没有进程意外退出后的自动重启循环。
 
-免费层大概 **10–15 请求/分钟**。而这个应用的设计是**持续理解会议**，默认
-`MEETING_MIN_BATCH_MS=1500`、预算 `MEETING_MAX_CALLS_PER_HOUR=2400` —— 真实讨论中
-调用频率会远超免费额度。
+## 手动脚本及平台差异
 
-**更麻烦的是和应用的隔离机制叠加**：`docs/agent-workflow-runtime.md` 写了，
-模型连续失败达到上限后会把**对应来源版本隔离**（quarantine），并且
-「自动处理不擅自抹掉失败历史」。也就是说 429 打进来之后，
-**来源会被标记成缺口，不是重试一下就恢复**，演示会静默降级。
+需要单独运行代理时，在本目录执行：
 
-> 建议：先用免费 key 跑通链路，**正式演示前开 billing**，或者把
-> `MEETING_MIN_BATCH_MS` 调大（比如 8000–15000）压低调用频率。
+```sh
+bash start.sh
+```
 
-### 2. 注意服务商的数据政策
+Windows PowerShell 对应：
 
-各家对免费／付费层的数据使用政策不同，**别拿敏感的真实会议内容试**。
+```powershell
+.\start.ps1
+```
 
-### 3. 模型名要对得上
+手动模式需保持终端运行。端口通过 `LITELLM_PORT` 指定，默认4000；它与应用自动启动从 `MEETING_API_BASE` 读取端口的方式不同。
 
-`config.yaml` 用的是 `deepseek/deepseek-chat` 与 `openai/gpt-4o-transcribe`。
-**以你账号实际可用的为准** —— 报错就查对应 provider 的 LiteLLM 文档。
+当前 [start.sh](start.sh) 优先本地 `.venv`／PATH，缺失时创建私有环境；[start.ps1](start.ps1) 查 PATH，缺失时调用当前 `pip install`，不会自动使用目录内 `.venv`。两种手动脚本都要求两个上游 key，且会打印 key 片段；不要将其输出当成已脱敏的公开验证日志。桌面自动启动路径会遮盖来自 `provider.env` 的配置值，不能据此假定手动脚本也有同样保护。
 
-### 4. 转写只取 `body.text`
+如明确选择旧 HTTP 文件转写，应用配置可改用 `MEETING_STT_MODEL=meeting-transcribe`、本地 `MEETING_STT_API_BASE` 和与代理配置一致的 `MEETING_STT_API_KEY`；这会改变转写路线，不是修复 Live 连接的自动降级。
 
-本项目只需要 `body.text`。若你改用不返回词级时间戳的转写后端，
-调 `response_format=verbose_json/srt/vtt` 会 400。
+## 验证与容量
 
-### 5. 用量统计会变成「未知」
+仓库没有旧说明引用的 `provider-probe.mjs`。代理健康检查只证明本地服务就绪，不证明上游 key、模型、实时音频或语义质量通过。现有[代理单元测试](../../tests/unit/local-proxy.test.ts)覆盖开启条件、回环边界和取消，不安装依赖、不调用真实供应商。
 
-应用读 `usage.type === 'tokens'` 来记账，LiteLLM 不统一返回这个形状，
-于是降级为「用量未知」并**保守预留**额度。功能不受影响，只是小时预算算不准。
+需要真实模型评估时使用仓库的 `npm run test:model` 或统一评测的 `--model` 阶段；这些命令会发起真实调用，不能当作离线健康检查。完整运行方式见[仓库 README](../../README.md)与[Event 评测](../../docs/event-evaluation.md)。
 
-### 6. 多了一个进程
+当前理解默认合并250ms，允许配置100–10,000ms；旧说明的15,000ms超过代码上限，会返回 `INVALID_AGENT_CONFIG`。每场会议／集合的小时调用预算与供应商账户额度不同，不在此假定免费层固定限流或调用价格。连续失败耗尽任务预算会保留可见输入缺口，新的来源版本可重新处理，详见[恢复规则](../../docs/agent-workflow-runtime.md)。
 
-演示时 LiteLLM 必须一起起。这是这条路唯一的额外依赖。
+模型请求使用流式 Chat Completions、`max_completion_tokens` 及 `response_format`；当前配置启用 `drop_params`，实际兼容性仍须实调。只切换 `json_object` 不保证端点接受所有流式参数。理解用量读取 `usage.prompt_tokens`／`completion_tokens`；缺失时标未知并保守预留，不能声称只是显示变化、不会影响预算。文件转写与 Live 转写分别记账，不沿用旧 HTTP 返回体解释所有用量。

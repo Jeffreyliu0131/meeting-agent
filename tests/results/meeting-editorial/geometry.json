@@ -1,0 +1,27 @@
+{
+  "viewport": {
+    "width": 1488,
+    "height": 1056
+  },
+  "sourcePanel": {
+    "x": 1116,
+    "y": 64,
+    "width": 372,
+    "height": 992
+  },
+  "before": {
+    "x": 48,
+    "y": 116.796875,
+    "width": 1020,
+    "height": 1388.109375
+  },
+  "after": {
+    "x": 48,
+    "y": -510.703125,
+    "width": 1020,
+    "height": 1518.703125
+  },
+  "errors": [],
+  "synthetic": true,
+  "audio": false
+}

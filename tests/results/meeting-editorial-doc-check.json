@@ -1,0 +1,11 @@
+{
+  "ownScope": "passed: no meeting-editorial entry or link errors",
+  "earlierGlobalCheck": "passed: 99 markdown files / 25 sessions",
+  "finalGlobalCheck": "failed due to concurrently edited home prototypes",
+  "errors": [
+    "docs/design/prototypes/home-v3/README.md: missing target: index.html",
+    "documentation not reachable from entry: docs/design/prototypes/home-v1/README.md",
+    "documentation not reachable from entry: docs/design/prototypes/home-v1/design-qa.md"
+  ],
+  "unrelatedFilesModifiedByThisTask": false
+}

@@ -65,6 +65,7 @@ import type { CollectionReportRevision, UsageTotals } from '../contracts/model';
 
 /** The parts of a meeting or a collection that the shared call ledger touches. */
 type LedgerOwner = {
+  id: string;
   calls?: CallRecord[];
   usageTotals?: UsageTotals;
   metrics?: Meeting['metrics'];
@@ -98,6 +99,7 @@ export class SessionService {
   private closed = false;
   private collaborationRuntimes = new Map<string, CollaborationRuntime>();
   private liveTranscripts = new Map<string, NonNullable<Snapshot['liveTranscripts']>[number]>();
+  private liveDrafts = new Map<string, NonNullable<Snapshot['liveDrafts']>[number]>();
   private dirty = new Set<string>();
   private timers = new Map<string, ReturnType<typeof setTimeout>>();
   private collaborationDeadlineTimer = setInterval(
@@ -228,6 +230,7 @@ export class SessionService {
     return structuredClone({
       meetings: this.meetings,
       liveTranscripts: [...this.liveTranscripts.values()],
+      liveDrafts: [...this.liveDrafts.values()],
       collections: this.collections,
       preferences: this.preferences,
       storageError: this.storageError,
@@ -742,7 +745,7 @@ export class SessionService {
       setTimeout(() => {
         this.timers.delete(id);
         void this.process(id);
-      }, this.config.minBatchMs ?? 500),
+      }, this.config.minBatchMs ?? 250),
     );
   }
   /** Record every attempted provider call, including failures and stale results. */
@@ -838,6 +841,22 @@ export class SessionService {
       release = await this.pool.acquire(kind, controller.signal);
       const value = await run({
         signal: controller.signal,
+        onDraft: (text) => {
+          if (
+            this.closed ||
+            controller.signal.aborted ||
+            requestId ||
+            (kind !== 'understand' && kind !== 'generate')
+          )
+            return;
+          this.liveDrafts.set(record.id, {
+            meetingId: owner.id,
+            callId: record.id,
+            kind,
+            text: text.slice(0, 240),
+          });
+          this.changed();
+        },
         onUsage: (input, output) => {
           usage = { input, output };
         },
@@ -849,6 +868,7 @@ export class SessionService {
         e instanceof Error && /^[A-Z0-9_]+$/.test(e.message) ? e.message : 'PROVIDER_UNAVAILABLE';
       throw e;
     } finally {
+      this.liveDrafts.delete(record.id);
       release?.();
       externalSignal?.removeEventListener('abort', abort);
       if (requestId) this.requestControllers.delete(requestId);
@@ -1626,6 +1646,7 @@ export class SessionService {
                     let reported = false;
                     const result = await this.model.generate!(context, job.plan!, repair, {
                       ...options,
+                      onDraft: job.scope === 'meeting' ? options.onDraft : undefined,
                       onUsage: (i, o) => {
                         reported = true;
                         options.onUsage?.(i, o);
@@ -1719,7 +1740,7 @@ export class SessionService {
                       sources: a.sources,
                     },
                     JSON.stringify({ renderReport: report, previous: before }),
-                    options,
+                    { ...options, onDraft: job.scope === 'meeting' ? options.onDraft : undefined },
                   ),
                 );
                 a = validateArtifact(

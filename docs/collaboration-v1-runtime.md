@@ -1,6 +1,6 @@
 # 协作组件：首版实际运行时
 
-日期：2026-09-12，`be0b244`之后的本轮工作树，代码已提交并创建[PR #3](https://github.com/Jeffreyliu0131/meeting-agent/pull/3)，未打包替换日常应用。本文说明实际实现；[设计](collaboration-v1-design.md)保留完整目标，[验证](../tests/results/collaboration-v1-validation.md)说明证据范围。
+当前核心已随 [PR #3](https://github.com/Jeffreyliu0131/meeting-agent/pull/3) 合入 `5878c20`，私有意图与集合在 `55267d6` 继续整合；双端包有对应交付记录。本文说明源码行为；[设计](collaboration-v1-design.md)保留完整目标，原[62项矩阵](../tests/results/collaboration-v1-validation.md)、后续[修复](../tests/results/pr3-fix-validation.md)／[整合验证](../tests/results/branch-integration-validation.md)分别说明版本范围。当前包与安装状态以[状态页](status.md)为准。
 
 ## 使用路径
 
@@ -63,13 +63,13 @@ SQLite同一事务保存会议变更和`collaboration_*`表：meta、participant
 
 首版核心闭环可本地模拟；以下仍是目标，不能把测试替身视为它们已经验收：
 
-- 本轮没有运行60段真实模型意图评估，也没有真实多人音频或macOS新版本测试。STT保持原配置，不启动真实麦克风。
+- [60条多轮评测语料](event-evaluation.md)已建立，真实模型意图质量和真实多人音频仍未验收；整合阶段已有 Mac 包检查，Windows 真机仍待验。默认 STT 已是 GPT Live Transcribe；旧阶段未改配置的记录不代表当前还使用文件转写。
 - 协作新增表单目前以中文为主；完整双语、屏幕阅读器与窄窗细节仍需补验，现有主界面语言功能继续保留。
-- 手工锁以字段／数组为单位保留；尚无逐项tombstone和旁置可合并diff。冲突方案生成草稿供预览，尚无专用逐字段差异视图。
-- 意图最多4条，按候选顺序排队；尚无批内显式dependsOnLocalIds拓扑关系，也没有完整同义建议忽略策略。
+- 正式组件手工锁以字段／数组为单位保留，尚无逐项 tombstone 和专用可合并 diff；私有意图已经有条目删除保护、字段锁和旁置建议，不能把前者缺口扩大到两条路径。转交保留内容，不自动把私有编辑保护变成正式组件的同等编辑能力。
+- 正式 `collaborationIntents` 最多4条、按候选顺序排队，尚无批内显式拓扑；私有 `intentPreparation` 已校验 `dependsOnLocalIds`、后向引用并保留忽略策略。两条路径都不能仅凭程序规则保证任意同义表达定位准确。
 - 每根事件第9个及后续任务保留为带`ROOT_JOB_LIMIT`的失败记录；尚无后台自动续跑入口。R读集采用保守会议范围，目标中的完全定向最小读集尚待完善。
 - 前沿等待已持久化，当前由同窗口重试继续；尚无独立等待列表／取消前沿UI或“承认输入缺口仍发放”通道。记录决定时若会议存在inputGaps，明确返回INPUT_GAP_UNRESOLVED；由于当前缺口没有可证明的逐组件归属及补全状态，采用会议范围保守阻塞，其他查看／投票／发放不受此门槛影响。没有自动删除缺口或人工跳过门槛，真实缺口补全仍是后续能力。
-- 协作决定单独保存并进入协作列表和M上下文；原有产物型`Meeting.decisions`与会后导出格式尚未统一，不伪造Artifact来塞入旧表。
+- 协作决定单独保存并进入协作列表、M上下文与用户选择的跨会议汇总；完整 Meeting JSON 导出包含 `collaboration.decisions`，没有伪造 Artifact 塞入旧 `Meeting.decisions`。两类决定尚无统一展示／导出摘要，跨会议报告也没有独立导出入口。
 - 确定性R可独立运行；语义R失败时保留分析欠账，不宣称冲突已排除。模型推测冲突没有一键裁决为事实的入口。
 
 这些差距在[62项验证矩阵](../tests/results/collaboration-v1-validation.md)中标为部分覆盖或未验证。当前不会自动调用外部系统发消息、执行任务或推送代码。

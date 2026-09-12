@@ -1,6 +1,6 @@
-# 四类协作意图：首轮实际实现
+# 四类协作意图：私有准备与显式转交
 
-2026-09-12，FTY 基线2661764后的本地实现。范围为识别、校验与发起者私有草稿；不等于完整多人协作组件上线。实施记录见[本轮交接](sessions/2026-09-12-four-intents.md)，证据见[验证记录](../tests/results/four-intents-validation.md)。
+私有准备源自 FTY，已随 `55267d6` 基线合入主线，并与 PR #3 正式协作衔接。本文说明当前私有草稿及转交边界；原分支[交接](sessions/2026-09-12-four-intents.md)／[验证](../tests/results/four-intents-validation.md)保留阶段范围，整合后的验证见[分支整合](../tests/results/branch-integration-validation.md)。当前仍是本地模拟，不等于跨设备协作上线。
 
 ## 使用与内容
 
@@ -23,7 +23,7 @@
 
 理解与意图共用现有一次模型调用、补证据和最多两次实时调用预算。证据请求不得携带意图写入。源字段必须引用当前、非个人、非partial的会议来源；分工owner/time必须逐字出现在引用原话，否则拒绝。新对象引用随原有resolveNewRefs映射成服务ID。内容种类、条目key唯一性、投票选项规范化重复、有向批内依赖、版本和跨会议引用均校验。
 
-完整流程：contextPayload投影活动协作状态 → provider输出结构化候选 → runWorkflow校验／补证据 → SessionService核对读集和fence → 原有事务同时保存语义、草稿、任务成功结果。草稿没有另起模型图，当前content由同次理解输出；后续复杂组件组装可从该边界拆分C工作流。
+完整流程：contextPayload投影活动协作状态 → provider输出结构化候选 → runWorkflow校验／补证据 → SessionService核对读集和fence → 原有事务同时保存语义、草稿、任务成功结果。私有草稿不另起模型图，content由同次理解输出；正式组件已有独立 C／R 工作流，显式转交由可信领域函数完成，不再为同一草稿重复生成一轮。
 
 副作用意图publish/respond/close/cancel/apply_resolution/record_decision保存为独立待检查建议，不修改目标草稿或公开状态。建议性update也独立保存，不改原collector；合并手工字段后再次检查投票选项重名。否定、引用、假设、no_action、unsupported不建草稿。目标不明保存needs_clarification；选择准确目标版本后保存为suggestion，**首轮不会自动执行该候选的后续操作**。
 
@@ -37,14 +37,14 @@
 
 模型条目key稳定时，删除tombstone阻止条目复活；手工字段锁保留原值。程序没有声称能够识别换key后的任意同义条目，仍需语义评估。去重由根job事件及family／议题／对象集合／目的组成；无对象锚点时保留来源差异。忽略的同目的建议在相关对象版本未变时不重新唤起；语义同义定位的准确性不是确定性保证。
 
-“停止收集并预览”在已接收final仍待理解或意图coverage不完整时拒绝并提示，用户可等待后重试。成功时保存freezeRefs并阻止后续模型改写该草稿；**首轮没有持久waiting发布命令或后台排空前沿任务**。未转写音频不在冻结来源内。没有正式发布／ready授权逻辑。
+“停止收集并预览”在已接收final仍待理解或意图coverage不完整时拒绝并提示，用户可等待后重试。成功时保存freezeRefs并阻止后续模型改写该草稿；**首轮没有持久waiting发布命令或后台排空前沿任务**。未转写音频不在冻结来源内。此私有冻结命令不建立正式发布权限；后续 `collaborationPromote` 转为正式组件，再由正式协作的 ready、来源前沿和受众门槛控制发放。两条路径的等待／重试机制不能混为一谈。
 
 Segment新增可选finality，旧记录视为final；partial可读但不进入会议模型投影及pending输入。correct可保存新final版本。来源／对象修订标记草稿needsReview，首轮保守保留该标记，不提供一键绕过核对。
 
 草稿、版本历史、手工锁、删除项、来源与未处理范围保存在Meeting.intentPreparation，复用state schema_version=1的单事务保存和工作流恢复，不新增多人数据库表。大量历史仍随聚合保存；有界上下文省略草稿history和processedEvents，但草稿过多仍可能明确触发上下文容量错误，尚无协作目录分页检索。
 
-## 尚未实施与验收边界
+## 实现范围与剩余验收
 
 原FTY阶段只覆盖私有草稿。本次整合通过显式转交复用PR #3的本地名册、独立窗口、发布轮次、计数、本人回应、披露与确认门槛。FTY状态移至Meeting.intentPreparation，与Meeting.collaboration的正式轮次分开；启用私有自动准备后同次理解不再重复创建另一套自动组件。跨设备、真实身份和完整语义评估仍待验。
 
-真实模型与真实音频未调用；合成程序测试不证明语义准确率。后续按用户提供验收设计建立冻结的至少60条多轮标注集，评估family／operation、目标定位、字段来源、误纳率和调用成本。分类F1等门槛尚无实测结果，自动准备标实验性。macOS实机、本轮以外桌面回归和参与者窄窗未验。
+原 FTY 阶段未调用真实模型或音频；后续[Event 评测](event-evaluation.md)已建立60条多轮语料与指标，尚无真实模型分类F1、目标定位、字段来源、误纳率和成本的通过结果。自动准备仍属实验性。整合任务已有 Electron 与 Mac 包验证，不能继续笼统写 macOS 未测；Windows 真机、真实多人语义及正式组件的完整双语／窄窗仍按[运行时差距](collaboration-v1-runtime.md)保留。

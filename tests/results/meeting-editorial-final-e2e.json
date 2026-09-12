@@ -1,0 +1,1043 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/bin/node",
+      "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/node_modules/.bin/playwright",
+      "test"
+    ],
+    "configFile": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/playwright.config.ts",
+    "rootDir": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/results/meeting-editorial-final-run",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "tests/results/meeting-editorial-final-e2e.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "desktop.spec.ts",
+      "file": "desktop.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "real Electron: event, manual original source, honest missing model, correction, UI locale, end and restore",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3958,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:09:29.018Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "12cc77c408bab7a1d6ba-852c5db38d773f159ef2",
+          "file": "desktop.spec.ts",
+          "line": 55,
+          "column": 1
+        },
+        {
+          "title": "native launcher opens one workspace; hiding does not stop the event; hover uses real windows",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1181,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:09:32.993Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "12cc77c408bab7a1d6ba-b44b1fe0e65c900f22e7",
+          "file": "desktop.spec.ts",
+          "line": 145,
+          "column": 1
+        },
+        {
+          "title": "UI cannot impersonate audio adapter; no frame gets filesystem or arbitrary IPC; responsive shell",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 819,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:09:34.184Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "12cc77c408bab7a1d6ba-261945b2f16c93c9628d",
+          "file": "desktop.spec.ts",
+          "line": 194,
+          "column": 1
+        },
+        {
+          "title": "meeting library filters, search recovery and settings keyboard loop",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1062,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:09:35.019Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "12cc77c408bab7a1d6ba-2bfa264fc2788b1cb117",
+          "file": "desktop.spec.ts",
+          "line": 233,
+          "column": 1
+        },
+        {
+          "title": "launcher uses transparent chrome and distinct synthetic capture indicators with truthful labels",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 915,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:09:36.097Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "12cc77c408bab7a1d6ba-7d4af50b8c20f27643d0",
+          "file": "desktop.spec.ts",
+          "line": 297,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "editorial.spec.ts",
+      "file": "editorial.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "editorial: stable split, exact numbered sources, preserved reading and contextual feedback draft",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3562,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:09:37.038Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ec079a02c0facf936b0d-2d4540ea4b71302f31b8",
+          "file": "editorial.spec.ts",
+          "line": 171,
+          "column": 1
+        },
+        {
+          "title": "editorial: narrow overlay, focus, correction draft, readable zoom and English shell",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1709,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:09:40.609Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ec079a02c0facf936b0d-7ff9d75b89d50df4b0b8",
+          "file": "editorial.spec.ts",
+          "line": 228,
+          "column": 1
+        },
+        {
+          "title": "editorial: long transcript preserves scroll and corrected source keeps its number and old revision",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4803,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:09:42.327Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ec079a02c0facf936b0d-42cf829d0a214516b9cb",
+          "file": "editorial.spec.ts",
+          "line": 289,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "interface-settings.spec.ts",
+      "file": "interface-settings.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "settings save immediately, preserve independent changes and persist across restart",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1583,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:09:47.151Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2d3ac434f6df31f0de3b-9e2995b6a7a9716c298e",
+          "file": "interface-settings.spec.ts",
+          "line": 54,
+          "column": 1
+        },
+        {
+          "title": "failed immediate settings roll back honestly and can be retried",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 916,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:09:48.743Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2d3ac434f6df31f0de3b-aa1d87373c921c910e54",
+          "file": "interface-settings.spec.ts",
+          "line": 87,
+          "column": 1
+        },
+        {
+          "title": "native preferred system language drives startup; chrome does not select and modal skips collapsed controls",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1003,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:09:49.669Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2d3ac434f6df31f0de3b-f0df1c9f0f28411f5787",
+          "file": "interface-settings.spec.ts",
+          "line": 111,
+          "column": 1
+        },
+        {
+          "title": "launcher and display switches apply immediately without Done; rapid changes survive reopening",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1395,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:09:50.682Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2d3ac434f6df31f0de3b-a85630d7317475fc1d46",
+          "file": "interface-settings.spec.ts",
+          "line": 152,
+          "column": 1
+        },
+        {
+          "title": "failed launcher save reverts its checkbox and native window; retry applies the intent",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 859,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:09:52.082Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2d3ac434f6df31f0de3b-cdd7e88cb023552798f1",
+          "file": "interface-settings.spec.ts",
+          "line": 190,
+          "column": 1
+        },
+        {
+          "title": "shortcut auto-save rolls back native registration when persistence fails",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3332,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:09:52.945Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2d3ac434f6df31f0de3b-f26f8e550b73efe5c477",
+          "file": "interface-settings.spec.ts",
+          "line": 220,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "meeting-reminder.spec.ts",
+      "file": "meeting-reminder.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "bilingual bubble anchors beside launcher, does not steal focus, closes without recording and stays deduplicated",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 10614,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected substring: \u001b[32m\"role=workspace\"\u001b[39m\nReceived string:    \u001b[31m\"file:///Users/jeff/Library/Mobile%20Documents/com~apple~CloudDocs/%E9%BB%91%E5%AE%A2%E6%9D%BE/meeting-agent/dist/ui/index.html?role=launcher\"\u001b[39m\n\nCall Log:\n- Timeout 10000ms exceeded while waiting on the predicate",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected substring: \u001b[32m\"role=workspace\"\u001b[39m\nReceived string:    \u001b[31m\"file:///Users/jeff/Library/Mobile%20Documents/com~apple~CloudDocs/%E9%BB%91%E5%AE%A2%E6%9D%BE/meeting-agent/dist/ui/index.html?role=launcher\"\u001b[39m\n\nCall Log:\n- Timeout 10000ms exceeded while waiting on the predicate\n    at /Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/meeting-reminder.spec.ts:148:6",
+                    "location": {
+                      "file": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/meeting-reminder.spec.ts",
+                      "column": 6,
+                      "line": 148
+                    },
+                    "snippet": "  146 |       app.evaluate(({ BrowserWindow }) => BrowserWindow.getFocusedWindow()?.webContents.getURL()),\n  147 |     )\n> 148 |     .toContain('role=workspace');\n      |      ^\n  149 |   await signal();\n  150 |   await expect(bubble.getByText('You might be in a meeting')).toBeVisible();\n  151 |   await expect(bubble.getByText('Click to start recording')).toBeVisible();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/meeting-reminder.spec.ts",
+                        "column": 6,
+                        "line": 148
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected substring: \u001b[32m\"role=workspace\"\u001b[39m\nReceived string:    \u001b[31m\"file:///Users/jeff/Library/Mobile%20Documents/com~apple~CloudDocs/%E9%BB%91%E5%AE%A2%E6%9D%BE/meeting-agent/dist/ui/index.html?role=launcher\"\u001b[39m\n\nCall Log:\n- Timeout 10000ms exceeded while waiting on the predicate\n\n  146 |       app.evaluate(({ BrowserWindow }) => BrowserWindow.getFocusedWindow()?.webContents.getURL()),\n  147 |     )\n> 148 |     .toContain('role=workspace');\n      |      ^\n  149 |   await signal();\n  150 |   await expect(bubble.getByText('You might be in a meeting')).toBeVisible();\n  151 |   await expect(bubble.getByText('Click to start recording')).toBeVisible();\n    at /Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/meeting-reminder.spec.ts:148:6"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:09:56.294Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/results/meeting-editorial-final-run/meeting-reminder-bilingual-0beb7-ding-and-stays-deduplicated/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/meeting-reminder.spec.ts",
+                    "column": 6,
+                    "line": 148
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "57cb23554f58d9683d9f-51be87a077ee2eccf604",
+          "file": "meeting-reminder.spec.ts",
+          "line": 135,
+          "column": 1
+        },
+        {
+          "title": "bubble hover holds beyond eight seconds; moving away expires and stale click cannot start",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 9139,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at /Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/meeting-reminder.spec.ts:199:37",
+                    "location": {
+                      "file": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/meeting-reminder.spec.ts",
+                      "column": 37,
+                      "line": 199
+                    },
+                    "snippet": "  197 |   await bubble.getByRole('button', { name: /Click to start recording/ }).hover();\n  198 |   await page.waitForTimeout(8300);\n> 199 |   expect(await visible('reminder')).toBe(true);\n      |                                     ^\n  200 |   // CDP pointer movement outside an Electron window does not reliably emit native leave.\n  201 |   // Dispatch the leave through the rendered component; the real hover above and timer remain exercised.\n  202 |   await bubble.locator('.meeting-reminder').dispatchEvent('mouseout', { relatedTarget: null });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/meeting-reminder.spec.ts",
+                        "column": 37,
+                        "line": 199
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n  197 |   await bubble.getByRole('button', { name: /Click to start recording/ }).hover();\n  198 |   await page.waitForTimeout(8300);\n> 199 |   expect(await visible('reminder')).toBe(true);\n      |                                     ^\n  200 |   // CDP pointer movement outside an Electron window does not reliably emit native leave.\n  201 |   // Dispatch the leave through the rendered component; the real hover above and timer remain exercised.\n  202 |   await bubble.locator('.meeting-reminder').dispatchEvent('mouseout', { relatedTarget: null });\n    at /Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/meeting-reminder.spec.ts:199:37"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:10:07.294Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/results/meeting-editorial-final-run/meeting-reminder-bubble-ho-e4b1f-nd-stale-click-cannot-start/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/meeting-reminder.spec.ts",
+                    "column": 37,
+                    "line": 199
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "57cb23554f58d9683d9f-06adc38da27fc20308bc",
+          "file": "meeting-reminder.spec.ts",
+          "line": 195,
+          "column": 1
+        },
+        {
+          "title": "click starts one synthetic recording quietly; hide launcher and disable reminders preserve capture; preferences persist",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4057,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:10:16.692Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "57cb23554f58d9683d9f-9534a2ba4afe28e8277c",
+          "file": "meeting-reminder.spec.ts",
+          "line": 210,
+          "column": 1
+        },
+        {
+          "title": "hidden launcher routes to native adapter: close/failure/expiry are inert; click records once without workspace",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1037,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:10:20.764Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "57cb23554f58d9683d9f-215b083107554c95dbfd",
+          "file": "meeting-reminder.spec.ts",
+          "line": 236,
+          "column": 1
+        },
+        {
+          "title": "setup exception is explicit; reminder renderer has least privilege; production IPC cannot inject detections",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1545,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:10:21.807Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "57cb23554f58d9683d9f-b0dfdc2fbd7aeb28778c",
+          "file": "meeting-reminder.spec.ts",
+          "line": 265,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "provider-contract.spec.ts",
+      "file": "provider-contract.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "provider transport, isolated preflight, generated structure, source binding, updates and personal calculator",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5233,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:10:23.371Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b4ff7288536825db7c99-839722744e0a84cc9782",
+          "file": "provider-contract.spec.ts",
+          "line": 248,
+          "column": 1
+        },
+        {
+          "title": "synthetic oscillator keeps capturing through a slow STT response and stops cleanly",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 19837,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:10:28.610Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b4ff7288536825db7c99-f52e5a7746be2924e681",
+          "file": "provider-contract.spec.ts",
+          "line": 383,
+          "column": 1
+        },
+        {
+          "title": "text, timeline, chart, SVG and passive HTML render without a privileged bridge",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3416,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:10:48.455Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b4ff7288536825db7c99-88f9d48a98110438bd27",
+          "file": "provider-contract.spec.ts",
+          "line": 464,
+          "column": 1
+        },
+        {
+          "title": "normal meeting entry saves setup once, starts audio in one intent and reveals exploration only after content",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8476,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:10:51.880Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b4ff7288536825db7c99-8790ce3b12b3d5463b0e",
+          "file": "provider-contract.spec.ts",
+          "line": 504,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "reliability.spec.ts",
+      "file": "reliability.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "conditional meeting record survives personal exploration, end, sources and restart",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7367,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:11:00.382Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "44c5b85f3c6d687177b0-208712056e4e8ad53adc",
+          "file": "reliability.spec.ts",
+          "line": 8,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "workflow.spec.ts",
+      "file": "workflow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "workflow: object-bound exploration, live progress, cancellation and persistent clarification",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2955,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:11:07.778Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c601ceb5ecfc8efa4a14-2ed8b3bc6ac0b6cec845",
+          "file": "workflow.spec.ts",
+          "line": 8,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-12T05:09:28.651Z",
+    "duration": 102143.571,
+    "expected": 23,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

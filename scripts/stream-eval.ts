@@ -17,7 +17,7 @@ const service = new SessionService(
     close: () => {},
   },
   {
-    interpret: async (m) => {
+    interpret: async (m, _repair, options) => {
       modelCalls++;
       await sleep(12);
       const s = m.segments.at(-1)!,
@@ -52,6 +52,7 @@ const service = new SessionService(
           ],
         },
       };
+      options?.onUsage?.(100, 50);
       return { proposal, inputTokens: 100, outputTokens: 50 };
     },
   },
@@ -115,6 +116,11 @@ try {
     elapsedMs: Date.now() - started,
     modelCalls,
     maxPending,
+    usageTotals: m.usageTotals,
+    unknownUsageCalls: (m.calls ?? []).filter(
+      (c) => c.inputTokens === null || c.outputTokens === null,
+    ).length,
+    inputRetained: m.segments.length,
     processed: Object.keys(m.processedSources ?? {}).length,
     understoodVersion: m.understoodVersion,
     latestArtifactVersion: m.artifacts.at(-1)?.inputVersion,
@@ -126,7 +132,10 @@ try {
       m.understoodVersion === 360 &&
       m.artifacts.at(-1)?.inputVersion === 360 &&
       understandingBeforeFirstPreview &&
-      !m.error,
+      !m.error &&
+      (m.calls ?? []).every((c) => c.inputTokens !== null && c.outputTokens !== null) &&
+      m.segments.length === 360 &&
+      modelCalls > 0,
   };
   mkdirSync('tests/results', { recursive: true });
   writeFileSync('tests/results/stream-evaluation.json', JSON.stringify(result, null, 2) + '\n');

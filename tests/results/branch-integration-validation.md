@@ -22,3 +22,6 @@ FTY私有草稿移到Meeting.intentPreparation，旧库兼容；显式转为正�
 ## 边界
 
 本地组合包含未提交的会中精修／试算成果，未将这些源码归入本次远端整合提交；首页预览仍未进入正式应用，Event评测任务由其原记录维护。Windows真机、真实语音／模型、长会议质量及跨设备协作未验。日常包回写和最终远端main以session收尾为准。
+
+
+最终main为55267d6，本地与远端一致，开放PR为空。[日常包](branch-integration-daily-packages.json)已核验；[源码快照](branch-integration-source.json)保留本轮范围。同步期间新出现的实时可视化工作未纳入该快照、包或远端提交，当前工作树的这些后续变更由原任务继续验收。详见session收尾。

@@ -1,0 +1,289 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-09-12 14:19 +08",
+  "head": "5878c204b0c3b0369a6236681e79306bb6919772",
+  "remoteMainVerifiedSame": true,
+  "latestPullRequests": [
+    {
+      "number": 1,
+      "merged": true,
+      "combinedStatusesReturned": 0,
+      "prWorkflowRunsReturned": 0
+    },
+    {
+      "number": 2,
+      "merged": true,
+      "combinedStatusesReturned": 0,
+      "prWorkflowRunsReturned": 0
+    },
+    {
+      "number": 3,
+      "merged": true,
+      "combinedStatusesReturned": 0,
+      "prWorkflowRunsReturned": 0
+    }
+  ],
+  "scope": "Current local product changes included; this is not a clean remote-main checkout. No runtime product source edited in this task.",
+  "deliverables": {
+    "eventFamilies": 24,
+    "multiTurnSyntheticCases": 60,
+    "chineseCases": 40,
+    "englishCases": 10,
+    "mixedCases": 10,
+    "metrics": 30,
+    "mappedRequirements": 135,
+    "semanticPasses": 0,
+    "realModelCalls": 0
+  },
+  "programVerification": {
+    "status": "passed_in_stages",
+    "singleCleanFullRun": false,
+    "fullRunId": "2026-09-12T06-14-42-992Z",
+    "fullRunOriginalStatus": "failed",
+    "fullRunOriginalFailures": [
+      "unit",
+      "source-stability"
+    ],
+    "postFixUnitCounts": {
+      "tests": 152,
+      "pass": 152,
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "todo": 0
+    },
+    "postFixUnitLogSha256": "c3f8755757da9bd7a740c0121d7d3011470e95495fcf9ab2a10968bc4bd36795",
+    "postFixChangedFiles": [
+      {
+        "path": "tests/unit/live-transcription.test.ts",
+        "before": "13bdfc0f8c6644d01469bc69d644f28f2dddec274e2dc06621194d2f30b3e5ae",
+        "after": "fa7c884c4c32d75e2e45068533fc7fb6cccc81498f62689f74d8f086ac736954"
+      }
+    ],
+    "scorerTests": 9,
+    "electron": {
+      "startTime": "2026-09-12T06:15:23.771Z",
+      "duration": 128829.991,
+      "expected": 31,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "typecheck": "passed after timing fix",
+    "format": "passed",
+    "documentation": {
+      "passed": true,
+      "markdownFiles": 122,
+      "sessionRecords": 33
+    },
+    "sourceDiffCheck": "passed",
+    "productionFilesUnchangedSinceElectronAndPackageRun": true,
+    "productionFileCount": 86,
+    "productionManifestSha256": "7f952f6d498b512de9f4bce2a04f4e7722bb39c2a0312238f37a55cd381e949f"
+  },
+  "provenance": {
+    "fullSnapshotSha256": "9ff8178482df59741943ecaee71bdff4173f6e6f935608a547dab3d6fe7738aa",
+    "corpusSha256": "a5a3aa8a7864fb5026d511f3db9081e1cefdd64c072da505ac57be6098c58c8c",
+    "os": "darwin",
+    "arch": "arm64",
+    "node": "v22.14.0",
+    "rawEvidenceLocalDirectory": ".cache/evals/2026-09-12T06-14-42-992Z"
+  },
+  "packages": {
+    "status": "passed",
+    "sameArchive": true,
+    "sourceMatched": true,
+    "hashes": {
+      "mac": "45a78fe133034d9df98ccea0fc05584ef431ca8cb0b9503abb8de9e6aab48da9",
+      "windows": "45a78fe133034d9df98ccea0fc05584ef431ca8cb0b9503abb8de9e6aab48da9"
+    },
+    "files": [
+      {
+        "name": "dist/main.cjs",
+        "expected": "b5c41c185f9dbd4d9753ae67d10737ab7572021ec6e6a677b9cb9bcfb04b1d12",
+        "mac": "b5c41c185f9dbd4d9753ae67d10737ab7572021ec6e6a677b9cb9bcfb04b1d12",
+        "windows": "b5c41c185f9dbd4d9753ae67d10737ab7572021ec6e6a677b9cb9bcfb04b1d12"
+      },
+      {
+        "name": "dist/main.cjs.map",
+        "expected": "2cd56e4bba3eeed1f3bf2935e326cce0a79a40aa9a5b404bbb06ffa10273c87c",
+        "mac": "2cd56e4bba3eeed1f3bf2935e326cce0a79a40aa9a5b404bbb06ffa10273c87c",
+        "windows": "2cd56e4bba3eeed1f3bf2935e326cce0a79a40aa9a5b404bbb06ffa10273c87c"
+      },
+      {
+        "name": "dist/preload.cjs",
+        "expected": "72e96d4193cd8d02dcfc29b0dd57bbe6724fc060fa723e3e8bbc7956fe55a224",
+        "mac": "72e96d4193cd8d02dcfc29b0dd57bbe6724fc060fa723e3e8bbc7956fe55a224",
+        "windows": "72e96d4193cd8d02dcfc29b0dd57bbe6724fc060fa723e3e8bbc7956fe55a224"
+      },
+      {
+        "name": "dist/preload.cjs.map",
+        "expected": "0eb3dab73f53cddd61c1bd751b3e223d3c50efdbcd9e0cc652b2c4c3003a0437",
+        "mac": "0eb3dab73f53cddd61c1bd751b3e223d3c50efdbcd9e0cc652b2c4c3003a0437",
+        "windows": "0eb3dab73f53cddd61c1bd751b3e223d3c50efdbcd9e0cc652b2c4c3003a0437"
+      },
+      {
+        "name": "dist/ui/assets/capture-CtBbZetc.js",
+        "expected": "01b7a2da7d3b10f5abcf5a095f02a444a866ccf01b8ffd1775942e73d861c480",
+        "mac": "01b7a2da7d3b10f5abcf5a095f02a444a866ccf01b8ffd1775942e73d861c480",
+        "windows": "01b7a2da7d3b10f5abcf5a095f02a444a866ccf01b8ffd1775942e73d861c480"
+      },
+      {
+        "name": "dist/ui/assets/launcher-dialogue-v1-B9Qjn0Ww.png",
+        "expected": "a0b3044a869f9a236d519f5df9221c0b6b459bf2ba0f3f43d4e07a6bbebff10f",
+        "mac": "a0b3044a869f9a236d519f5df9221c0b6b459bf2ba0f3f43d4e07a6bbebff10f",
+        "windows": "a0b3044a869f9a236d519f5df9221c0b6b459bf2ba0f3f43d4e07a6bbebff10f"
+      },
+      {
+        "name": "dist/ui/assets/main-Dg-kbbjr.css",
+        "expected": "418c19cebaf4aa2a68adb60673d7f9ce9f7d36914df824fc0f48005ef64f15e4",
+        "mac": "418c19cebaf4aa2a68adb60673d7f9ce9f7d36914df824fc0f48005ef64f15e4",
+        "windows": "418c19cebaf4aa2a68adb60673d7f9ce9f7d36914df824fc0f48005ef64f15e4"
+      },
+      {
+        "name": "dist/ui/assets/main-LGhDXoxO.js",
+        "expected": "9d7b83cba8d41b375225bc141664421c8b3f59154c1841e92cfd28c42291a51a",
+        "mac": "9d7b83cba8d41b375225bc141664421c8b3f59154c1841e92cfd28c42291a51a",
+        "windows": "9d7b83cba8d41b375225bc141664421c8b3f59154c1841e92cfd28c42291a51a"
+      },
+      {
+        "name": "dist/ui/assets/modulepreload-polyfill-P2Xu9kJm.js",
+        "expected": "418c206484b89b68ef5f067277831e583fc9193a62aadf4de269acaaeb12a85f",
+        "mac": "418c206484b89b68ef5f067277831e583fc9193a62aadf4de269acaaeb12a85f",
+        "windows": "418c206484b89b68ef5f067277831e583fc9193a62aadf4de269acaaeb12a85f"
+      },
+      {
+        "name": "dist/ui/capture.html",
+        "expected": "dd26c87e475127a283d56daaa8e41b52a027c4854e964f1eca95e03aedce6f76",
+        "mac": "dd26c87e475127a283d56daaa8e41b52a027c4854e964f1eca95e03aedce6f76",
+        "windows": "dd26c87e475127a283d56daaa8e41b52a027c4854e964f1eca95e03aedce6f76"
+      },
+      {
+        "name": "dist/ui/index.html",
+        "expected": "7cce89b6bf854940dd970e657641f46c8e0c032a55ddf9621dce40c457c26993",
+        "mac": "7cce89b6bf854940dd970e657641f46c8e0c032a55ddf9621dce40c457c26993",
+        "windows": "7cce89b6bf854940dd970e657641f46c8e0c032a55ddf9621dce40c457c26993"
+      },
+      {
+        "name": "dist/ui/pcm-worklet.js",
+        "expected": "79cb07c03b6a88928331e922f5e12ebd3c4a72ae75f78377eaff8549411dfb23",
+        "mac": "79cb07c03b6a88928331e922f5e12ebd3c4a72ae75f78377eaff8549411dfb23",
+        "windows": "79cb07c03b6a88928331e922f5e12ebd3c4a72ae75f78377eaff8549411dfb23"
+      },
+      {
+        "name": "dist/worker.cjs",
+        "expected": "c0380e2d89c6780a77bf42a19bec687eae3c77afa85beab8886c97f8bc51836e",
+        "mac": "c0380e2d89c6780a77bf42a19bec687eae3c77afa85beab8886c97f8bc51836e",
+        "windows": "c0380e2d89c6780a77bf42a19bec687eae3c77afa85beab8886c97f8bc51836e"
+      },
+      {
+        "name": "dist/worker.cjs.map",
+        "expected": "2da6f9a87a43701cededdba43283ce1f7e53806b5b1479b0ec1d3de5b7f555c1",
+        "mac": "2da6f9a87a43701cededdba43283ce1f7e53806b5b1479b0ec1d3de5b7f555c1",
+        "windows": "2da6f9a87a43701cededdba43283ce1f7e53806b5b1479b0ec1d3de5b7f555c1"
+      }
+    ],
+    "macPath": "release/mac-arm64/Meeting Agent.app",
+    "windowsPath": "release/win-unpacked",
+    "windowsRuntimeVerified": false
+  },
+  "syntheticStream": {
+    "synthetic": true,
+    "realModel": false,
+    "realAudio": false,
+    "simulatedMeetingSeconds": 1800,
+    "events": 360,
+    "playbackIntervalMs": 2,
+    "elapsedMs": 1665,
+    "modelCalls": 66,
+    "maxPending": 15,
+    "usageTotals": {
+      "reservedTokens": 0,
+      "calls": 66,
+      "inputTokens": 6600,
+      "outputTokens": 3300,
+      "unknownUsageCalls": 0,
+      "audioSeconds": 0
+    },
+    "unknownUsageCalls": 0,
+    "inputRetained": 360,
+    "processed": 360,
+    "understoodVersion": 360,
+    "latestArtifactVersion": 360,
+    "understandingBeforeFirstPreview": true,
+    "lastContextBytes": 3819,
+    "error": null,
+    "expressionError": null,
+    "pass": true
+  },
+  "productGate": {
+    "status": "blocked",
+    "ready": false,
+    "reason": "真实模型、独立语义评审、真实音频、Windows运行、原生提醒与完整业务体验尚缺证据"
+  },
+  "remainingEvidence": [
+    {
+      "id": "semantic-human-review",
+      "status": "review_required",
+      "reason": "Agent-authored corpus and real model meaning must be independently reviewed; schema/label checks alone are insufficient"
+    },
+    {
+      "id": "audio-offline",
+      "status": "not_run",
+      "reason": "3-person microphone and overlap evidence unavailable"
+    },
+    {
+      "id": "audio-online",
+      "status": "not_run",
+      "reason": "Local and remote tracks not measured"
+    },
+    {
+      "id": "windows-runtime",
+      "status": "not_run",
+      "reason": "No Windows hardware session in this run"
+    },
+    {
+      "id": "native-notifications",
+      "status": "blocked",
+      "reason": "Actual detector absent; native delivery needs each OS evidence"
+    },
+    {
+      "id": "collaboration-export",
+      "status": "blocked",
+      "reason": "Raw JSON includes collaboration; unified decision closeout and dedicated export acceptance are not yet verified"
+    },
+    {
+      "id": "bilingual-collaboration-a11y",
+      "status": "not_run",
+      "reason": "Complete bilingual forms and screen-reader evaluation outstanding"
+    },
+    {
+      "id": "user-comprehension",
+      "status": "not_run",
+      "reason": "No human comprehension/time/disruption measurements"
+    }
+  ],
+  "model": {
+    "status": "blocked",
+    "reason": "MODEL_NOT_CONFIGURED",
+    "semanticScores": null
+  },
+  "historicalRunNotes": [
+    {
+      "id": "2026-09-12T06-05-01-686Z",
+      "reason": "New evaluator omitted index.html/capture.html; corrected."
+    },
+    {
+      "id": "2026-09-12T06-08-26-577Z",
+      "reason": "Old load double omitted onUsage; conservative reservations exhausted at 64 calls. Linked dependency paths altered bundle IDs. Fixed evaluator, no product budget change."
+    },
+    {
+      "id": "2026-09-12T06-12-55-781Z",
+      "reason": "Optional calls field needed type guard in new load observations; corrected."
+    },
+    {
+      "id": "2026-09-12T06-14-42-992Z",
+      "reason": "151/152 unit, all 31 Electron and stream/package passed. Fixed 30ms socket timing test and reran all 152 units; original report retained failed, exact only changed file recorded."
+    }
+  ]
+}

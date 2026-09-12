@@ -158,8 +158,14 @@ test('review: production context capacity accounts for schema overhead before a 
     x.ingest('C'.repeat(5000), 'c');
     x.ingest('D'.repeat(5000), 'd');
     const batch = buildContextBatch(structuredClone(x.m), provider.maxContextBytes);
-    assert.ok(provider.maxContextBytes < 24000);
-    globalThis.fetch = async () => {
+    assert.ok(provider.maxContextBytes <= 24000);
+    globalThis.fetch = async (_url, init) => {
+      const body = JSON.parse(String(init?.body));
+      const bytes =
+        Buffer.byteLength(body.messages[0].content) +
+        Buffer.byteLength(body.messages[1].content) +
+        Buffer.byteLength(JSON.stringify(body.response_format.json_schema.schema));
+      assert.ok(bytes <= 60000, 'complete schema and evidence must fit the provider reservation');
       called = true;
       return new Response(
         JSON.stringify({ choices: [{ message: { content: JSON.stringify(empty()) } }] }),

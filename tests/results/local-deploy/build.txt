@@ -1,0 +1,23 @@
+
+> meeting-agent@0.1.0 build
+> tsc --noEmit && node scripts/build.mjs && vite build
+
+vite v8.3.0 building client environment for production...
+transforming...
+✓ 2004 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/ui/capture.html                                   0.41 kB │ gzip:   0.27 kB
+dist/ui/index.html                                     0.67 kB │ gzip:   0.40 kB
+dist/ui/assets/launcher-dialogue-v1-B9Qjn0Ww.png   1,098.72 kB
+dist/ui/assets/main-Ig1pv6kR.css                      51.34 kB │ gzip:  10.44 kB
+dist/ui/assets/modulepreload-polyfill-P2Xu9kJm.js      0.67 kB │ gzip:   0.38 kB
+dist/ui/assets/capture-CtBbZetc.js                     3.74 kB │ gzip:   1.74 kB
+dist/ui/assets/main-7BZFTzF1.js                      543.65 kB │ gzip: 169.55 kB
+
+✓ built in 149ms
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.

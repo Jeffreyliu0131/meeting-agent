@@ -1287,33 +1287,6 @@ html[data-role='launcher'] #root {
   height: 44px;
   overflow: hidden;
 }
-.preview {
-  padding: 20px;
-  font-size: 13px;
-  height: 230px;
-  overflow: auto;
-  border: 1px solid var(--divider);
-  border-radius: 14px;
-  background: #fffffff5;
-}
-.preview h2 {
-  font-size: 18px;
-  margin: 12px 0;
-}
-.preview p {
-  font-size: 12px;
-  margin: 5px 0;
-  color: var(--textSecondary);
-}
-.preview button {
-  margin-top: 12px;
-  font-size: 12px;
-}
-.preview .eyebrow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
 .reduce-motion * {
   transition: none !important;
   animation: none !important;

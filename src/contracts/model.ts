@@ -96,9 +96,45 @@ const graph = z
   .object({
     ...base,
     type: z.literal('diagram'),
-    nodes: z.array(z.object({ id, label: z.string().max(120), objectId: id }).strict()).max(16),
+    layout: z.enum(['mindmap', 'flow', 'argument']).nullable().optional(),
+    nodes: z
+      .array(
+        z
+          .object({
+            id,
+            label: z.string().max(120),
+            objectId: id,
+            icon: z
+              .enum([
+                'idea',
+                'goal',
+                'task',
+                'option',
+                'risk',
+                'question',
+                'person',
+                'time',
+                'data',
+                'constraint',
+              ])
+              .nullable()
+              .optional(),
+          })
+          .strict(),
+      )
+      .max(16),
     edges: z
-      .array(z.object({ from: id, to: id, relationId: id, label: z.string().max(100) }).strict())
+      .array(
+        z
+          .object({
+            from: id,
+            to: id,
+            relationId: id,
+            label: z.string().max(100),
+            kind: Relation.shape.kind.nullable().optional(),
+          })
+          .strict(),
+      )
       .max(24),
   })
   .strict();
@@ -614,6 +650,12 @@ export type MeetingCollection = {
 };
 
 export type Snapshot = {
+  liveDrafts?: Array<{
+    meetingId: string;
+    callId: string;
+    kind: 'understand' | 'generate';
+    text: string;
+  }>;
   liveTranscripts?: Array<{ meetingId: string; segmentId: string; channel: string; text: string }>;
   reminder?: ReminderView | null;
   notificationUnavailable?: boolean;

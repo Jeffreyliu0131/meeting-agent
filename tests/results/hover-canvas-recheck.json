@@ -1,0 +1,290 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/bin/node",
+      "/private/tmp/meeting-hover-build-7r1xr14g/node_modules/.bin/playwright",
+      "test",
+      "tests/e2e/hover-preview.spec.ts"
+    ],
+    "configFile": "/private/tmp/meeting-hover-build-7r1xr14g/playwright.config.ts",
+    "rootDir": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/private/tmp/meeting-hover-build-7r1xr14g/tests/results/hover-canvas-recheck-run",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "tests/results/hover-canvas-recheck.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "hover-preview.spec.ts",
+      "file": "hover-preview.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "hover shows the actual canvas and live revisions while the workspace stays hidden",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6478,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T06:51:00.866Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "714f016c699f2eb8d498-d6ea3b19f4ec7c8e8f46",
+          "file": "hover-preview.spec.ts",
+          "line": 226,
+          "column": 1
+        },
+        {
+          "title": "union-region grace, pending hover cancellation, drag and native menu do not open the workspace",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4188,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T06:51:07.361Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "714f016c699f2eb8d498-986f4f630c9f12324086",
+          "file": "hover-preview.spec.ts",
+          "line": 266,
+          "column": 1
+        },
+        {
+          "title": "sources open the displayed revision and suggested actions only prepare a draft",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 12082,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('textarea.ask-input')\nExpected: \u001b[32m\"请比较不同试用路径。\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" locator('textarea.ask-input') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('textarea.ask-input')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('textarea.ask-input')\nExpected: \u001b[32m\"请比较不同试用路径。\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" locator('textarea.ask-input') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('textarea.ask-input')\u001b[22m\n\n    at /private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:330:57",
+                    "location": {
+                      "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                      "column": 57,
+                      "line": 330
+                    },
+                    "snippet": "  328 |   await expect.poll(async () => (await native('preview')).visible).toBe(true);\n  329 |   await preview.getByRole('button', { name: '比较试用路径', exact: true }).click();\n> 330 |   await expect(workspace.locator('textarea.ask-input')).toHaveValue('请比较不同试用路径。');\n      |                                                         ^\n  331 |   const state = await call(workspace, 'snapshot');\n  332 |   expect(state.meetings[0].segments).toHaveLength(1);\n  333 |   expect(state.meetings[0].requests).toHaveLength(0);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                        "column": 57,
+                        "line": 330
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('textarea.ask-input')\nExpected: \u001b[32m\"请比较不同试用路径。\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" locator('textarea.ask-input') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('textarea.ask-input')\u001b[22m\n\n\n  328 |   await expect.poll(async () => (await native('preview')).visible).toBe(true);\n  329 |   await preview.getByRole('button', { name: '比较试用路径', exact: true }).click();\n> 330 |   await expect(workspace.locator('textarea.ask-input')).toHaveValue('请比较不同试用路径。');\n      |                                                         ^\n  331 |   const state = await call(workspace, 'snapshot');\n  332 |   expect(state.meetings[0].segments).toHaveLength(1);\n  333 |   expect(state.meetings[0].requests).toHaveLength(0);\n    at /private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:330:57"
+                    }
+                  ],
+                  "stdout": [
+                    {
+                      "text": "Hover failure state {\"meeting\":[{\"error\":null,\"understoodVersion\":1,\"calls\":[{\"id\":\"98c4402a-2448-470e-91e9-4a513fc02787\",\"kind\":\"understand\",\"startedAt\":\"2026-09-12T06:51:12.359Z\",\"durationMs\":18,\"status\":\"ok\",\"inputTokens\":10,\"outputTokens\":10,\"reservedTokens\":62500,\"audioSeconds\":0}]}],\"workspace\":{\"visible\":false,\"focused\":false,\"bounds\":{\"x\":166,\"y\":50,\"width\":1180,\"height\":840}},\"launcher\":{\"visible\":true,\"focused\":false,\"bounds\":{\"x\":1448,\"y\":133,\"width\":44,\"height\":44}},\"preview\":{\"visible\":false,\"focused\":false,\"bounds\":{\"x\":680,\"y\":121,\"width\":760,\"height\":560}}}\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T06:51:11.555Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/private/tmp/meeting-hover-build-7r1xr14g/tests/results/hover-canvas-recheck-run/hover-preview-sources-open-5d63f-ctions-only-prepare-a-draft/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                    "column": 57,
+                    "line": 330
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "714f016c699f2eb8d498-731fb16d66d091c5614f",
+          "file": "hover-preview.spec.ts",
+          "line": 317,
+          "column": 1
+        },
+        {
+          "title": "preview follows display edges, stays readable at 200 percent, and clears ended content",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 12350,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /打开会议/ }).last()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('button', { name: /打开会议/ }).last() with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /打开会议/ }).last()\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /打开会议/ }).last()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('button', { name: /打开会议/ }).last() with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /打开会议/ }).last()\u001b[22m\n\n    at /private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:367:70",
+                    "location": {
+                      "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                      "column": 70,
+                      "line": 367
+                    },
+                    "snippet": "  365 |     .poll(() => preview.evaluate(() => document.documentElement.scrollWidth <= innerWidth))\n  366 |     .toBe(true);\n> 367 |   await expect(preview.getByRole('button', { name: /打开会议/ }).last()).toBeVisible();\n      |                                                                      ^\n  368 |   await preview.screenshot({ path: test.info().outputPath('hover-canvas-200.png') });\n  369 |   await app.evaluate(({ BrowserWindow }) =>\n  370 |     BrowserWindow.getAllWindows()"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                        "column": 70,
+                        "line": 367
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /打开会议/ }).last()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('button', { name: /打开会议/ }).last() with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /打开会议/ }).last()\u001b[22m\n\n\n  365 |     .poll(() => preview.evaluate(() => document.documentElement.scrollWidth <= innerWidth))\n  366 |     .toBe(true);\n> 367 |   await expect(preview.getByRole('button', { name: /打开会议/ }).last()).toBeVisible();\n      |                                                                      ^\n  368 |   await preview.screenshot({ path: test.info().outputPath('hover-canvas-200.png') });\n  369 |   await app.evaluate(({ BrowserWindow }) =>\n  370 |     BrowserWindow.getAllWindows()\n    at /private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:367:70"
+                    }
+                  ],
+                  "stdout": [
+                    {
+                      "text": "Hover failure state {\"meeting\":[{\"error\":null,\"understoodVersion\":1,\"calls\":[{\"id\":\"15b8eb7e-5f29-451b-8bee-c7fed8907255\",\"kind\":\"understand\",\"startedAt\":\"2026-09-12T06:51:24.694Z\",\"durationMs\":17,\"status\":\"ok\",\"inputTokens\":10,\"outputTokens\":10,\"reservedTokens\":62500,\"audioSeconds\":0}]}],\"workspace\":{\"visible\":false,\"focused\":false,\"bounds\":{\"x\":166,\"y\":53,\"width\":1180,\"height\":840}},\"launcher\":{\"visible\":true,\"focused\":false,\"bounds\":{\"x\":1456,\"y\":830,\"width\":44,\"height\":44}},\"preview\":{\"visible\":true,\"focused\":false,\"bounds\":{\"x\":688,\"y\":322,\"width\":760,\"height\":560}}}\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T06:51:23.869Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/private/tmp/meeting-hover-build-7r1xr14g/tests/results/hover-canvas-recheck-run/hover-preview-preview-foll-08e30-nt-and-clears-ended-content/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                    "column": 70,
+                    "line": 367
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "714f016c699f2eb8d498-701c8454b990c02c0892",
+          "file": "hover-preview.spec.ts",
+          "line": 336,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-12T06:51:00.528Z",
+    "duration": 35715.371999999996,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

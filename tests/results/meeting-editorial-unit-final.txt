@@ -1,0 +1,606 @@
+
+> meeting-agent@0.1.0 test
+> node --import tsx --test tests/unit/*.test.ts
+
+TAP version 13
+# (node:53870) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: review: historical source retrieval can inform a successful current batch
+ok 1 - review: historical source retrieval can inform a successful current batch
+  ---
+  duration_ms: 97.242375
+  ...
+# Subtest: review: an invalid persisted clarification cannot poison subsequent independent input
+ok 2 - review: an invalid persisted clarification cannot poison subsequent independent input
+  ---
+  duration_ms: 28.841125
+  ...
+# Subtest: review: historical reads still reject a head changed after retrieval
+ok 3 - review: historical reads still reject a head changed after retrieval
+  ---
+  duration_ms: 6.928166
+  ...
+# Subtest: review: production context capacity accounts for schema overhead before a call
+ok 4 - review: production context capacity accounts for schema overhead before a call
+  ---
+  duration_ms: 53.577833
+  ...
+# Subtest: review: legacy IDs beginning new_ stay stable and cannot switch entity kind
+ok 5 - review: legacy IDs beginning new_ stay stable and cannot switch entity kind
+  ---
+  duration_ms: 6.833459
+  ...
+# Subtest: business contracts and domain do not depend on desktop, persistence, provider or UI
+ok 6 - business contracts and domain do not depend on desktop, persistence, provider or UI
+  ---
+  duration_ms: 2.170792
+  ...
+# Subtest: frontend does not import secrets or trusted service implementation
+ok 7 - frontend does not import secrets or trusted service implementation
+  ---
+  duration_ms: 2.773084
+  ...
+# (node:53872) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: isolates events, saves immutable source revisions, never restores capture
+ok 8 - isolates events, saves immutable source revisions, never restores capture
+  ---
+  duration_ms: 79.348083
+  ...
+# Subtest: idempotency binds IDs to payloads and source events
+ok 9 - idempotency binds IDs to payloads and source events
+  ---
+  duration_ms: 12.881208
+  ...
+# Subtest: late model result cannot overwrite a correction or new output locale
+ok 10 - late model result cannot overwrite a correction or new output locale
+  ---
+  duration_ms: 20.268292
+  ...
+# Subtest: no_change advances received understanding without a new artifact
+ok 11 - no_change advances received understanding without a new artifact
+  ---
+  duration_ms: 20.922834
+  ...
+# Subtest: model failure preserves original source and existing artifacts
+ok 12 - model failure preserves original source and existing artifacts
+  ---
+  duration_ms: 23.144625
+  ...
+# Subtest: render failure still commits understanding, keeps previous artifact
+ok 13 - render failure still commits understanding, keeps previous artifact
+  ---
+  duration_ms: 30.264834
+  ...
+# Subtest: decimal arithmetic, unknown inputs, bounds and formula validation
+ok 14 - decimal arithmetic, unknown inputs, bounds and formula validation
+  ---
+  duration_ms: 1.275541
+  ...
+# Subtest: personal scenarios and decisions cannot become meeting consensus
+ok 15 - personal scenarios and decisions cannot become meeting consensus
+  ---
+  duration_ms: 20.663958
+  ...
+# Subtest: capture epochs and identity remain explicit
+ok 16 - capture epochs and identity remain explicit
+  ---
+  duration_ms: 5.18025
+  ...
+# Subtest: unsafe generated content is rejected; passive content survives
+ok 17 - unsafe generated content is rejected; passive content survives
+  ---
+  duration_ms: 2.93575
+  ...
+# Subtest: schema rejects invented consensus and missing graph bindings
+ok 18 - schema rejects invented consensus and missing graph bindings
+  ---
+  duration_ms: 5.672333
+  ...
+# Subtest: storage failure does not report a command as saved
+ok 19 - storage failure does not report a command as saved
+  ---
+  duration_ms: 2.894916
+  ...
+# Subtest: English and Chinese additional UI keys match
+ok 20 - English and Chinese additional UI keys match
+  ---
+  duration_ms: 0.467958
+  ...
+# Subtest: continuous appended input does not starve an in-flight understanding batch
+ok 21 - continuous appended input does not starve an in-flight understanding batch
+  ---
+  duration_ms: 13.266167
+  ...
+# Subtest: already-received audio may finish after end; new audio cannot enter
+ok 22 - already-received audio may finish after end; new audio cannot enter
+  ---
+  duration_ms: 6.937209
+  ...
+# Subtest: diagram direction must match its cited semantic relation
+ok 23 - diagram direction must match its cited semantic relation
+  ---
+  duration_ms: 3.029458
+  ...
+# Subtest: model relations cannot claim trusted tool provenance
+ok 24 - model relations cannot claim trusted tool provenance
+  ---
+  duration_ms: 2.882
+  ...
+# Subtest: launcher reports actual capture readiness, pause and errors independently
+ok 25 - launcher reports actual capture readiness, pause and errors independently
+  ---
+  duration_ms: 1.414375
+  ...
+# Subtest: service failure overrides an outdated green capture snapshot and its text
+ok 26 - service failure overrides an outdated green capture snapshot and its text
+  ---
+  duration_ms: 1.566666
+  ...
+# (node:53874) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: understanding commits while preview is held, and new speech is processed independently
+ok 27 - understanding commits while preview is held, and new speech is processed independently
+  ---
+  duration_ms: 59.539541
+  ...
+# Subtest: complex generation runs after understanding and does not block subsequent batches
+ok 28 - complex generation runs after understanding and does not block subsequent batches
+  ---
+  duration_ms: 22.048
+  ...
+# Subtest: a source correction invalidates a preview result without losing the correction
+ok 29 - a source correction invalidates a preview result without losing the correction
+  ---
+  duration_ms: 16.690042
+  ...
+# Subtest: out-of-order dual-channel responses retain capture chronology and receipt versions
+ok 30 - out-of-order dual-channel responses retain capture chronology and receipt versions
+  ---
+  duration_ms: 1.067583
+  ...
+# Subtest: transcription queue survives a slow call, preserves per-channel order and reports overflow
+ok 31 - transcription queue survives a slow call, preserves per-channel order and reports overflow
+  ---
+  duration_ms: 11.190958
+  ...
+# Subtest: queue failure is an explicit gap and does not discard subsequent audio
+ok 32 - queue failure is an explicit gap and does not discard subsequent audio
+  ---
+  duration_ms: 0.137042
+  ...
+# Subtest: long-meeting retrieval recalls old conditions within a bounded prompt
+ok 33 - long-meeting retrieval recalls old conditions within a bounded prompt
+  ---
+  duration_ms: 10.640459
+  ...
+# Subtest: pending inputs are batched without silent truncation or skipped watermarks
+ok 34 - pending inputs are batched without silent truncation or skipped watermarks
+  ---
+  duration_ms: 91.062417
+  ...
+# Subtest: usage is recorded even when the provider returns invalid output or the result is superseded
+ok 35 - usage is recorded even when the provider returns invalid output or the result is superseded
+  ---
+  duration_ms: 3.720625
+  ...
+# Subtest: budget denial stops provider calls while keeping new input available
+ok 36 - budget denial stops provider calls while keeping new input available
+  ---
+  duration_ms: 11.302292
+  ...
+# Subtest: patch preserves unchanged blocks and rejects stale bases
+ok 37 - patch preserves unchanged blocks and rejects stale bases
+  ---
+  duration_ms: 5.113083
+  ...
+# Subtest: graph branching shares a node and preserves positions on append
+ok 38 - graph branching shares a node and preserves positions on append
+  ---
+  duration_ms: 0.206667
+  ...
+# Subtest: audio timing is validated before work is accepted
+ok 39 - audio timing is validated before work is accepted
+  ---
+  duration_ms: 1.138417
+  ...
+# Subtest: agent patch is applied through the service and preserves untouched content
+ok 40 - agent patch is applied through the service and preserves untouched content
+  ---
+  duration_ms: 6.144208
+  ...
+# Subtest: personal exploration cannot replace meeting objects or reuse the meeting artifact identity
+ok 41 - personal exploration cannot replace meeting objects or reuse the meeting artifact identity
+  ---
+  duration_ms: 6.666375
+  ...
+# Subtest: a failed preview does not poison the next valid visual update
+ok 42 - a failed preview does not poison the next valid visual update
+  ---
+  duration_ms: 4.36675
+  ...
+# Subtest: system language and legacy preferences migrate without changing an active meeting language
+ok 43 - system language and legacy preferences migrate without changing an active meeting language
+  ---
+  duration_ms: 2.157084
+  ...
+# Subtest: user rename wins over an in-flight automatic title proposal
+ok 44 - user rename wins over an in-flight automatic title proposal
+  ---
+  duration_ms: 2.626166
+  ...
+# Subtest: start intent snapshots configured audio and never silently selects manual input
+ok 45 - start intent snapshots configured audio and never silently selects manual input
+  ---
+  duration_ms: 1.28625
+  ...
+# (node:53875) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:53875) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+# Subtest: bubble expires after eight unheld seconds, with no capture or repeat on renewed signal
+ok 46 - bubble expires after eight unheld seconds, with no capture or repeat on renewed signal
+  ---
+  duration_ms: 3.473042
+  ...
+# Subtest: pointer/focus hold pauses remaining display time, but never extends signal validity
+ok 47 - pointer/focus hold pauses remaining display time, but never extends signal validity
+  ---
+  duration_ms: 0.727458
+  ...
+# Subtest: native route uses signal expiry, close and stale clicks cannot record
+ok 48 - native route uses signal expiry, close and stale clicks cannot record
+  ---
+  duration_ms: 0.332125
+  ...
+# Subtest: click is consumed synchronously; recording feedback waits for captureReady
+ok 49 - click is consumed synchronously; recording feedback waits for captureReady
+  ---
+  duration_ms: 0.22325
+  ...
+# Subtest: active/paused meeting, unavailable service, disabled reminders suppress candidates without queueing
+ok 50 - active/paused meeting, unavailable service, disabled reminders suppress candidates without queueing
+  ---
+  duration_ms: 0.438458
+  ...
+# Subtest: switching visibility dismisses a delivered prompt without switching channels or re-alerting
+ok 51 - switching visibility dismisses a delivered prompt without switching channels or re-alerting
+  ---
+  duration_ms: 0.11475
+  ...
+# Subtest: invalid, expired, out-of-order or withdrawn candidates never authorize recording
+ok 52 - invalid, expired, out-of-order or withdrawn candidates never authorize recording
+  ---
+  duration_ms: 0.20725
+  ...
+# Subtest: signal is checked again across async preflight; stale consent cannot create an event
+ok 53 - signal is checked again across async preflight; stale consent cannot create an event
+  ---
+  duration_ms: 0.103625
+  ...
+# Subtest: setup and start failure expose recovery, never claim recording; hide does not cancel consented start
+ok 54 - setup and start failure expose recovery, never claim recording; hide does not cancel consented start
+  ---
+  duration_ms: 0.474583
+  ...
+# Subtest: hiding launcher and turning off reminders do not stop a consented recording
+ok 55 - hiding launcher and turning off reminders do not stop a consented recording
+  ---
+  duration_ms: 0.193291
+  ...
+# Subtest: preferences migrate without changing audio and both dictionaries share reminder labels
+ok 56 - preferences migrate without changing audio and both dictionaries share reminder labels
+  ---
+  duration_ms: 0.862041
+  ...
+# Subtest: native notification click/close/failure share guards; removed notification callbacks are inert
+ok 57 - native notification click/close/failure share guards; removed notification callbacks are inert
+  ---
+  duration_ms: 0.138583
+  ...
+# Subtest: a concurrent existing idle meeting is not resumed or reported as connecting
+ok 58 - a concurrent existing idle meeting is not resumed or reported as connecting
+  ---
+  duration_ms: 0.100334
+  ...
+# (node:53876) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: field patches preserve independent and nested audio preferences
+ok 59 - field patches preserve independent and nested audio preferences
+  ---
+  duration_ms: 2.564292
+  ...
+# Subtest: rapid toggles serialize while latest intent stays visible over server snapshots
+ok 60 - rapid toggles serialize while latest intent stays visible over server snapshots
+  ---
+  duration_ms: 0.33475
+  ...
+# Subtest: failed field rolls back while other changes survive; retry saves the failed intent
+ok 61 - failed field rolls back while other changes survive; retry saves the failed intent
+  ---
+  duration_ms: 0.3945
+  ...
+# Subtest: superseded failed toggle does not leave an error for an already-saved newer choice
+ok 62 - superseded failed toggle does not leave an error for an already-saved newer choice
+  ---
+  duration_ms: 0.161542
+  ...
+# Subtest: different audio subfields do not conceal a failed device change
+ok 63 - different audio subfields do not conceal a failed device change
+  ---
+  duration_ms: 0.114625
+  ...
+# (node:53877) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: background understanding excludes personal requests, artifacts, choices and trial values
+ok 64 - background understanding excludes personal requests, artifacts, choices and trial values
+  ---
+  duration_ms: 18.635417
+  ...
+# Subtest: personal exploration retains an explicitly bound context without rewriting meeting state
+ok 65 - personal exploration retains an explicitly bound context without rewriting meeting state
+  ---
+  duration_ms: 2.701167
+  ...
+# Subtest: conditional statements require conditions; owners and times require actual quoted words
+ok 66 - conditional statements require conditions; owners and times require actual quoted words
+  ---
+  duration_ms: 1.795292
+  ...
+# Subtest: existing conditions cannot be removed with old evidence or omission
+ok 67 - existing conditions cannot be removed with old evidence or omission
+  ---
+  duration_ms: 1.541042
+  ...
+# Subtest: explicit new speech can revise meaning, preserving prior conditions in history
+ok 68 - explicit new speech can revise meaning, preserving prior conditions in history
+  ---
+  duration_ms: 1.838708
+  ...
+# Subtest: active old conditions survive unrelated discussion and missing lexical overlap
+ok 69 - active old conditions survive unrelated discussion and missing lexical overlap
+  ---
+  duration_ms: 9.928792
+  ...
+# Subtest: memory overflow is explicit instead of silently dropping active obligations
+ok 70 - memory overflow is explicit instead of silently dropping active obligations
+  ---
+  duration_ms: 76.913041
+  ...
+# Subtest: correcting a source marks dependent tasks and working views stale transitively
+ok 71 - correcting a source marks dependent tasks and working views stale transitively
+  ---
+  duration_ms: 0.752
+  ...
+# Subtest: dependency update requires rechecking dependents even when their own source is unchanged
+ok 72 - dependency update requires rechecking dependents even when their own source is unchanged
+  ---
+  duration_ms: 0.959584
+  ...
+# Subtest: meeting decision cannot cite personal requests, including mixed evidence
+ok 73 - meeting decision cannot cite personal requests, including mixed evidence
+  ---
+  duration_ms: 1.136125
+  ...
+# Subtest: whole-meeting closeout retains conditions, unresolved questions, missing commitments and gaps
+ok 74 - whole-meeting closeout retains conditions, unresolved questions, missing commitments and gaps
+  ---
+  duration_ms: 0.367
+  ...
+# Subtest: end waits for interpretation and late accepted audio; report persists across restart
+ok 75 - end waits for interpretation and late accepted audio; report persists across restart
+  ---
+  duration_ms: 59.596333
+  ...
+# Subtest: provider failure leaves an incomplete closeout and retry can finish it
+ok 76 - provider failure leaves an incomplete closeout and retry can finish it
+  ---
+  duration_ms: 29.357916
+  ...
+# Subtest: unchanged structured meaning does not churn revisions or invalidate dependents
+ok 77 - unchanged structured meaning does not churn revisions or invalidate dependents
+  ---
+  duration_ms: 0.95125
+  ...
+# Subtest: stale conclusions cannot clear review by merely repeating their old source
+ok 78 - stale conclusions cannot clear review by merely repeating their old source
+  ---
+  duration_ms: 0.622458
+  ...
+# Subtest: old recorded decisions retain their original evidence in background context
+ok 79 - old recorded decisions retain their original evidence in background context
+  ---
+  duration_ms: 2.507791
+  ...
+# Subtest: late audio counts stay with the ended event while another meeting is active
+ok 80 - late audio counts stay with the ended event while another meeting is active
+  ---
+  duration_ms: 5.999875
+  ...
+# Subtest: restored legacy relations propagate review even when the model is unavailable
+ok 81 - restored legacy relations propagate review even when the model is unavailable
+  ---
+  duration_ms: 0.799708
+  ...
+# (node:53878) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: saved scenario ignores unrelated input, unrelated artifacts and presentation-only revisions
+ok 82 - saved scenario ignores unrelated input, unrelated artifacts and presentation-only revisions
+  ---
+  duration_ms: 14.320542
+  ...
+# Subtest: a corrected formula source changes the basis before another model response
+ok 83 - a corrected formula source changes the basis before another model response
+  ---
+  duration_ms: 1.714959
+  ...
+# Subtest: a corrected transitive condition source changes the basis immediately
+ok 84 - a corrected transitive condition source changes the basis immediately
+  ---
+  duration_ms: 1.563959
+  ...
+# Subtest: changed object, relation and withdrawn condition invalidate their saved dependency
+ok 85 - changed object, relation and withdrawn condition invalidate their saved dependency
+  ---
+  duration_ms: 2.945709
+  ...
+# Subtest: a later formula change or removal is detected without changing saved results
+ok 86 - a later formula change or removal is detected without changing saved results
+  ---
+  duration_ms: 2.049458
+  ...
+# Subtest: missing historical artifacts, sources, objects and relations are unknown, not unchanged
+ok 87 - missing historical artifacts, sources, objects and relations are unknown, not unchanged
+  ---
+  duration_ms: 2.767542
+  ...
+# Subtest: known change takes precedence over a different missing dependency
+ok 88 - known change takes precedence over a different missing dependency
+  ---
+  duration_ms: 0.82025
+  ...
+# Subtest: legacy records without relationRefs and dependency cycles remain readable
+ok 89 - legacy records without relationRefs and dependency cycles remain readable
+  ---
+  duration_ms: 0.561125
+  ...
+# Subtest: saved basis and results survive SQLite reopen without a schema migration
+ok 90 - saved basis and results survive SQLite reopen without a schema migration
+  ---
+  duration_ms: 8.727875
+  ...
+# Subtest: citations retain their numbers after corrections; historical references resolve exactly
+ok 91 - citations retain their numbers after corrections; historical references resolve exactly
+  ---
+  duration_ms: 0.598833
+  ...
+# Subtest: personal requests stay traceable but are not presented as live transcript speech
+ok 92 - personal requests stay traceable but are not presented as live transcript speech
+  ---
+  duration_ms: 0.193458
+  ...
+# (node:53880) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: W1 new refs map cross references, old IDs remain stable, dangling refs reject
+ok 93 - W1 new refs map cross references, old IDs remain stable, dangling refs reject
+  ---
+  duration_ms: 25.771292
+  ...
+# Subtest: W1 read set allows unrelated append but rejects read revision and expired fencing
+ok 94 - W1 read set allows unrelated append but rejects read revision and expired fencing
+  ---
+  duration_ms: 6.915875
+  ...
+# Subtest: W1 saved immutable proposal recovers after domain save failure without another model call
+ok 95 - W1 saved immutable proposal recovers after domain save failure without another model call
+  ---
+  duration_ms: 38.323125
+  ...
+# Subtest: W1 failed input exhausts budget, stays visible and no longer blocks independent input
+ok 96 - W1 failed input exhausts budget, stays visible and no longer blocks independent input
+  ---
+  duration_ms: 35.438542
+  ...
+# Subtest: W2 versioned Chinese short-word search, neighbor pages and explicit missing coverage
+ok 97 - W2 versioned Chinese short-word search, neighbor pages and explicit missing coverage
+  ---
+  duration_ms: 9.866292
+  ...
+# Subtest: W2 active evidence branch executes before second interpretation and persists observations
+ok 98 - W2 active evidence branch executes before second interpretation and persists observations
+  ---
+  duration_ms: 22.415167
+  ...
+# Subtest: W3 personal tool wait does not hold meeting lock; cancellation rejects late result
+ok 99 - W3 personal tool wait does not hold meeting lock; cancellation rejects late result
+  ---
+  duration_ms: 42.480709
+  ...
+# Subtest: W3 reserved understanding capacity survives occupied background lanes
+ok 100 - W3 reserved understanding capacity survives occupied background lanes
+  ---
+  duration_ms: 0.458666
+  ...
+# Subtest: W4 clarification searches first, persists one question, personal answer never creates meeting speech
+ok 101 - W4 clarification searches first, persists one question, personal answer never creates meeting speech
+  ---
+  duration_ms: 27.265042
+  ...
+# Subtest: W5 purpose identity includes scope, branch and ordered object roles
+ok 102 - W5 purpose identity includes scope, branch and ordered object roles
+  ---
+  duration_ms: 0.269125
+  ...
+# Subtest: W5 dimension mismatch and content-changing repair are rejected
+ok 103 - W5 dimension mismatch and content-changing repair are rejected
+  ---
+  duration_ms: 0.311375
+  ...
+# Subtest: W3 a real 30-second synthetic tool wait permits meeting completion before returning
+ok 104 - W3 a real 30-second synthetic tool wait permits meeting completion before returning
+  ---
+  duration_ms: 30022.78225
+  ...
+# Subtest: W3 request baseline persists at send time through source correction and restart
+ok 105 - W3 request baseline persists at send time through source correction and restart
+  ---
+  duration_ms: 18.031083
+  ...
+# Subtest: W4 later explicit evidence resolves persisted clarification without promoting personal answers
+ok 106 - W4 later explicit evidence resolves persisted clarification without promoting personal answers
+  ---
+  duration_ms: 14.86475
+  ...
+# Subtest: W5 preview error reaches one repair and preserves the submitted content
+ok 107 - W5 preview error reaches one repair and preserves the submitted content
+  ---
+  duration_ms: 11.78325
+  ...
+# Subtest: W5 distinct personal requests cannot reuse each other artifact ID even with same purpose
+ok 108 - W5 distinct personal requests cannot reuse each other artifact ID even with same purpose
+  ---
+  duration_ms: 16.545334
+  ...
+# Subtest: W1 object aliases never rewrite source IDs or formula parameters
+ok 109 - W1 object aliases never rewrite source IDs or formula parameters
+  ---
+  duration_ms: 2.884334
+  ...
+# Subtest: W5 computed chart binding verifies host result identity, unit and value
+ok 110 - W5 computed chart binding verifies host result identity, unit and value
+  ---
+  duration_ms: 2.829125
+  ...
+# Subtest: W2 meeting retrieval excludes legacy personal object history and clarification
+ok 111 - W2 meeting retrieval excludes legacy personal object history and clarification
+  ---
+  duration_ms: 2.249917
+  ...
+# Subtest: W1 CAS re-planning shares the same source batch budget instead of resetting it
+ok 112 - W1 CAS re-planning shares the same source batch budget instead of resetting it
+  ---
+  duration_ms: 9.140375
+  ...
+# Subtest: W1 interruption before proposal persistence resumes within the original call budget
+ok 113 - W1 interruption before proposal persistence resumes within the original call budget
+  ---
+  duration_ms: 10.366875
+  ...
+# Subtest: W1 interruption after atomic commit restores success without duplicate model work
+ok 114 - W1 interruption after atomic commit restores success without duplicate model work
+  ---
+  duration_ms: 4.883458
+  ...
+# Subtest: W3 personal artifact keeps the bound object revision when the live object changes
+ok 115 - W3 personal artifact keeps the bound object revision when the live object changes
+  ---
+  duration_ms: 11.072291
+  ...
+1..115
+# tests 115
+# suites 0
+# pass 115
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 31371.910792

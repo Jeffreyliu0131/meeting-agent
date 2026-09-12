@@ -1,5 +1,9 @@
 # 执行记录
 
+[悬浮球实时画板验证](hover-canvas-validation.md)：最终源码5专项、231单元、10桌面回归、Mac包5专项及双端日常包核对；Windows真机待验，日常实例未重启。
+
+[Demo可视化与实时编辑](demo-live-visuals-validation.md)：主动图形规则、语义图标、真实SSE草稿、连续语音与局部更新；227领域／34桌面、双端包与Mac包专项，真实模型及Windows运行待验。
+
 首轮四类协作意图：[Windows合成程序与桌面验证](four-intents-validation.md)，107项单元和1项定向Electron流程；真实语义未验。
 
 [validation.md](validation.md) 是已交付首版（本地基线 `5fcd90f`）的实际结果与限制；[package-smoke.json](package-smoke.json)、[microphone-probe.json](microphone-probe.json)、[package-content.json](package-content.json) 为已执行探针元数据，不含录音或真实会议原文。
@@ -44,6 +48,14 @@ Agent三项可靠性迭代：[验证结果](agent-reliability-validation.md)／[
 
 - [设置即时保存](settings-autosave-validation.md)：104单元、22桌面全量及收尾6项设置复核；双端包一致、Mac包及日常刷新完成，Windows真机待验。
 
+- [已保存个人试算依据提示](scenario-basis-validation.md)：114领域、源码Electron2项、Mac包2项及既有试算1项通过；双端包同源，Windows真机待验。
+
+- [会中正文与原话精修验证](meeting-editorial-validation.md)：来源编号／阅读与草稿、双语缩放、真实Electron视觉QA与双端包；输入及provider均为合成，真实模型／Windows真机另验。
+
 - [PR #3修复与整合验证](pr3-fix-validation.md)：保留GPT Live Transcribe，首包／排队／收尾、异议重算及输入缺口门槛。
 
+- [会议 Event 与统一 eval](event-evaluation-validation.md)：最新PR核对、24类Event／60条多轮语料、30项指标和135项规范路由；隔离执行结果及真实模型／平台未测边界。
+
 - [FTY与xuwenzhe整合验证](branch-integration-validation.md)：私有草稿→正式协作→跨会议报告，组合回归与双端包。
+
+- [本地最新版本部署](local-deploy/README.md)：容量修复与分阶段回归、同源双端包、Mac独立安装与启动；后续悬浮预览差异单列。

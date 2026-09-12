@@ -1,0 +1,472 @@
+{
+  "environment": "macOS / Electron Chromium; standalone local HTML",
+  "url": "http://127.0.0.1:4178/",
+  "captures": [
+    {
+      "name": "home-desktop",
+      "viewport": [
+        1440,
+        1000
+      ],
+      "scrollWidth": 1440,
+      "hero": {
+        "x": 144,
+        "y": 143,
+        "width": 1152,
+        "height": 440.1875,
+        "top": 143,
+        "right": 1296,
+        "bottom": 583.1875,
+        "left": 144
+      },
+      "recent": {
+        "x": 144,
+        "y": 697.1875,
+        "width": 1152,
+        "height": 99,
+        "top": 697.1875,
+        "right": 1296,
+        "bottom": 796.1875,
+        "left": 144
+      },
+      "primary": {
+        "x": 144,
+        "y": 424.375,
+        "width": 137,
+        "height": 48,
+        "top": 424.375,
+        "right": 281,
+        "bottom": 472.375,
+        "left": 144
+      }
+    },
+    {
+      "name": "home-standard",
+      "viewport": [
+        1180,
+        808
+      ],
+      "scrollWidth": 1180,
+      "hero": {
+        "x": 32,
+        "y": 106,
+        "width": 1116,
+        "height": 403.1875,
+        "top": 106,
+        "right": 1148,
+        "bottom": 509.1875,
+        "left": 32
+      },
+      "recent": {
+        "x": 32,
+        "y": 611.1875,
+        "width": 1116,
+        "height": 99,
+        "top": 611.1875,
+        "right": 1148,
+        "bottom": 710.1875,
+        "left": 32
+      },
+      "primary": {
+        "x": 32,
+        "y": 358.1484375,
+        "width": 137,
+        "height": 48,
+        "top": 358.1484375,
+        "right": 169,
+        "bottom": 406.1484375,
+        "left": 32
+      }
+    },
+    {
+      "name": "home-small",
+      "viewport": [
+        800,
+        600
+      ],
+      "scrollWidth": 800,
+      "hero": {
+        "x": 30,
+        "y": 90,
+        "width": 740,
+        "height": 281.3359375,
+        "top": 90,
+        "right": 770,
+        "bottom": 371.3359375,
+        "left": 30
+      },
+      "recent": {
+        "x": 30,
+        "y": 445.3359375,
+        "width": 740,
+        "height": 84,
+        "top": 445.3359375,
+        "right": 770,
+        "bottom": 529.3359375,
+        "left": 30
+      },
+      "primary": {
+        "x": 30,
+        "y": 225.1484375,
+        "width": 137,
+        "height": 48,
+        "top": 225.1484375,
+        "right": 167,
+        "bottom": 273.1484375,
+        "left": 30
+      }
+    },
+    {
+      "name": "home-mobile",
+      "viewport": [
+        390,
+        844
+      ],
+      "scrollWidth": 390,
+      "hero": {
+        "x": 22,
+        "y": 95,
+        "width": 346,
+        "height": 758.15625,
+        "top": 95,
+        "right": 368,
+        "bottom": 853.15625,
+        "left": 22
+      },
+      "recent": {
+        "x": 22,
+        "y": 927.15625,
+        "width": 346,
+        "height": 84,
+        "top": 927.15625,
+        "right": 368,
+        "bottom": 1011.15625,
+        "left": 22
+      },
+      "primary": {
+        "x": 22,
+        "y": 294.6875,
+        "width": 137,
+        "height": 48,
+        "top": 294.6875,
+        "right": 159,
+        "bottom": 342.6875,
+        "left": 22
+      }
+    },
+    {
+      "name": "settings-mobile",
+      "viewport": [
+        390,
+        844
+      ],
+      "scrollWidth": 390,
+      "hero": {
+        "x": 22,
+        "y": 95,
+        "width": 346,
+        "height": 344.171875,
+        "top": 95,
+        "right": 368,
+        "bottom": 439.171875,
+        "left": 22
+      },
+      "recent": {
+        "x": 22,
+        "y": 513.171875,
+        "width": 346,
+        "height": 84,
+        "top": 513.171875,
+        "right": 368,
+        "bottom": 597.171875,
+        "left": 22
+      },
+      "primary": {
+        "x": 22,
+        "y": 294.6875,
+        "width": 137,
+        "height": 48,
+        "top": 294.6875,
+        "right": 159,
+        "bottom": 342.6875,
+        "left": 22
+      }
+    },
+    {
+      "name": "source-dialog",
+      "viewport": [
+        1180,
+        808
+      ],
+      "scrollWidth": 1180,
+      "hero": {
+        "x": 32,
+        "y": 106,
+        "width": 1116,
+        "height": 416.1796875,
+        "top": 106,
+        "right": 1148,
+        "bottom": 522.1796875,
+        "left": 32
+      },
+      "recent": {
+        "x": 32,
+        "y": 624.1796875,
+        "width": 1116,
+        "height": 99,
+        "top": 624.1796875,
+        "right": 1148,
+        "bottom": 723.1796875,
+        "left": 32
+      },
+      "primary": {
+        "x": 32,
+        "y": 364.640625,
+        "width": 137,
+        "height": 48,
+        "top": 364.640625,
+        "right": 169,
+        "bottom": 412.640625,
+        "left": 32
+      }
+    },
+    {
+      "name": "needs-setup",
+      "viewport": [
+        1180,
+        808
+      ],
+      "scrollWidth": 1180,
+      "hero": {
+        "x": 32,
+        "y": 106,
+        "width": 1116,
+        "height": 458.484375,
+        "top": 106,
+        "right": 1148,
+        "bottom": 564.484375,
+        "left": 32
+      },
+      "recent": {
+        "x": 32,
+        "y": 666.484375,
+        "width": 1116,
+        "height": 99,
+        "top": 666.484375,
+        "right": 1148,
+        "bottom": 765.484375,
+        "left": 32
+      },
+      "primary": {
+        "x": 32,
+        "y": 344.1015625,
+        "width": 167,
+        "height": 48,
+        "top": 344.1015625,
+        "right": 199,
+        "bottom": 392.1015625,
+        "left": 32
+      }
+    },
+    {
+      "name": "active-demo",
+      "viewport": [
+        1180,
+        808
+      ],
+      "scrollWidth": 1180,
+      "hero": {
+        "x": 32,
+        "y": 106,
+        "width": 1116,
+        "height": 416.1796875,
+        "top": 106,
+        "right": 1148,
+        "bottom": 522.1796875,
+        "left": 32
+      },
+      "recent": {
+        "x": 32,
+        "y": 624.1796875,
+        "width": 1116,
+        "height": 99,
+        "top": 624.1796875,
+        "right": 1148,
+        "bottom": 723.1796875,
+        "left": 32
+      },
+      "primary": {
+        "x": 32,
+        "y": 364.640625,
+        "width": 167,
+        "height": 48,
+        "top": 364.640625,
+        "right": 199,
+        "bottom": 412.640625,
+        "left": 32
+      }
+    },
+    {
+      "name": "history",
+      "viewport": [
+        1180,
+        808
+      ],
+      "scrollWidth": 1180,
+      "hero": {
+        "x": 32,
+        "y": 110,
+        "width": 1116,
+        "height": 175.484375,
+        "top": 110,
+        "right": 1148,
+        "bottom": 285.484375,
+        "left": 32
+      },
+      "recent": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "primary": {
+        "x": 1011,
+        "y": 139.1953125,
+        "width": 137,
+        "height": 48,
+        "top": 139.1953125,
+        "right": 1148,
+        "bottom": 187.1953125,
+        "left": 1011
+      }
+    },
+    {
+      "name": "home-mobile-initial",
+      "viewport": [
+        390,
+        844
+      ],
+      "scrollWidth": 390,
+      "hero": {
+        "x": 22,
+        "y": 95,
+        "width": 346,
+        "height": 344.171875,
+        "top": 95,
+        "right": 368,
+        "bottom": 439.171875,
+        "left": 22
+      },
+      "recent": {
+        "x": 22,
+        "y": 513.171875,
+        "width": 346,
+        "height": 84,
+        "top": 513.171875,
+        "right": 368,
+        "bottom": 597.171875,
+        "left": 22
+      },
+      "primary": {
+        "x": 22,
+        "y": 294.6875,
+        "width": 137,
+        "height": 48,
+        "top": 294.6875,
+        "right": 159,
+        "bottom": 342.6875,
+        "left": 22
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "initial preview rendered",
+      "pass": true
+    },
+    {
+      "name": "small viewport CTA and empty state fully visible",
+      "pass": true
+    },
+    {
+      "name": "small example expands",
+      "pass": true
+    },
+    {
+      "name": "settings dialog opens",
+      "pass": true
+    },
+    {
+      "name": "computer audio scope updates",
+      "pass": true
+    },
+    {
+      "name": "settings close without starting",
+      "pass": true
+    },
+    {
+      "name": "comparison sample renders",
+      "pass": true
+    },
+    {
+      "name": "personal sample labeled",
+      "pass": true
+    },
+    {
+      "name": "source matches current sample",
+      "pass": true
+    },
+    {
+      "name": "setup state changes CTA",
+      "pass": true
+    },
+    {
+      "name": "setup CTA opens audio dialog",
+      "pass": true
+    },
+    {
+      "name": "setup completion does not record",
+      "pass": true
+    },
+    {
+      "name": "start has loading state",
+      "pass": true
+    },
+    {
+      "name": "simulated active state labeled",
+      "pass": true
+    },
+    {
+      "name": "history records labeled synthetic",
+      "pass": true
+    },
+    {
+      "name": "history introduction is compact",
+      "pass": true
+    },
+    {
+      "name": "history search filters",
+      "pass": true
+    },
+    {
+      "name": "empty filtered state",
+      "pass": true
+    },
+    {
+      "name": "200 percent zoom no horizontal overflow",
+      "pass": true
+    },
+    {
+      "name": "no network or audio integration in HTML",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "result": "passed",
+  "htmlSha256": "d1634704b802737732522a76426bfc565d5d8a89623bb621c24d6e674c538c7c",
+  "note": "HTML格式整理后字节指纹；截图和交互对应相同语义内容。"
+}

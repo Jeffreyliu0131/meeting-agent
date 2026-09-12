@@ -1,0 +1,269 @@
+{
+  "checks": [
+    {
+      "name": "original functional structure and headline retained",
+      "pass": true
+    },
+    {
+      "name": "original view restored",
+      "pass": true
+    },
+    {
+      "name": "microphone list opens",
+      "pass": true
+    },
+    {
+      "name": "selection applies without recording",
+      "pass": true
+    },
+    {
+      "name": "computer audio toggles in place",
+      "pass": true
+    },
+    {
+      "name": "state retained across comparison",
+      "pass": true
+    },
+    {
+      "name": "existing settings open",
+      "pass": true
+    },
+    {
+      "name": "settings close cleanly",
+      "pass": true
+    },
+    {
+      "name": "history remains original list semantics",
+      "pass": true
+    },
+    {
+      "name": "existing filter and empty state work",
+      "pass": true
+    },
+    {
+      "name": "200 percent without horizontal overflow",
+      "pass": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "client-standard",
+      "width": 1180,
+      "height": 808,
+      "scrollWidth": 1180,
+      "hero": {
+        "x": 62,
+        "y": 108,
+        "width": 1056,
+        "height": 328.6875,
+        "top": 108,
+        "right": 1118,
+        "bottom": 436.6875,
+        "left": 62
+      },
+      "recent": {
+        "x": 62,
+        "y": 512.6875,
+        "width": 1056,
+        "height": 172.3984375,
+        "top": 512.6875,
+        "right": 1118,
+        "bottom": 685.0859375,
+        "left": 62
+      },
+      "barTop": 770
+    },
+    {
+      "name": "original",
+      "width": 1180,
+      "height": 808,
+      "scrollWidth": 1180,
+      "hero": {
+        "x": 62,
+        "y": 112,
+        "width": 1056,
+        "height": 321.640625,
+        "top": 112,
+        "right": 1118,
+        "bottom": 433.640625,
+        "left": 62
+      },
+      "recent": {
+        "x": 62,
+        "y": 557.8359375,
+        "width": 1056,
+        "height": 154.6953125,
+        "top": 557.8359375,
+        "right": 1118,
+        "bottom": 712.53125,
+        "left": 62
+      },
+      "barTop": 770
+    },
+    {
+      "name": "client-wide",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "hero": {
+        "x": 192,
+        "y": 108,
+        "width": 1056,
+        "height": 328.6875,
+        "top": 108,
+        "right": 1248,
+        "bottom": 436.6875,
+        "left": 192
+      },
+      "recent": {
+        "x": 192,
+        "y": 512.6875,
+        "width": 1056,
+        "height": 172.3984375,
+        "top": 512.6875,
+        "right": 1248,
+        "bottom": 685.0859375,
+        "left": 192
+      },
+      "barTop": 962
+    },
+    {
+      "name": "microphone-menu",
+      "width": 1180,
+      "height": 808,
+      "scrollWidth": 1180,
+      "hero": {
+        "x": 62,
+        "y": 108,
+        "width": 1056,
+        "height": 328.6875,
+        "top": 108,
+        "right": 1118,
+        "bottom": 436.6875,
+        "left": 62
+      },
+      "recent": {
+        "x": 62,
+        "y": 512.6875,
+        "width": 1056,
+        "height": 172.3984375,
+        "top": 512.6875,
+        "right": 1118,
+        "bottom": 685.0859375,
+        "left": 62
+      },
+      "barTop": 770
+    },
+    {
+      "name": "audio-selected",
+      "width": 1180,
+      "height": 808,
+      "scrollWidth": 1180,
+      "hero": {
+        "x": 62,
+        "y": 108,
+        "width": 1056,
+        "height": 328.6875,
+        "top": 108,
+        "right": 1118,
+        "bottom": 436.6875,
+        "left": 62
+      },
+      "recent": {
+        "x": 62,
+        "y": 512.6875,
+        "width": 1056,
+        "height": 172.3984375,
+        "top": 512.6875,
+        "right": 1118,
+        "bottom": 685.0859375,
+        "left": 62
+      },
+      "barTop": 770
+    },
+    {
+      "name": "history",
+      "width": 1180,
+      "height": 808,
+      "scrollWidth": 1180,
+      "hero": {
+        "x": 62,
+        "y": 108,
+        "width": 1056,
+        "height": 328.6875,
+        "top": 108,
+        "right": 1118,
+        "bottom": 436.6875,
+        "left": 62
+      },
+      "recent": {
+        "x": 62,
+        "y": 464.6875,
+        "width": 1056,
+        "height": 279.3984375,
+        "top": 464.6875,
+        "right": 1118,
+        "bottom": 744.0859375,
+        "left": 62
+      },
+      "barTop": 770
+    },
+    {
+      "name": "client-small",
+      "width": 800,
+      "height": 600,
+      "scrollWidth": 800,
+      "hero": {
+        "x": 24,
+        "y": 88,
+        "width": 752,
+        "height": 264.9765625,
+        "top": 88,
+        "right": 776,
+        "bottom": 352.9765625,
+        "left": 24
+      },
+      "recent": {
+        "x": 24,
+        "y": 418.9765625,
+        "width": 752,
+        "height": 138.3984375,
+        "top": 418.9765625,
+        "right": 776,
+        "bottom": 557.375,
+        "left": 24
+      },
+      "barTop": 562
+    },
+    {
+      "name": "client-mobile",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "hero": {
+        "x": 16,
+        "y": 82,
+        "width": 358,
+        "height": 416.96875,
+        "top": 82,
+        "right": 374,
+        "bottom": 498.96875,
+        "left": 16
+      },
+      "recent": {
+        "x": 16,
+        "y": 586.6640625,
+        "width": 358,
+        "height": 157.3984375,
+        "top": 586.6640625,
+        "right": 374,
+        "bottom": 744.0625,
+        "left": 16
+      },
+      "barTop": 806
+    }
+  ],
+  "errors": [],
+  "result": "passed",
+  "htmlSha256": "7eedf5313d13d4cbea99144128730dbbf6b4895f2f08ef3fe306adc969e174bc"
+}

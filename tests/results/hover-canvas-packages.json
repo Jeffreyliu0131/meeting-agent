@@ -1,0 +1,36 @@
+{
+  "updatedAt": "2026-09-12T15:07:36.212374+08:00",
+  "head": "55267d6",
+  "sourceSha256": "5011c180ff28ef216b4446d5c7d35254400a5115b1dad968ccc4a210bd281989",
+  "sourceSnapshot": "/private/tmp/meeting-hover-build-7r1xr14g",
+  "dailyRoot": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent",
+  "architectures": {
+    "macOS": "arm64",
+    "Windows": "x64"
+  },
+  "verifiedFiles": {
+    "dist": 14,
+    "release/mac-arm64/Meeting Agent.app": 256,
+    "release/win-unpacked": 72
+  },
+  "updatedFiles": {
+    "dist": [
+      "main.cjs.map",
+      "main.cjs",
+      "ui/index.html",
+      "ui/assets/main-BlVdRkWU.js"
+    ],
+    "release/mac-arm64/Meeting Agent.app": [
+      "Contents/Info.plist",
+      "Contents/Resources/app.asar"
+    ],
+    "release/win-unpacked": [
+      "Meeting Agent.exe",
+      "resources/app.asar"
+    ]
+  },
+  "macAsarSha256": "0b380d5019ac6cd7304d0aadd902bf33b68e405aee0876360aafc70d55abdac4",
+  "winAsarSha256": "0b380d5019ac6cd7304d0aadd902bf33b68e405aee0876360aafc70d55abdac4",
+  "dailyProcessRestarted": false,
+  "WindowsRuntimeTested": false
+}
