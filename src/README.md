@@ -21,6 +21,15 @@
 
 可靠性补充：`domain/meaning.ts`维护证据约束和依赖修订；`domain/closeout.ts`核对全场结束状态；`ui/MeetingReview.tsx`提供条件依据和结束汇总。行为和边界见[规范](../docs/agent-reliability.md)。
 
+## 跨会议文件夹新增模块
+
+- [collection.ts](domain/collection.ts)／[collection-digest.ts](domain/collection-digest.ts)：用户声明的会议分组、别名分配与确定性决策／未决项汇总（浏览器安全，不 import `node:`）。
+- [collection-context.ts](agent/collection-context.ts)：送进模型请求的确切对象；别名映射不外发。
+- [collection-state.ts](service/collection-state.ts)：别名解析、合成会议与分歧覆盖断言。
+- [CollectionView.tsx](ui/CollectionView.tsx)：文件夹管理、确定性面板与只读跨会议依据面板。
+
+边界见 [ADR-006](../docs/adr/006-cross-meeting-collections.md)。
+
 ## 有界工作流新增模块
 
 - [workflow.ts](agent/workflow.ts)／[tools.ts](agent/tools.ts)：实时与个人图、只读证据和受控计算。

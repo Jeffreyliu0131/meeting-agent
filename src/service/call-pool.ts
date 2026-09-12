@@ -1,5 +1,12 @@
 type Lane =
-  'understand' | 'personal' | 'generate' | 'transcribe' | 'translate' | 'component' | 'impact';
+  | 'understand'
+  | 'personal'
+  | 'generate'
+  | 'transcribe'
+  | 'translate'
+  | 'component'
+  | 'impact'
+  | 'collection';
 /** Four total calls; background lanes cannot consume understanding's reserved slot. */
 export class CallPool {
   private active = new Map<Lane, number>();

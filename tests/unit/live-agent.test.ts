@@ -67,7 +67,7 @@ function setup(
 ) {
   const service = new SessionService(
     {
-      load: () => ({ meetings: [], preferences: { ...defaults } }),
+      load: () => ({ meetings: [], collections: [], preferences: { ...defaults } }),
       save: () => {},
       command: () => null,
       close: () => {},
@@ -673,6 +673,7 @@ test('user rename wins over an in-flight automatic title proposal', async () => 
 test('start intent snapshots configured audio and never silently selects manual input', () => {
   const state = {
     meetings: [] as Meeting[],
+    collections: [],
     preferences: {
       ...defaults,
       audio: {

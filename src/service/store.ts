@@ -5,7 +5,7 @@ import {
   writeCollaboration,
 } from './collaboration-store';
 import { resolvePreferences } from '../domain/preferences';
-import type { Meeting, Preferences } from '../contracts/model';
+import type { Meeting, MeetingCollection, Preferences } from '../contracts/model';
 export const defaults: Preferences = {
   uiLanguage: 'system',
   defaultOutputLanguage: 'system',
@@ -24,11 +24,14 @@ export const defaults: Preferences = {
   meetingReminders: true,
 };
 export interface StorePort {
-  load(): { meetings: Meeting[]; preferences: Preferences };
+  load(): { meetings: Meeting[]; preferences: Preferences; collections: MeetingCollection[] };
   save(
     meetings: Meeting[],
     preferences: Preferences,
     command?: { id: string; hash: string; result: unknown },
+    // Optional and last so every existing 2- and 3-argument call site keeps
+    // working unchanged. Callers without collections legitimately pass none.
+    collections?: MeetingCollection[],
   ): void;
   command(id: string): { hash: string; result: unknown } | null;
   close(): void;
@@ -51,6 +54,7 @@ export class SQLiteStore implements StorePort {
     if (!row)
       return {
         meetings: [],
+        collections: [],
         preferences: resolvePreferences(
           { ...defaults },
           process.env.MEETING_SYSTEM_LOCALE ?? Intl.DateTimeFormat().resolvedOptions().locale,
@@ -60,6 +64,7 @@ export class SQLiteStore implements StorePort {
     const state = JSON.parse(row.payload as string) as {
       meetings: Meeting[];
       preferences: Preferences;
+      collections?: MeetingCollection[];
     };
     state.preferences = resolvePreferences(
       state.preferences,
@@ -69,12 +74,23 @@ export class SQLiteStore implements StorePort {
       const collaboration = loadCollaboration(this.db, meeting.id);
       if (collaboration) meeting.collaboration = collaboration;
     }
-    return state;
+    // schema_version stays 1 deliberately: there is no migration path and bumping
+    // it would brick every existing store. A payload written before collections
+    // existed simply has no key. Normalise here so a malformed value can never
+    // reach `.map` in the service - this is the one place a shape slip would
+    // corrupt user data permanently.
+    state.collections = Array.isArray(state.collections) ? state.collections : [];
+    return state as {
+      meetings: Meeting[];
+      preferences: Preferences;
+      collections: MeetingCollection[];
+    };
   }
   save(
     meetings: Meeting[],
     preferences: Preferences,
     command?: { id: string; hash: string; result: unknown },
+    collections: MeetingCollection[] = [],
   ) {
     this.db.exec('BEGIN IMMEDIATE');
     try {
@@ -86,6 +102,7 @@ export class SQLiteStore implements StorePort {
           JSON.stringify({
             meetings: meetings.map(({ collaboration, ...meeting }) => meeting),
             preferences,
+            collections,
           }),
         );
       for (const meeting of meetings)

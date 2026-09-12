@@ -11,7 +11,7 @@ let maxPending = 0,
   firstPreview = true;
 const service = new SessionService(
   {
-    load: () => ({ meetings: [], preferences: { ...defaults } }),
+    load: () => ({ meetings: [], collections: [], preferences: { ...defaults } }),
     save: () => {},
     command: () => null,
     close: () => {},

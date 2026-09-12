@@ -49,6 +49,14 @@ MEETING_STT_API_BASE=https://api.openai.com/v1
 
 缺STT凭证时正常开始会提示配置；缺理解模型凭证时不生成假内容。开发入口可独立测试文字、来源和保存；添加凭证后重启可恢复未处理输入。
 
+## 本地模型代理（开发用）
+
+`tools/litellm-proxy/` 把 DeepSeek（理解）与 OpenAI（转写）包装成同一个 OpenAI 形态的本地地址，供本机开发使用。**它是开发工具，不是产品的一部分**：应用本身通过 `ModelPort` 与凭证访问任意兼容服务，不依赖这个目录。
+
+macOS 与 Windows 各有一份启动脚本（`start.sh` / `start.ps1`）。设 `MEETING_AUTOSTART_PROXY=1` 后，桌面应用会在启动时自行拉起它，无需另开终端；未开启时行为不变。
+
+真实凭证放在该目录下的 `provider.env`（已 gitignore，模板见 `provider.env.example`），不进仓库。打包后的应用不包含 `tools/`，因此自动拉起只在开发运行时有效。
+
 ## 使用闭环
 
 1. 初次在 Settings 选择系统默认／指定麦克风，以及是否同时收听电脑声音。保存设置不录音。

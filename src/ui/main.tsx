@@ -27,6 +27,9 @@ import {
   Search,
   ListFilter,
   ListTree,
+  Plus,
+  Layers,
+  AlertTriangle,
 } from 'lucide-react';
 import { applyTheme } from './theme';
 import { MeetingReview, MeaningNotes } from './MeetingReview';
@@ -49,6 +52,7 @@ import './style.css';
 import { api } from './bridge';
 import { useLiveArtifact, ScenarioShelf } from './live';
 import { artifactIsStale } from '../domain/artifacts';
+import { collectionReportStaleness } from '../domain/collection';
 import {
   Modal,
   NewMeeting,
@@ -57,6 +61,7 @@ import {
   ScenarioEditor,
   DecisionModal,
 } from './components';
+import { CollectionModal, CollectionWorkspace } from './CollectionView';
 
 applyTheme();
 const role = new URLSearchParams(location.search).get('role') || 'workspace';
@@ -92,6 +97,11 @@ function App() {
   };
   const [meetingFilter, setMeetingFilter] = useState<'all' | 'active' | 'ended'>('all');
   const [search, setSearch] = useState('');
+  // Collections: which one is open, multi-select for creating one, and the modal.
+  const [collectionId, setCollectionId] = useState<string | null>(null);
+  const [selectMode, setSelectMode] = useState(false);
+  const [picked, setPicked] = useState<string[]>([]);
+  const [collectionModal, setCollectionModal] = useState<'new' | 'edit' | null>(null);
   const [sourceTarget, setSourceTarget] = useState('');
   const [outlineOpen, setOutlineOpen] = useState(false);
   const [outlineSelection, setOutlineSelection] = useState('');
@@ -101,6 +111,7 @@ function App() {
   };
   const startRequest = useRef<string | null>(null);
   const current = snapshot?.meetings.find((m) => m.id === selected),
+    currentCollection = snapshot?.collections.find((c) => c.id === collectionId),
     locale = snapshot?.preferences.uiLocale || 'en',
     t = translator(locale);
   const latest =
@@ -182,6 +193,26 @@ function App() {
     setAskOpen(false);
     setAskContext(null);
     setSourceText('');
+  };
+  const openCollection = (id: string) => {
+    setCollectionId(id);
+    setSelected(null);
+    setSourceRefs(null);
+    setSelectMode(false);
+    setPicked([]);
+  };
+  /**
+   * openMeeting() clears sourceRefs, so setting them in the same handler is what
+   * makes "open this evidence in that meeting" work: React batches both updates
+   * and the last write wins.
+   */
+  const openInMeeting = (meetingId: string, refs: Ref[]) => {
+    const target = snapshot?.meetings.find((m) => m.id === meetingId);
+    if (!target) return;
+    openMeeting(target);
+    setSourceRefs(refs.length ? refs : null);
+    setSourceTarget(target.title);
+    setCollectionId(null);
   };
   const active = snapshot?.meetings.find((m) => m.status === 'active');
   const indicator = launcherIndicator(active, serviceError);
@@ -359,7 +390,7 @@ function App() {
   };
   return (
     <div
-      className={`app-shell ${current ? 'meeting-shell' : 'home-shell'} ${sourceRefs !== null ? 'has-source' : ''}`}
+      className={`app-shell ${current || currentCollection ? 'meeting-shell' : 'home-shell'} ${sourceRefs !== null ? 'has-source' : ''}`}
     >
       <header className="toolbar">
         {current ? (
@@ -458,7 +489,27 @@ function App() {
           <button onClick={() => setError('')}>{t('dismiss')}</button>
         </div>
       )}
-      {!current ? (
+      {currentCollection ? (
+        <CollectionWorkspace
+          collection={currentCollection}
+          meetings={snapshot.meetings}
+          locale={locale}
+          onBack={() => setCollectionId(null)}
+          onEdit={() => setCollectionModal('edit')}
+          onDelete={() =>
+            void act(async () => {
+              await command('collectionDelete', { collectionId: currentCollection.id }, null);
+              setCollectionId(null);
+            })
+          }
+          onGenerate={() =>
+            void act(() =>
+              command('collectionReport', { collectionId: currentCollection.id }, null),
+            )
+          }
+          onOpenInMeeting={openInMeeting}
+        />
+      ) : !current ? (
         <main className="library">
           <section className="home-hero">
             <div className="hero-kicker">
@@ -511,6 +562,78 @@ function App() {
               </button>
             </div>
           )}
+          <section className="collections">
+            <div className="recent-heading">
+              <h2>{t('collection.heading')}</h2>
+              <span>{t('collection.hint')}</span>
+              {snapshot.meetings.length > 0 && (
+                <button
+                  className="source-link"
+                  aria-pressed={selectMode}
+                  onClick={() => {
+                    setSelectMode(!selectMode);
+                    setPicked([]);
+                  }}
+                >
+                  {t(selectMode ? 'collection.selectCancel' : 'collection.select')}
+                </button>
+              )}
+            </div>
+            {selectMode && (
+              <div className="collection-pick">
+                <span>
+                  {picked.length} {t('collection.selectedSuffix')}
+                </span>
+                <button
+                  className="primary"
+                  disabled={!picked.length}
+                  onClick={() => setCollectionModal('new')}
+                >
+                  <Plus size={15} />
+                  {t('collection.createFromSelection')}
+                </button>
+              </div>
+            )}
+            {snapshot.collections.length > 0 && (
+              <div className="meeting-list">
+                {snapshot.collections.map((c) => {
+                  const latestReport = c.reports.at(-1);
+                  const stale = latestReport
+                    ? collectionReportStaleness(latestReport, c, snapshot.meetings).length > 0
+                    : false;
+                  return (
+                    <button
+                      className="collection-row"
+                      key={c.id}
+                      onClick={() => openCollection(c.id)}
+                    >
+                      <span className="meeting-file is-collection">
+                        <Layers size={21} />
+                      </span>
+                      <div className="meeting-row-content">
+                        <strong>{c.title}</strong>
+                        <p>
+                          {c.meetingIds.length} {t('collection.meetingSuffix')}
+                          <span>·</span>
+                          {c.reports.length} {t('collection.reportSuffix')}
+                        </p>
+                      </div>
+                      {stale && (
+                        <span className="status status-warning">
+                          <AlertTriangle size={13} />
+                          {t('collection.report.stale')}
+                        </span>
+                      )}
+                      <ChevronRight className="row-chevron" size={17} />
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {snapshot.collections.length === 0 && !selectMode && (
+              <p className="muted collection-empty">{t('collection.empty')}</p>
+            )}
+          </section>
           <section className="recent-meetings">
             <div className="recent-heading">
               <h2>{t('meeting.recent')}</h2>
@@ -573,32 +696,54 @@ function App() {
                     </button>
                   </div>
                 )}
-                {filteredMeetings.map((m) => (
-                  <button className="meeting-row" key={m.id} onClick={() => openMeeting(m)}>
-                    <span className={`meeting-file ${m.status === 'active' ? 'is-active' : ''}`}>
-                      <FileText size={21} />
-                    </span>
-                    <div className="meeting-row-content">
-                      <strong>{m.title}</strong>
-                      <p>
-                        <Clock3 size={13} />
-                        {new Date(m.createdAt).toLocaleString(locale, {
-                          month: 'short',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                        <span>·</span>
-                        {t(m.mode)}
-                      </p>
-                    </div>
-                    <span className={`status status-${m.capture}`}>
-                      <i className={`dot ${m.capture}`} />
-                      {t('status.' + m.capture)}
-                    </span>
-                    <ChevronRight className="row-chevron" size={17} />
-                  </button>
-                ))}
+                {filteredMeetings.map((m) => {
+                  const body = (
+                    <>
+                      <span className={`meeting-file ${m.status === 'active' ? 'is-active' : ''}`}>
+                        <FileText size={21} />
+                      </span>
+                      <div className="meeting-row-content">
+                        <strong>{m.title}</strong>
+                        <p>
+                          <Clock3 size={13} />
+                          {new Date(m.createdAt).toLocaleString(locale, {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                          <span>·</span>
+                          {t(m.mode)}
+                        </p>
+                      </div>
+                    </>
+                  );
+                  // A checkbox may not nest inside the row button, so in selection
+                  // mode the row itself becomes the label and keeps its hit area.
+                  return selectMode ? (
+                    <label className="meeting-row selectable" key={m.id}>
+                      <input
+                        type="checkbox"
+                        checked={picked.includes(m.id)}
+                        onChange={() =>
+                          setPicked((c) =>
+                            c.includes(m.id) ? c.filter((x) => x !== m.id) : [...c, m.id],
+                          )
+                        }
+                      />
+                      {body}
+                    </label>
+                  ) : (
+                    <button className="meeting-row" key={m.id} onClick={() => openMeeting(m)}>
+                      {body}
+                      <span className={`status status-${m.capture}`}>
+                        <i className={`dot ${m.capture}`} />
+                        {t('status.' + m.capture)}
+                      </span>
+                      <ChevronRight className="row-chevron" size={17} />
+                    </button>
+                  );
+                })}
               </div>
             )}
           </section>
@@ -1089,6 +1234,45 @@ function App() {
             />
           )}
         </>
+      )}
+      {collectionModal && (
+        <CollectionModal
+          collection={collectionModal === 'edit' ? currentCollection : undefined}
+          meetings={snapshot.meetings}
+          locale={locale}
+          close={() => setCollectionModal(null)}
+          save={async ({ title, brief, meetingIds }) => {
+            if (collectionModal === 'edit' && currentCollection) {
+              await command(
+                'collectionUpdate',
+                {
+                  collectionId: currentCollection.id,
+                  baseRevision: currentCollection.revision,
+                  title,
+                  brief,
+                },
+                null,
+              );
+              // Members are a separate command, so the revision above must be the
+              // one the dialog was opened with; the service bumps it in between.
+              await command(
+                'collectionMembers',
+                { collectionId: currentCollection.id, meetingIds },
+                null,
+              );
+            } else {
+              const id = (await command(
+                'collectionCreate',
+                { title, brief, meetingIds },
+                null,
+              )) as string;
+              setCollectionId(id);
+              setSelectMode(false);
+              setPicked([]);
+            }
+            setCollectionModal(null);
+          }}
+        />
       )}
       {newMeeting && snapshot.capabilities.developerInputs && (
         <NewMeeting
