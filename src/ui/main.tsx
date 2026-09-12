@@ -1,4 +1,6 @@
 import { MeetingReminderBubble } from './MeetingReminderBubble';
+
+import { IntentPanel } from './IntentPanel';
 import { WorkflowPanel } from './WorkflowPanel';
 import { CollaborationPanel } from './collaboration/Panel';
 import launcherArtwork from './assets/launcher-dialogue-v1.png';
@@ -991,6 +993,13 @@ function App() {
                 )}
               </div>
             )}
+            <IntentPanel
+              key={current.id}
+              meeting={current}
+              locale={locale}
+              command={(type, payload) => command(type as any, payload)}
+              onSources={openSources}
+            />
             <WorkflowPanel
               meeting={current}
               locale={locale}
@@ -1250,14 +1259,8 @@ function App() {
                   baseRevision: currentCollection.revision,
                   title,
                   brief,
+                  meetingIds,
                 },
-                null,
-              );
-              // Members are a separate command, so the revision above must be the
-              // one the dialog was opened with; the service bumps it in between.
-              await command(
-                'collectionMembers',
-                { collectionId: currentCollection.id, meetingIds },
                 null,
               );
             } else {

@@ -18,8 +18,7 @@ export function collectionPayload(digest: CollectionDigest) {
       state,
       gaps,
     })),
-    // `alias` is stripped: the model cites a decision through its sources, and
-    // handing it an object-shaped alias invites INVALID_OBJECT.
+    // Decision aliases in sources identify recorded business confirmations, not utterances or objects.
     decisions: digest.decisions.map(({ alias, ...rest }) => rest),
     open: digest.open,
     disputes: digest.disputes,

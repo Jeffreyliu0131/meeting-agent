@@ -1,3 +1,4 @@
+import { collectionDecisions } from './collection-decisions';
 import type {
   CollectionAlias,
   CollectionOmitted,
@@ -20,7 +21,8 @@ import { classifyOpenItems } from './closeout';
  */
 
 export type DigestQuote = { alias: string; meetingAlias: string; text: string };
-export type OpenReason = 'unresolved' | 'conditional' | 'incomplete_task' | 'review' | 'provisional';
+export type OpenReason =
+  'unresolved' | 'conditional' | 'incomplete_task' | 'review' | 'provisional';
 export type DigestOpenItem = {
   alias: string;
   meetingAlias: string;
@@ -171,10 +173,11 @@ function findDisputes(
       while (stack.length) {
         const id = stack.pop()!;
         component.push(id);
-        for (const next of adjacency.get(id) ?? []) if (!seen.has(next)) {
-          seen.add(next);
-          stack.push(next);
-        }
+        for (const next of adjacency.get(id) ?? [])
+          if (!seen.has(next)) {
+            seen.add(next);
+            stack.push(next);
+          }
       }
       if (component.length < 2) continue;
       const positions = component
@@ -221,7 +224,7 @@ function findDisputes(
 export function buildCollectionDigest(
   collection: MeetingCollection,
   meetings: Meeting[],
-  maxBytes: number,
+  maxBytes: number = 32000,
 ): CollectionDigest {
   const aliaser = createAliaser(collection, meetings);
   const members = collection.meetingIds
@@ -256,23 +259,25 @@ export function buildCollectionDigest(
     bytes: 0,
   };
 
-  // Decisions are already recorded and evidence-checked; they are never synthesised.
+  // Both legacy artifact confirmations and scoped collaboration decisions remain distinct evidence.
   for (const m of members)
-    for (const d of m.decisions) {
-      if (d.scope !== 'meeting') continue;
-      const a = aliaser.alias(m.id, 'decision', d.id, 1);
+    for (const d of collectionDecisions(m)) {
+      const a = aliaser.alias(m.id, 'decision', d.id, d.rev);
       if (!a) continue;
       digest.decisions.push({
         alias: a,
         meetingAlias: aliaser.meetingAlias.get(m.id)!,
         meetingTitle: m.title,
-        question: d.artifact?.question ?? '',
-        summary: d.artifact?.summary ?? '',
+        question: d.scope,
+        summary: d.statement,
         basis: d.basis,
         participants: d.participants,
-        sources: d.sources
-          .map((r) => aliaser.alias(m.id, 'source', r.id, headRev(m, r.id) || r.rev))
-          .filter((x): x is string => !!x),
+        sources: [
+          a,
+          ...d.sources
+            .map((r) => aliaser.alias(m.id, 'source', r.id, r.rev))
+            .filter((x): x is string => !!x),
+        ],
       });
     }
 
@@ -311,7 +316,10 @@ export function buildCollectionDigest(
         deadline: o.meaning?.deadline?.value ?? null,
         conditions: o.meaning?.conditionIds ?? [],
         reason,
-        quotes: quote && q ? [{ alias: q, meetingAlias: aliaser.meetingAlias.get(m.id)!, text: quote }] : [],
+        quotes:
+          quote && q
+            ? [{ alias: q, meetingAlias: aliaser.meetingAlias.get(m.id)!, text: quote }]
+            : [],
       });
     }
   }
@@ -320,9 +328,8 @@ export function buildCollectionDigest(
 
   // TextEncoder, not Buffer: this module is also bundled into the renderer.
   const size = () =>
-    new TextEncoder().encode(
-      JSON.stringify({ ...digest, bytes: 0, aliasMap: {}, aliasRefs: [] }),
-    ).length;
+    new TextEncoder().encode(JSON.stringify({ ...digest, bytes: 0, aliasMap: {}, aliasRefs: [] }))
+      .length;
   const trimQuotes = (limit: number | null) => {
     for (const item of digest.open) {
       if (limit === null) {

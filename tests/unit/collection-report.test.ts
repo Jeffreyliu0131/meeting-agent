@@ -76,10 +76,7 @@ test('an unknown alias is rejected rather than silently dropped', () => {
 
 test('a source alias used where an object is required is rejected', () => {
   const map = { o1: alias('o1', 'm1', 'source', 'real') };
-  assert.throws(
-    () => resolveAliases(report({ objectIds: ['o1'] }), map),
-    /ALIAS_KIND_MISMATCH/,
-  );
+  assert.throws(() => resolveAliases(report({ objectIds: ['o1'] }), map), /ALIAS_KIND_MISMATCH/);
 });
 
 test('resolution reports exactly the aliases the report cites', () => {
@@ -88,14 +85,8 @@ test('resolution reports exactly the aliases the report cites', () => {
     o1: alias('o1', 'm1', 'object', 'obj'),
     o2: alias('o2', 'm1', 'object', 'unused'),
   };
-  const used = resolveAliases(
-    report({ sources: [{ id: 's1', rev: 1 }], objectIds: ['o1'] }),
-    map,
-  );
-  assert.deepEqual(
-    used.map((a) => a.alias).sort(),
-    ['o1', 's1'],
-  );
+  const used = resolveAliases(report({ sources: [{ id: 's1', rev: 1 }], objectIds: ['o1'] }), map);
+  assert.deepEqual(used.map((a) => a.alias).sort(), ['o1', 's1']);
 });
 
 test('kind checking reaches nested block refs, not just the top level', () => {
@@ -163,12 +154,23 @@ test('a report that drops a disagreement is rejected as incomplete', () => {
   // A report that never mentions the disputed object must not be published.
   assert.throws(() => assertCollectionCoverage(report(), digest), /COLLECTION_DISPUTE_OMITTED/);
   assert.doesNotThrow(() =>
-    assertCollectionCoverage(report({ objectIds: [digest.disputes[0].positions[0].alias] }), digest),
+    assertCollectionCoverage(
+      report({ objectIds: [digest.disputes[0].positions[0].alias] }),
+      digest,
+    ),
   );
 });
 
 test('a decision alias is not object-shaped, so citing it as an object is a kind error', () => {
-  const decision = { id: 'dec-1', scope: 'meeting', artifact: {}, basis: '', participants: '', sources: [], createdAt: '' };
+  const decision = {
+    id: 'dec-1',
+    scope: 'meeting',
+    artifact: {},
+    basis: '',
+    participants: '',
+    sources: [],
+    createdAt: '',
+  };
   const m = {
     id: 'm1',
     title: 'Kickoff',
@@ -208,8 +210,13 @@ test('a decision alias is not object-shaped, so citing it as an object is a kind
     /ALIAS_KIND_MISMATCH/,
   );
   // And a decision must not be handed to the model with an object-shaped alias.
-  const payload = JSON.stringify(collectionPayloadForTest(digest));
-  assert.ok(!payload.includes(decisionAlias));
+  const payload = collectionPayloadForTest(digest);
+  assert.equal('alias' in payload.decisions[0], false);
+  assert.ok(payload.decisions[0].sources.includes(decisionAlias));
+  assert.equal(
+    resolveAliases(report({ sources: [{ id: decisionAlias, rev: 1 }] }), digest.aliasMap)[0].kind,
+    'decision',
+  );
 });
 
 test('the synthetic meeting excludes personal request segments', () => {

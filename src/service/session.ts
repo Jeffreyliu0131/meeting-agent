@@ -1,3 +1,8 @@
+import {
+  applyCollaboration,
+  validateCollaboration,
+  refreshCollaboration,
+} from '../domain/intent-preparation';
 import { CallPool } from './call-pool';
 import {
   CollaborationRuntime,
@@ -377,6 +382,8 @@ export class SessionService {
       const m = meetings.find((m) => m.id === c.meetingId);
       if (!m) throw new Error('MEETING_NOT_FOUND');
       ({ result, schedule } = reduceMeeting(m, c));
+      if (c.type === 'collaborationPromote')
+        enqueueCollaborationImpact(m, c.id, false, String(result));
       if (c.type === 'end' && m.collaboration) endCollaboration(m.collaboration);
     }
     if ((c.type === 'ask' || c.type === 'answerClarification') && result) {
@@ -422,6 +429,7 @@ export class SessionService {
         schedule = pendingSegments(m).length > 0;
       }
     }
+    if (c.type === 'collaborationPromote' && c.meetingId) void this.drainCollaboration(c.meetingId);
     if (schedule && c.meetingId) this.schedule(c.meetingId);
     return result;
   }
@@ -908,11 +916,15 @@ export class SessionService {
         this.config.collectionContextBytes ?? 32000,
         this.model.maxCollectionContextBytes ?? Infinity,
       );
-      const collectionDigest = buildCollectionDigest(collection, this.meetings, budget);
+      const definition = structuredClone(collection);
+      const members = structuredClone(
+        this.meetings.filter((m) => definition.meetingIds.includes(m.id)),
+      );
+      const collectionDigest = buildCollectionDigest(definition, members, budget);
       // validateRefs requires at least one source, and rightly so: a report with
       // nothing to cite is not a report. Say so plainly instead of failing deep
       // inside validation with MISSING_SOURCE.
-      if (!collectionDigest.aliasRefs.some((a) => a.kind === 'source'))
+      if (!collectionDigest.aliasRefs.some((a) => a.kind === 'source' || a.kind === 'decision'))
         throw new Error('COLLECTION_EMPTY');
       const payload = collectionPayload(collectionDigest);
       let repair: string | undefined;
@@ -921,9 +933,23 @@ export class SessionService {
         const result = await this.runCollectionCall(collectionId, (options) =>
           this.model.synthesize!(payload, repair, options),
         );
+        const current = this.collections.find((c) => c.id === collectionId);
+        if (
+          !current ||
+          current.revision !== definition.revision ||
+          members.some((before) => {
+            const after = this.meetings.find((m) => m.id === before.id);
+            return (
+              !after ||
+              after.revision !== before.revision ||
+              after.languageRevision !== before.languageRevision
+            );
+          })
+        )
+          throw new Error('COLLECTION_CHANGED');
         try {
           const aliasRefs = resolveAliases(result.report, collectionDigest.aliasMap);
-          const synthetic = syntheticCollectionMeeting(collectionDigest.aliasMap, this.meetings);
+          const synthetic = syntheticCollectionMeeting(collectionDigest.aliasMap, members);
           validateArtifact(
             result.report as unknown as Artifact,
             synthetic,
@@ -941,7 +967,12 @@ export class SessionService {
             purposeKey: 'collection-report',
             rev: (live.reports.at(-1)?.rev ?? 0) + 1,
             generation: 1,
-            locale: live.outputLocale,
+            locale: definition.outputLocale,
+            definition: {
+              title: definition.title,
+              brief: definition.brief,
+              outputLocale: definition.outputLocale,
+            },
             languageRevision: 1,
             inputVersion: 1,
             objectRefs: [],
@@ -949,15 +980,13 @@ export class SessionService {
             changedBlockIds: result.report.blocks.map((b) => b.id),
             updateKind: 'create',
             createdAt,
-            meetingIds: [...live.meetingIds],
-            watermarks: this.meetings
-              .filter((m) => live.meetingIds.includes(m.id))
-              .map((m) => ({
-                meetingId: m.id,
-                revision: m.revision,
-                languageRevision: m.languageRevision,
-                inputVersion: m.inputVersion,
-              })),
+            meetingIds: [...definition.meetingIds],
+            watermarks: members.map((m) => ({
+              meetingId: m.id,
+              revision: m.revision,
+              languageRevision: m.languageRevision,
+              inputVersion: m.inputVersion,
+            })),
             aliasMap: collectionDigest.aliasMap,
             aliasRefs,
             digestHash: digest({ ...collectionDigest, bytes: undefined }),
@@ -1145,6 +1174,8 @@ export class SessionService {
                   )
                     throw new Error('INVALID_INTENT_TARGET');
                 }
+
+              validateCollaboration(p, snapshot);
             },
             evidence: async (request) => {
               const j = currentJob();
@@ -1252,7 +1283,11 @@ export class SessionService {
       const originalObjects = structuredClone(next.objects),
         originalRelations = structuredClone(next.relations);
       validateDelta(proposal, personal ? snapshot : scopedContext(current, 'meeting'));
+      validateCollaboration(proposal, personal ? snapshot : scopedContext(current, 'meeting'));
       if (!languageOnly) commitMeaning(next, proposal);
+      if (!personal) validateCollaboration({ ...proposal, objects: [] }, next);
+      if (!personal && !languageOnly) applyCollaboration(next, proposal, batch.accepted, jobId!);
+      refreshCollaboration(next);
       if (
         !personal &&
         proposal.titleProposal &&
@@ -1417,7 +1452,7 @@ export class SessionService {
       if (!personal && next.collaboration) {
         enqueueCollaborationIntents(
           next,
-          proposal.collaborationIntents ?? [],
+          next.intentPreparation?.enabled ? [] : (proposal.collaborationIntents ?? []),
           batch.accepted,
           jobId,
         );

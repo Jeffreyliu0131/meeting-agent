@@ -6,6 +6,7 @@
 
 | 记录 | 类型／状态 | 主要内容 |
 |---|---|---|
+| [新分支整合](2026-09-12-branch-integration.md) | 进行中 | 两新分支与现有协作／Live Transcribe整合，210单元通过 |
 | [PR #3修复与合并](2026-09-12-pr3-fix-merge.md) | 修复通过，交付中 | PR141单元／25桌面；本地整合152／31，两端候选同源，准备合并 |
 | [首版协作组件实施](2026-09-12-collaboration-implementation.md) | 已提交／推送，[PR #3](https://github.com/Jeffreyliu0131/meeting-agent/pull/3) | 四类悬浮窗、M/C/R、本地三人闭环；合入main并解冲突，133单元／25桌面覆盖通过；完整设计差距另记 |
 | [首版协作组件与 LangGraph 设计](2026-09-12-collaboration-components-design.md) | 设计完成，已授权实施 | 四组件、完整图与触发矩阵、schema、角色投影和62项验收目标；实际覆盖见后续实施记录 |
@@ -16,6 +17,8 @@
 | [会议候选提醒](2026-09-12-meeting-reminder.md) | 提醒代码／双端包已同步，[PR #1](https://github.com/Jeffreyliu0131/meeting-agent/pull/1) | 99单元／19桌面与Mac包通过；真实检测待接入、系统投递／Windows真机待验 |
 
 | [跨会议文件夹与综合纪要](2026-09-12-meeting-collections.md) | 实现中（xuwenzhe 分支，未提交）；Phase 0–3 完成，真实模型语义未验收 | 用户声明的会议分组、确定性决策／未决项汇总、别名隔离的跨会议报告 |
+
+| [四类协作意图](2026-09-12-four-intents.md) | 首轮完成，a0a6a60已推送origin/FTY | 四类候选／私有草稿；107单元／1定向Electron；真实语义与完整多人闭环未验 |
 | [界面语言与交互打磨](2026-09-12-interface-polish.md) | 代码／两端本地包已同步，91962b9已推送；Windows运行待验 | 跟随系统、即时保存及交互细节；86单元／14桌面、Mac包验证通过 |
 | [Mac／Windows本地包同步](2026-09-12-cross-platform-sync.md) | 本地同步及推送完成，Windows真机待验 | 两端14个文件及app.asar一致；11项桌面通过；同步证据06f57d2已推送，日常库0事件 |
 | [Agent工作流验收与推送](2026-09-12-agent-workflow-acceptance-push.md) | 完成，9b6886d已推送 | 修复审查问题；86项单元／11项Electron、双端包与macOS烟测 |

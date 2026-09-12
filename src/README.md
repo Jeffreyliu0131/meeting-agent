@@ -1,5 +1,7 @@
 # 产品实现
 
+四类意图模块：[契约](contracts/intent-preparation.ts)、[可信草稿规则](domain/intent-preparation.ts)、[界面](ui/IntentPanel.tsx)。共用现有理解、版本与存储事务，实际边界见[意图说明](../docs/collaboration-intents.md)。
+
 业务、输入和表达采用明确边界；当前连续 Agent 采用 [ADR-005](../docs/adr/005-bounded-agent-workflows.md)，采集基线保留 [ADR-004](../docs/adr/004-live-agent-pipeline.md)，首版历史见 [ADR-003](../docs/adr/003-cross-platform-first-version.md)，进度见[状态](../docs/status.md)与[Agent 迭代记录](../docs/sessions/2026-09-11-agent-iteration.md)。目录存在不表示功能已验收。
 
 - `contracts/`：运行时 schema 与持久化／IPC 类型。
@@ -57,3 +59,5 @@
 [ui/preference-writer.ts](ui/preference-writer.ts)串行发送字段补丁、保留最新用户意图、失败回滚／重试；[domain/preferences.ts](domain/preferences.ts)定义preferencesPatch的严格校验与嵌套合并。设置不再等待整份Save，快捷键注册由桌面层协调持久化失败回滚。
 
 流式授权队列及首包、短尾音、双音轨、取消和预算回归见`tests/unit/live-transcription-service.test.ts`；PR #3修复及交付证据见[验证](../tests/results/pr3-fix-validation.md)。
+
+整合入口：domain/promote-intent.ts负责私有草稿转正式组件；domain/collection-decisions.ts提供只读确认记录，service/store.ts兼容旧FTY存储；tests/unit/integration-flows.test.ts与tests/e2e/collections.spec.ts验证端到端连接。

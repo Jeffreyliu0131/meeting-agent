@@ -71,6 +71,11 @@ export class SQLiteStore implements StorePort {
       process.env.MEETING_SYSTEM_LOCALE ?? Intl.DateTimeFormat().resolvedOptions().locale,
     );
     for (const meeting of state.meetings) {
+      const legacy = meeting.collaboration as unknown as Meeting['intentPreparation'];
+      if (legacy && Array.isArray(legacy.drafts) && typeof legacy.enabled === 'boolean') {
+        meeting.intentPreparation ??= legacy;
+        delete meeting.collaboration;
+      }
       const collaboration = loadCollaboration(this.db, meeting.id);
       if (collaboration) meeting.collaboration = collaboration;
     }

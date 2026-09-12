@@ -22,6 +22,7 @@
 
 | 工作 | 核实到的状态 | 接手记录 |
 |---|---|---|
+| 新分支整合 | 进行中：FTY意图准备与正式协作、跨会议报告均已接通；210单元通过，桌面回归中 | [本轮记录](sessions/2026-09-12-branch-integration.md) |
 | PR #3修复与合并 | 修复与验证通过，待合并及日常包回写：PR141单元／25桌面；本地整合152／31，双端候选同源，Mac包通过 | [本轮记录](sessions/2026-09-12-pr3-fix-merge.md) |
 | 首版协作组件实施 | 已提交／推送，[PR #3](https://github.com/Jeffreyliu0131/meeting-agent/pull/3)，合入596c8b7并解决9份冲突（dde60ad），133单元／桌面25项覆盖通过。核心实现：四类悬浮窗、悬浮球提示、可信本地三人互动及M/C/R；115单元／17桌面通过；真实模型／macOS和完整设计差距待补验，未重启日常应用或替换包 | [实施计划](collaboration-v1-implementation.md)／[实施记录](sessions/2026-09-12-collaboration-implementation.md) |
 | 首版协作组件与 LangGraph | 目标设计已批准；首版核心已实施，62项按[结果矩阵](../tests/results/collaboration-v1-validation.md)区分覆盖／差距 | [完整设计](collaboration-v1-design.md)／[设计记录](sessions/2026-09-12-collaboration-components-design.md) |
@@ -30,6 +31,8 @@
 
 | 设置即时生效 | 代码／双端包已同步；104单元、22桌面及收尾6项设置复核通过；Mac包与日常进程已更新，Windows代码／构建核对通过，真机按本轮范围未验；[PR #2](https://github.com/Jeffreyliu0131/meeting-agent/pull/2) | [本轮记录](sessions/2026-09-12-settings-autosave.md) |
 | 会议候选提醒 | 提醒代码／双端本地包已同步，99单元／19桌面及Mac包检查通过；真实检测待接入、双端原生投递待验；[PR #1](https://github.com/Jeffreyliu0131/meeting-agent/pull/1) | [本轮记录](sessions/2026-09-12-meeting-reminder.md) |
+
+| 四类协作意图 | a0a6a60已推送origin/FTY并核对：四类候选／私有草稿、手工保护与恢复；107单元／1定向Electron通过，真实模型未验 | [本轮记录](sessions/2026-09-12-four-intents.md) |
 | 界面语言与交互打磨 | 代码／两端本地包已同步：跟随系统及即时切换、文字与焦点打磨；86单元／14桌面、Mac包检查通过；Windows运行待验；91962b9已推送origin/main | [本轮记录](sessions/2026-09-12-interface-polish.md) |
 | Mac／Windows本地包同步 | 本地release均已更新至9b6886d产品源码，14文件及app.asar一致；11项桌面通过，Mac新包已打开；同步证据06f57d2已推送，当前日常库0会议，Windows真机待验 | [本轮记录](sessions/2026-09-12-cross-platform-sync.md) |
 | 跨会议文件夹与综合纪要 | 实现中：Phase 0–3 完成并已推送 `origin/xuwenzhe`（含本地代理随应用启动）；125项单元测试通过；真实模型语义与双端未验收 | [本轮记录](sessions/2026-09-12-meeting-collections.md)／[ADR-006](adr/006-cross-meeting-collections.md) |

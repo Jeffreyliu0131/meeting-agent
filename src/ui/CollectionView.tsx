@@ -12,7 +12,11 @@ import { MAX_COLLECTION_MEMBERS } from '../contracts/model';
 import { translator } from './i18n';
 import { Modal } from './components';
 import { ArtifactView } from '../renderers/ArtifactView';
-import { collectionReportStaleness, groupCitations, type CitationGroup } from '../domain/collection';
+import {
+  collectionReportStaleness,
+  groupCitations,
+  type CitationGroup,
+} from '../domain/collection';
 
 /** Mirrors MEETING_COLLECTION_CONTEXT_BYTES. The renderer cannot read env, and
  *  this panel is advisory - the service enforces the real cap on generation. */
@@ -294,11 +298,7 @@ export function CollectionWorkspace({
           <h2>{t('collection.members')}</h2>
           <div className="meeting-list">
             {members.map((m) => (
-              <button
-                className="meeting-row"
-                key={m.id}
-                onClick={() => openInMeeting(m.id, [])}
-              >
+              <button className="meeting-row" key={m.id} onClick={() => openInMeeting(m.id, [])}>
                 <span className={`meeting-file ${m.status === 'active' ? 'is-active' : ''}`}>
                   <FileText size={21} />
                 </span>
@@ -354,7 +354,11 @@ export function CollectionWorkspace({
           </div>
           {collection.reportError && (
             <div role="alert" className="banner error">
-              {collection.reportError}
+              {collection.reportError === 'COLLECTION_CHANGED'
+                ? locale === 'zh-CN'
+                  ? '生成期间会议或文件夹已更新，请重新生成。旧报告已保留。'
+                  : 'The meetings or collection changed during generation. Regenerate; the previous report is preserved.'
+                : collection.reportError}
             </div>
           )}
           {stale.length > 0 && (

@@ -1,5 +1,7 @@
 # 执行记录
 
+首轮四类协作意图：[Windows合成程序与桌面验证](four-intents-validation.md)，107项单元和1项定向Electron流程；真实语义未验。
+
 [validation.md](validation.md) 是已交付首版（本地基线 `5fcd90f`）的实际结果与限制；[package-smoke.json](package-smoke.json)、[microphone-probe.json](microphone-probe.json)、[package-content.json](package-content.json) 为已执行探针元数据，不含录音或真实会议原文。
 
 `npm test` 执行领域与架构测试；`npm run test:e2e` 在图形桌面打开真实 Electron 窗口，生成本地 JSON 报告与合成输入截图。原始 UI 报告可能含主机路径，不默认跟踪。

@@ -2,6 +2,8 @@
 
 协作组件图与事件路由已接入当前工作树，详见[协作实际运行时](collaboration-v1-runtime.md)，目标结构及逐组件触发见[设计](collaboration-v1-design.md)。下文保留既有M／X／P工作流说明。
 
+2026-09-12意图增量：现有理解图已加入可选四类候选与私有草稿，未新增多人C/R图或发布服务；实际接入与限制见[意图说明](collaboration-intents.md)。
+
 2026-09-12，实现提交`9b6886d`的实际行为说明；已通过本轮独立验收并推送GitHub。对应[实施任务书](agent-workflow-implementation.md)、[验收场景](agent-workflow-acceptance.md)与[最新独立验收](../tests/results/agent-workflow-acceptance-review.md)。本文描述源码行为；真实语义、音源、Windows 实机结果不能从代码或合成测试推导。
 
 ## 持续会议与个人推演

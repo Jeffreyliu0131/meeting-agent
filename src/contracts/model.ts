@@ -2,6 +2,7 @@ import type { ReminderView } from './meeting-candidate';
 import { EvidenceRequest } from './workflow';
 import { CollaborationIntent } from './collaboration-workflow';
 import { z } from 'zod';
+import { CollaborationProposal } from './intent-preparation';
 export const Locale = z.enum(['en', 'zh-CN']);
 export type Locale = z.infer<typeof Locale>;
 const id = z
@@ -249,6 +250,8 @@ export type ExpressionPlan = z.infer<typeof ExpressionPlan>;
 export const Proposal = z
   .object({
     collaborationIntents: z.array(CollaborationIntent).max(4).optional(),
+
+    intentPreparation: CollaborationProposal.nullable().optional(),
     evidenceRequest: EvidenceRequest.nullable().optional(),
     clarification: z
       .object({
@@ -293,6 +296,7 @@ export const Proposal = z
   .strict();
 export type Proposal = z.infer<typeof Proposal>;
 export type Segment = {
+  finality?: 'partial' | 'final';
   id: string;
   rev: number;
   text: string;
@@ -421,6 +425,7 @@ export type ExpressionJob = {
   updateKind: 'patch' | 'create' | 'restructure';
 };
 export type Meeting = {
+  intentPreparation?: import('./intent-preparation').IntentPreparationState;
   clarifications?: Array<{
     id: string;
     key: string;
@@ -566,6 +571,7 @@ export type CollectionWatermark = {
 export type CollectionOmitted = { openItems: number; meetings: number; quotes: number };
 
 export type CollectionReportRevision = CollectionReport & {
+  definition?: { title: string; brief: string; outputLocale: Locale };
   reportId: string;
   rev: number;
   generation: number;
@@ -658,6 +664,13 @@ export const Command = z
       'collectionMembers',
       'collectionDelete',
       'collectionReport',
+
+      'collaborationPromote',
+      'collaborationEnable',
+      'collaborationEdit',
+      'collaborationDismiss',
+      'collaborationFreeze',
+      'collaborationResolve',
     ]),
     payload: z.record(z.string(), z.unknown()),
   })

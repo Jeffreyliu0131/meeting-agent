@@ -46,6 +46,7 @@ export function reconcileCloseout(m: Meeting): Closeout | undefined {
   const latest = new Map(m.segments.map((s) => [s.id, s]));
   for (const s of m.segments) if (s.rev > latest.get(s.id)!.rev) latest.set(s.id, s);
   const pendingSources = [...latest.values()]
+    .filter((s) => s.finality !== 'partial')
     .filter((s) => m.processedSources?.[s.id] !== s.rev)
     .map((s) => ({ id: s.id, rev: s.rev }));
   const {

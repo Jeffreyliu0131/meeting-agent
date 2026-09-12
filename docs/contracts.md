@@ -2,6 +2,8 @@
 
 协作组件新增严格Zod契约与规范化存储已实现，运行时见[实际契约](collaboration-v1-runtime.md)，目标及示意类型见[设计契约](collaboration-v1-contracts.md)。两者的字段差异须按运行说明读取，不能用设计示意调用IPC。
 
+首轮协作意图的实际新增协议为Proposal.collaboration和Meeting.intentPreparation；候选、白名单草稿命令、finality与持久化边界见[意图契约说明](collaboration-intents.md)。
+
 > 文件职责：产品／工程设计要求，不是完成清单。当前进度与最新修订见[状态页](status.md)；已交付首版取舍见[ADR-003](adr/003-cross-platform-first-version.md)，实际结果见[验证记录](../tests/results/README.md)。具体实现以代码核对，未实现的要求仍是目标。
 版本0.1｜业务设计契约。下面的TypeScript是设计示意；实际运行时 schema 与类型见 `src/contracts/model.ts`，需按当前状态核对差异。本文件定义业务职责，不将具体库写成不可替换前提。
 
@@ -211,3 +213,6 @@ Decision保存`id, scope: personal|meeting, targetSnapshot, evidenceRefs, confir
 
 
 设置新增preferencesPatch命令，使用PreferencesPatchSchema严格校验可选字段，audio按子字段合并；返回保存后的Preferences。旧preferences全量接口保留兼容，正常设置和托盘改用补丁。桌面串行协调快捷键注册／失败回滚，前端PreferenceWriter串行持久化、保留最新意图并对失败字段回滚。见[即时设置规范](meeting-entry-spec.md#11-设置即时保存2026-09-12)。
+
+
+两分支整合：Meeting.intentPreparation保存FTY私有草稿，Meeting.collaboration保存正式轮次，collections与二者在同一SQLite事务持久化。collaborationPromote通过精确草稿版本显式转交，正式发放另行操作。集合报告绑定生成起点的成员与版本；生成期间变化返回COLLECTION_CHANGED，旧报告保留。决定别名可以作为来源引用，但不是语义对象，也不是转写；返回时路由到其原会议。

@@ -1,3 +1,4 @@
+import { collectionDecisions } from '../domain/collection-decisions';
 import type {
   CollectionAlias,
   CollectionReport,
@@ -59,7 +60,8 @@ export function resolveAliases(
   const check = (alias: string, kind: CollectionAlias['kind'], where: string) => {
     const found = aliasMap[alias];
     if (!found) throw new Error('UNKNOWN_ALIAS');
-    if (found.kind !== kind) throw new Error('ALIAS_KIND_MISMATCH');
+    if (found.kind !== kind && !(kind === 'source' && found.kind === 'decision'))
+      throw new Error('ALIAS_KIND_MISMATCH');
     used.add(alias);
     void where;
   };
@@ -90,9 +92,19 @@ export function syntheticCollectionMeeting(
     if (alias.kind === 'source') {
       const found = m.segments.find((s) => s.id === alias.id && s.rev === alias.rev);
       // A request segment is personal speech and is never part of a shared report.
-      if (found && found.kind !== 'request') segments.push({ ...found, id: alias.alias });
+      if (found && found.kind !== 'request' && found.finality !== 'partial')
+        segments.push({ ...found, id: alias.alias });
     } else if (alias.kind === 'decision') {
-      // A decision is citable but is not a semantic object in the synthetic meeting.
+      const decision = collectionDecisions(m).find((d) => d.id === alias.id && d.rev === alias.rev);
+      if (decision)
+        segments.push({
+          id: alias.alias,
+          rev: alias.rev,
+          text: `Recorded decision: ${decision.statement}\nScope: ${decision.scope}\nParticipants: ${decision.participants}\n${decision.basis}`,
+          kind: 'manual',
+          version: 1,
+        } as Segment);
+      // Virtual validator evidence only. The real meeting's transcript is never changed.
       continue;
     } else if (alias.kind === 'object') {
       const found =

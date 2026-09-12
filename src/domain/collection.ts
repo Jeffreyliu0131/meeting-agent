@@ -20,7 +20,8 @@ const uid = () => crypto.randomUUID();
 const MemberIds = z
   .array(z.string().regex(/^[\w-]{1,100}$/))
   .min(1)
-  .max(MAX_COLLECTION_MEMBERS);
+  .max(MAX_COLLECTION_MEMBERS)
+  .refine((ids) => new Set(ids).size === ids.length, 'Duplicate meetings');
 
 export function createCollection(
   payload: Record<string, unknown>,
@@ -61,7 +62,14 @@ export function reduceCollection(
   switch (command.type) {
     case 'collectionUpdate': {
       if (p.baseRevision !== collection.revision) throw new Error('REV_CONFLICT');
-      if (p.title !== undefined) collection.title = z.string().trim().min(1).max(100).parse(p.title);
+      if (p.meetingIds !== undefined) {
+        const ids = MemberIds.parse(p.meetingIds);
+        if (ids.some((id) => !knownMeetingIds.has(id)))
+          throw new Error('COLLECTION_MEMBER_NOT_FOUND');
+        collection.meetingIds = ids;
+      }
+      if (p.title !== undefined)
+        collection.title = z.string().trim().min(1).max(100).parse(p.title);
       if (p.brief !== undefined) collection.brief = z.string().max(600).parse(p.brief);
       if (p.outputLocale !== undefined) collection.outputLocale = Locale.parse(p.outputLocale);
       break;
@@ -96,6 +104,13 @@ export function collectionReportStaleness(
   meetings: Meeting[],
 ): StaleReason[] {
   const reasons: StaleReason[] = [];
+  if (
+    report.definition &&
+    (report.definition.title !== collection.title ||
+      report.definition.brief !== collection.brief ||
+      report.definition.outputLocale !== collection.outputLocale)
+  )
+    reasons.push({ kind: 'member_set_changed' });
   const members = new Set(collection.meetingIds);
   const reported = new Set(report.meetingIds);
   if (members.size !== reported.size || [...reported].some((id) => !members.has(id)))
@@ -161,7 +176,7 @@ export function groupCitations(
       meetingTitle: meeting.title,
       refs: [],
     };
-    group.refs.push({ id: alias.id, rev: ref.rev });
+    if (alias.kind !== 'decision') group.refs.push({ id: alias.id, rev: ref.rev });
     groups.set(alias.meetingId, group);
   }
   return [...groups.values()];

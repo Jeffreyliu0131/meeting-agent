@@ -1,5 +1,7 @@
 # Meeting Agent
 
+首轮四类意图已接入本地源码：会议工作页 →“协作意图”→“开启自动准备”。理解模型会准备投票、分工、冲突和决定确认的私有草稿；不含多人发布／回应。范围与使用见[意图说明](docs/collaboration-intents.md)。
+
 支持 macOS 与 Windows 的会议桌面助手。每场会议是独立事件，Agent 根据自然讨论选择、生成和修订简短的工作表达；用户按需查看、追溯、纠正和推演。
 
 **进度入口：[当前状态](docs/status.md)；跨任务接手：[AGENTS.md](AGENTS.md) → [session 索引](docs/sessions/README.md)。** 已有 0.1.0 首版本地实现；首版结果见[验证记录](tests/results/validation.md)，后续工作树改动和新规范的接入程度以状态及对应 session 为准，不把旧测试视为当前全部通过。

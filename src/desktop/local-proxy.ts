@@ -1,3 +1,4 @@
+import dotenv from 'dotenv';
 import { spawn, type ChildProcess } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -30,12 +31,7 @@ export function usesLocalEndpoint(base: string): boolean {
 }
 
 function parseEnvFile(path: string): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const line of readFileSync(path, 'utf8').split(/\r?\n/)) {
-    const match = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+?)\s*$/.exec(line);
-    if (match) out[match[1]] = match[2];
-  }
-  return out;
+  return dotenv.parse(readFileSync(path));
 }
 
 async function healthy(port: number, timeoutMs: number): Promise<boolean> {
@@ -54,9 +50,7 @@ async function healthy(port: number, timeoutMs: number): Promise<boolean> {
   return false;
 }
 
-export type ProxyStart =
-  | { started: true; port: number }
-  | { started: false; reason: string };
+export type ProxyStart = { started: true; port: number } | { started: false; reason: string };
 
 /**
  * Starts the proxy if it is not already running. A proxy already listening is a
@@ -71,13 +65,18 @@ export async function startLocalProxy(
     return { started: false, reason: 'AUTOSTART_DISABLED' };
   if (!usesLocalEndpoint(base)) return { started: false, reason: 'REMOTE_PROVIDER' };
 
+  stopping = false;
   let port: number;
   try {
-    port = Number(new URL(base).port || 80);
+    const url = new URL(base);
+    if (url.protocol !== 'http:' || url.username || url.password)
+      return { started: false, reason: 'INVALID_BASE' };
+    port = Number(url.port || 80);
   } catch {
     return { started: false, reason: 'INVALID_BASE' };
   }
   if (await healthy(port, 1500)) {
+    if (stopping) return { started: false, reason: 'START_CANCELLED' };
     log(`local proxy already running on ${port}`);
     return { started: true, port };
   }
@@ -85,6 +84,7 @@ export async function startLocalProxy(
   // Repo-relative, because the repository must not depend on a parent directory
   // (AGENTS.md). Only meaningful for a dev run from the repo root: a packaged app
   // ships dist/ alone and is not expected to autostart a local proxy anyway.
+  if (stopping) return { started: false, reason: 'START_CANCELLED' };
   const dir = process.env.MEETING_PROXY_DIR
     ? resolve(process.env.MEETING_PROXY_DIR)
     : resolve(process.cwd(), 'tools', 'litellm-proxy');
@@ -94,6 +94,13 @@ export async function startLocalProxy(
   const keyFile = join(dir, 'provider.env');
   if (!existsSync(keyFile)) return { started: false, reason: 'PROVIDER_ENV_MISSING' };
   const keys = parseEnvFile(keyFile);
+  const originalLog = log;
+  log = (message) =>
+    originalLog(
+      Object.values(keys)
+        .filter((v) => v.length >= 4)
+        .reduce((text, key) => text.split(key).join('[redacted]'), message),
+    );
   if (!keys.DEEPSEEK_API_KEY && !keys.OPENAI_API_KEY)
     return { started: false, reason: 'PROVIDER_KEYS_MISSING' };
 
@@ -104,6 +111,7 @@ export async function startLocalProxy(
 
   const launcher = await resolveLitellm(dir, log);
   if ('error' in launcher) return { started: false, reason: launcher.error };
+  if (stopping) return { started: false, reason: 'START_CANCELLED' };
 
   try {
     child = spawn(
@@ -131,12 +139,14 @@ export async function startLocalProxy(
     };
   }
 
+  const ownedChild = child;
+  child.on('error', () => log('[proxy] process failed to start'));
   child.stdout?.on('data', (d: Buffer) => log(`[proxy] ${d.toString().trimEnd()}`));
   child.stderr?.on('data', (d: Buffer) => log(`[proxy] ${d.toString().trimEnd()}`));
   child.on('exit', (code) => {
     // Only report an unexpected exit; a deliberate stop is not a failure.
     if (!stopping) log(`[proxy] exited with code ${code}`);
-    child = null;
+    if (child === ownedChild) child = null;
   });
 
   if (await healthy(port, 30000)) {
@@ -157,15 +167,21 @@ function run(
 ): Promise<boolean> {
   return new Promise((resolve) => {
     const child = spawn(command, args, { cwd, stdio: 'ignore' });
-    child.on('exit', (code) => resolve(code === 0));
-    child.on('error', () => resolve(false));
+    const timer = setTimeout(() => {
+      child.kill();
+      resolve(false);
+    }, 120000);
+    const done = (ok: boolean) => {
+      clearTimeout(timer);
+      resolve(ok);
+    };
+    child.on('exit', (code) => done(code === 0));
+    child.on('error', () => done(false));
   });
 }
 
 function venvBinary(dir: string, name: string): string {
-  return isWindows
-    ? join(dir, '.venv', 'Scripts', `${name}.exe`)
-    : join(dir, '.venv', 'bin', name);
+  return isWindows ? join(dir, '.venv', 'Scripts', `${name}.exe`) : join(dir, '.venv', 'bin', name);
 }
 
 /**
@@ -253,9 +269,9 @@ async function ensureCaBundle(dir: string): Promise<string | null> {
 
 /** Idempotent, and safe to call from a process-exit handler. */
 export function stopLocalProxy(): void {
+  stopping = true;
   const running = child;
   if (!running) return;
-  stopping = true;
   child = null;
   try {
     running.kill();

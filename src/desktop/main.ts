@@ -485,15 +485,19 @@ app.on('before-quit', (e) => {
 app.on('window-all-closed', () => {});
 app.whenReady().then(async () => {
   mkdirSync(app.getPath('userData'), { recursive: true });
-  // Opt-in via MEETING_AUTOSTART_PROXY=1. Starting it before the worker means
-  // the session service comes up with a reachable provider. Failure is logged,
-  // never fatal: the app must still open and say honestly that it is not
-  // connected, rather than refusing to start.
-  const proxy = await startLocalProxy(process.env.MEETING_API_BASE ?? '', (message) =>
-    console.log(`[local-proxy] ${message}`),
-  );
-  if (!proxy.started && !['AUTOSTART_DISABLED', 'REMOTE_PROVIDER'].includes(proxy.reason))
-    console.warn(`[local-proxy] not started: ${proxy.reason}`);
+  // Development convenience only. Installation/health checks must never delay the UI.
+  if (!app.isPackaged)
+    void startLocalProxy(process.env.MEETING_API_BASE ?? '', (message) =>
+      console.log(`[local-proxy] ${message}`),
+    )
+      .then((proxy) => {
+        if (
+          !proxy.started &&
+          !['AUTOSTART_DISABLED', 'REMOTE_PROVIDER', 'START_CANCELLED'].includes(proxy.reason)
+        )
+          console.warn(`[local-proxy] not started: ${proxy.reason}`);
+      })
+      .catch(() => console.warn('[local-proxy] startup failed'));
   worker = utilityProcess.fork(join(__dirname, 'worker.cjs'), [], {
     env: {
       ...process.env,
@@ -1017,6 +1021,12 @@ app.whenReady().then(async () => {
               'language',
               'ask',
               'cancelRequest',
+              'collaborationPromote',
+              'collaborationEnable',
+              'collaborationEdit',
+              'collaborationDismiss',
+              'collaborationFreeze',
+              'collaborationResolve',
               'answerClarification',
               'cancelClarification',
               'retry',
