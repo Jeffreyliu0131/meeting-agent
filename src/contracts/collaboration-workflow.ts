@@ -9,7 +9,11 @@ export const CollaborationIntent = z
     resolution: z.enum(['actionable_draft', 'suggestion', 'needs_clarification', 'no_action']),
     targetId: z.string().max(100).nullable(),
     scopeText: z.string().max(500),
-    collectionMode: z.enum(['retrospective', 'prospective', 'none']),
+    collectionMode: z
+      .enum(['retrospective', 'prospective', 'none'])
+      .describe(
+        'Use retrospective when component content is already discussed. Prospective ONLY means waiting for future option/task/statement content; it never means collecting votes, task acceptance or acknowledgements after distribution.',
+      ),
     sourceRefs: z.array(ref).min(1).max(20),
     objectRefs: z.array(ref).max(30),
   })
@@ -19,6 +23,7 @@ export const ComponentProposal = z
   .object({
     content: ComponentContent.nullable(),
     clarification: z.string().min(1).max(500).nullable(),
+    audienceIds: z.array(z.string().min(1).max(100)).max(10).default([]),
   })
   .strict();
 export type ComponentProposal = z.infer<typeof ComponentProposal>;

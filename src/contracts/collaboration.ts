@@ -273,6 +273,7 @@ export type Participant = {
   active: boolean;
 };
 export type ComponentRevision = {
+  suggestedAudienceIds?: string[];
   revision: number;
   content: ComponentContent;
   sourceRefs: EvidenceRef[];

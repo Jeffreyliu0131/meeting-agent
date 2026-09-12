@@ -17,6 +17,30 @@ const model = {
     throw Error('UNEXPECTED_MODEL');
   },
 };
+
+test('normal audio meetings prepare collaboration automatically without a host setup step', () => {
+  const service = new SessionService(new SQLiteStore(':memory:'), model, config);
+  try {
+    service.command({
+      id: crypto.randomUUID(),
+      type: 'create',
+      meetingId: null,
+      payload: {
+        title: 'Automatic components',
+        mode: 'microphone',
+        outputLocale: 'zh-CN',
+        timezone: 'Asia/Shanghai',
+      },
+    });
+    const state = service.meetings[0].collaboration;
+    assert.ok(state);
+    assert.equal(state.participants.filter((p) => p.role === 'participant').length, 3);
+    assert.equal(state.components.length, 0);
+    assert.equal(service.meetings[0].capture, 'idle');
+  } finally {
+    service.close();
+  }
+});
 test('publish retries retain the clicked source frontier instead of following unrelated new speech forever', () => {
   const { service, meetingId } = setup();
   try {

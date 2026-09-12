@@ -10,6 +10,7 @@ import {
 } from '../../contracts/collaboration';
 import { contentEvidence } from '../../domain/collaboration';
 import './styles.css';
+import { ReviewPreview } from './ReviewPreview';
 
 const familyNames = {
   poll: ['投票', 'Poll'],
@@ -238,53 +239,67 @@ export function CollaborationPanel({
         </div>
       </header>
       {host && !floating && (
-        <div className="collaboration-toolbar">
-          {!snapshot.ended &&
-            (Object.keys(familyNames) as Family[]).map((kind) => (
-              <button
-                key={kind}
-                disabled={busy}
-                onClick={() =>
-                  void act(async () => {
-                    const componentId = await send('component.prepare', { content: starter(kind) });
-                    await api('openComponent', { meetingId, componentId });
-                  })
-                }
-              >
-                {zh ? '准备' : 'Prepare '}
-                {familyNames[kind][zh ? 0 : 1]}
-              </button>
-            ))}
-          {!snapshot.ended && (
-            <button
-              disabled={busy}
-              onClick={() =>
-                void act(async () => {
-                  const componentId = await send('component.prepare', {
-                    content: starter('poll'),
-                    collecting: true,
-                    scopeText: '接下来的投票内容',
-                  });
-                  await api('openComponent', { meetingId, componentId });
-                })
-              }
-            >
-              收集接下来的投票
-            </button>
-          )}
-          {snapshot.participants
-            .filter((p) => p.role !== 'host')
-            .map((p) => (
-              <button
-                key={p.id}
-                onClick={() =>
-                  void act(() => api('openParticipant', { meetingId, participantId: p.id }))
-                }
-              >
-                {zh ? '打开 ' : 'Open '}
-                {p.displayName}
-              </button>
-            ))}
+        <div>
+          <p className="muted">
+            {zh
+              ? 'Agent会根据讨论准备组件。你只需审核内容，再一键分发。'
+              : 'The agent prepares components from the discussion. Review, then distribute.'}
+          </p>
+          <details className="collaboration-advanced">
+            <summary>{zh ? '高级：手工创建组件' : 'Advanced: create manually'}</summary>
+            <div className="collaboration-toolbar">
+              {!snapshot.ended &&
+                (Object.keys(familyNames) as Family[]).map((kind) => (
+                  <button
+                    key={kind}
+                    disabled={busy}
+                    onClick={() =>
+                      void act(async () => {
+                        const componentId = await send('component.prepare', {
+                          content: starter(kind),
+                        });
+                        await api('openComponent', { meetingId, componentId });
+                      })
+                    }
+                  >
+                    {zh ? '准备' : 'Prepare '}
+                    {familyNames[kind][zh ? 0 : 1]}
+                  </button>
+                ))}
+              {!snapshot.ended && (
+                <button
+                  disabled={busy}
+                  onClick={() =>
+                    void act(async () => {
+                      const componentId = await send('component.prepare', {
+                        content: starter('poll'),
+                        collecting: true,
+                        scopeText: '接下来的投票内容',
+                      });
+                      await api('openComponent', { meetingId, componentId });
+                    })
+                  }
+                >
+                  收集接下来的投票
+                </button>
+              )}
+            </div>
+          </details>
+          <div className="collaboration-toolbar">
+            {snapshot.participants
+              .filter((p) => p.role !== 'host')
+              .map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() =>
+                    void act(() => api('openParticipant', { meetingId, participantId: p.id }))
+                  }
+                >
+                  {zh ? '打开 ' : 'Open '}
+                  {p.displayName}
+                </button>
+              ))}
+          </div>
         </div>
       )}
       {error && (
@@ -294,7 +309,9 @@ export function CollaborationPanel({
       )}
       {!snapshot.components.length && (
         <p className="muted">
-          {host ? '准备组件后，可以预览并发给参与者。' : '发起者发放的组件会显示在这里。'}
+          {host
+            ? '讨论中需要投票、分工或确认时，Agent会填充组件，自动显示在屏幕右侧。悬停查看，点击审核分发。'
+            : '发起者发放的组件会显示在这里。'}
         </p>
       )}
       {host &&
@@ -388,12 +405,37 @@ function ComponentCard({
   const host = s.actor.role === 'host';
   const [error, setError] = useState(''),
     [busy, setBusy] = useState(false),
-    [edit, setEdit] = useState(!c.round);
+    [edit, setEdit] = useState(false);
   const [dirty, setDirty] = useState(false);
-  const [audience, setAudience] = useState(
-    s.participants.filter((p) => p.role !== 'host').map((p) => p.id),
+  const [audienceChoice, setAudienceChoice] = useState<{
+    revision: number | undefined;
+    ids: string[];
+  } | null>(null);
+  const audience =
+    audienceChoice && audienceChoice.revision === c.draftRevision
+      ? audienceChoice.ids
+      : (c.draft?.suggestedAudienceIds ??
+        (c.draft?.content.kind === 'decision_confirmation' &&
+        c.draft.content.payload.requiredParticipantIds.length
+          ? c.draft.content.payload.requiredParticipantIds
+          : s.participants.filter((p) => p.role !== 'host' && p.active).map((p) => p.id)));
+  const setAudience = (ids: string[]) => setAudienceChoice({ revision: c.draftRevision, ids });
+  const [disclosureChoice, setDisclosureChoice] = useState<{
+    revision: number | undefined;
+    items: { sourceRef: any; excerpt: string }[];
+  } | null>(null);
+  const requiredEvidence = c.draft
+    ? contentEvidence(c.draft.content).filter((e) => e.kind === 'segment' || e.kind === 'response')
+    : [];
+  const defaultDisclosure = (s.evidenceCatalog ?? []).filter((e) =>
+    requiredEvidence.some((r) => JSON.stringify(r) === JSON.stringify(e.sourceRef)),
   );
-  const [disclosure, setDisclosure] = useState<{ sourceRef: any; excerpt: string }[]>([]);
+  const disclosure =
+    disclosureChoice && disclosureChoice.revision === c.draftRevision
+      ? disclosureChoice.items
+      : defaultDisclosure;
+  const setDisclosure = (change: (old: typeof disclosure) => typeof disclosure) =>
+    setDisclosureChoice({ revision: c.draftRevision, items: change(disclosure) });
   const act = async (type: string, payload: Record<string, unknown> = {}) => {
     setBusy(true);
     setError('');
@@ -444,9 +486,16 @@ function ComponentCard({
       {c.needsReview && <p className="collaboration-warning">依据已变化，等待核对</p>}
       {host && c.draft && !s.ended && (
         <>
-          {round && (
-            <button onClick={() => setEdit(!edit)}>{edit ? '收起草稿' : '准备修订'}</button>
+          {(!round || c.draftRevision !== round.revision || edit) && (
+            <ReviewPreview content={c.draft.content} snapshot={s} zh={zh} />
           )}
+          <button className="secondary" onClick={() => setEdit(!edit)}>
+            {edit
+              ? '收起编辑'
+              : round && c.draftRevision === round.revision
+                ? '准备修订'
+                : '修改内容（可选）'}
+          </button>
           {edit && (
             <DraftEditor
               key={c.id}
@@ -454,70 +503,92 @@ function ComponentCard({
               snapshot={s}
               onDirty={setDirty}
               onSave={(content, baseDraftRevision) =>
-                act('component.edit_draft', { baseDraftRevision, content })
+                act('component.edit_draft', { baseDraftRevision, content }).then(() => {
+                  setDirty(false);
+                  setEdit(false);
+                })
               }
               busy={busy}
             />
           )}
-          {(!round || edit) && (
+          {(!round || edit || c.draftRevision !== round.revision) && (
             <div className="collaboration-publish">
-              <fieldset>
-                <legend>发放范围</legend>
-                {s.participants.map((p) => (
-                  <label className="inline" key={p.id}>
-                    <input
-                      type="checkbox"
-                      checked={audience.includes(p.id)}
-                      onChange={(e) =>
-                        setAudience(
-                          e.target.checked
-                            ? [...audience, p.id]
-                            : audience.filter((a) => a !== p.id),
-                        )
-                      }
-                    />
-                    {p.displayName}
-                  </label>
-                ))}
-              </fieldset>
-              {!!evidence.length && (
-                <details>
-                  <summary>公开依据摘录</summary>
-                  <p>选择允许向本轮全部参与者公开的原文。</p>
-                  {evidence.map((r, i) => {
-                    const found = s.evidenceCatalog?.find(
-                      (e) => JSON.stringify(e.sourceRef) === JSON.stringify(r),
-                    );
-                    return (
-                      <label key={JSON.stringify(r)} className="evidence-choice">
-                        <input
-                          type="checkbox"
-                          disabled={!found}
-                          checked={disclosure.some(
-                            (e) => JSON.stringify(e.sourceRef) === JSON.stringify(r),
-                          )}
-                          onChange={(e) =>
-                            setDisclosure((old) => [
-                              ...old.filter(
-                                (x) => JSON.stringify(x.sourceRef) !== JSON.stringify(r),
-                              ),
-                              ...(e.target.checked && found ? [found] : []),
-                            ])
-                          }
-                        />
-                        依据 {i + 1}
-                        <blockquote>{found?.excerpt ?? '此版本依据不可用'}</blockquote>
-                      </label>
-                    );
-                  })}
-                </details>
+              <p>
+                {zh ? '审核后分发给' : 'Distribute after approval to'}：
+                {audience.map((id) => nameOf(s, id)).join('、')}
+              </p>
+              {!!disclosure.length && (
+                <section className="review-disclosure">
+                  <strong>
+                    {zh ? '本次同时共享的依据' : 'Evidence shared with this component'}
+                  </strong>
+                  {disclosure.map((e, i) => (
+                    <blockquote key={i}>{e.excerpt}</blockquote>
+                  ))}
+                </section>
               )}
+              <details className="collaboration-advanced">
+                <summary>
+                  {zh ? '调整受众与共享依据（可选）' : 'Adjust audience and evidence (optional)'}
+                </summary>
+                <fieldset>
+                  <legend>发放范围</legend>
+                  {s.participants.map((p) => (
+                    <label className="inline" key={p.id}>
+                      <input
+                        type="checkbox"
+                        checked={audience.includes(p.id)}
+                        onChange={(e) =>
+                          setAudience(
+                            e.target.checked
+                              ? [...audience, p.id]
+                              : audience.filter((a) => a !== p.id),
+                          )
+                        }
+                      />
+                      {p.displayName}
+                    </label>
+                  ))}
+                </fieldset>
+                {!!evidence.length && (
+                  <details>
+                    <summary>公开依据摘录</summary>
+                    <p>选择允许向本轮全部参与者公开的原文。</p>
+                    {evidence.map((r, i) => {
+                      const found = s.evidenceCatalog?.find(
+                        (e) => JSON.stringify(e.sourceRef) === JSON.stringify(r),
+                      );
+                      return (
+                        <label key={JSON.stringify(r)} className="evidence-choice">
+                          <input
+                            type="checkbox"
+                            disabled={!found}
+                            checked={disclosure.some(
+                              (e) => JSON.stringify(e.sourceRef) === JSON.stringify(r),
+                            )}
+                            onChange={(e) =>
+                              setDisclosure((old) => [
+                                ...old.filter(
+                                  (x) => JSON.stringify(x.sourceRef) !== JSON.stringify(r),
+                                ),
+                                ...(e.target.checked && found ? [found] : []),
+                              ])
+                            }
+                          />
+                          依据 {i + 1}
+                          <blockquote>{found?.excerpt ?? '此版本依据不可用'}</blockquote>
+                        </label>
+                      );
+                    })}
+                  </details>
+                )}
+              </details>
               {c.draftState === 'collecting' ? (
                 <button
                   disabled={busy || dirty}
                   onClick={() => safe(act('component.freeze_collection'))}
                 >
-                  停止收集并预览
+                  结束准备，进入审核
                 </button>
               ) : (
                 <button
@@ -539,7 +610,7 @@ function ComponentCard({
                     )
                   }
                 >
-                  发放给{audience.length}人
+                  审核并分发给{audience.length}人
                 </button>
               )}
               {!round && (

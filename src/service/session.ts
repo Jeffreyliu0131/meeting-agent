@@ -96,6 +96,8 @@ export class SessionService {
     this.preferences = state.preferences;
     // Reopening a process restores saved content, never devices.
     for (const m of this.meetings) {
+      if (m.status === 'active' && m.mode !== 'manual' && m.mode !== 'replay')
+        m.collaboration ??= createCollaboration(m.id, ['参与者A', '参与者B', '参与者C']);
       if (m.collaboration) {
         for (const job of m.collaboration.jobs)
           if (job.status === 'running') {
@@ -270,6 +272,8 @@ export class SessionService {
       if (activeMeeting) result = activeMeeting.id;
       else {
         const m = createMeeting(payload, prefs);
+        if (m.mode !== 'manual' && m.mode !== 'replay')
+          m.collaboration = createCollaboration(m.id, ['参与者A', '参与者B', '参与者C']);
         meetings.unshift(m);
         result = m.id;
       }

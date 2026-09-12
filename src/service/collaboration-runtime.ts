@@ -13,12 +13,14 @@ import {
   addCollaborationEvent,
   publicationIssues,
   contentEvidence,
+  defaultAudience,
 } from '../domain/collaboration';
 import {
   detectCollaborationConflicts,
   responseIssueResolved,
 } from '../domain/collaboration-conflicts';
 import { runComponentWorkflow, runImpactWorkflow } from '../agent/collaboration';
+import { latestSegments } from '../agent/context';
 
 function job(
   s: CollaborationState,
@@ -230,14 +232,45 @@ export class CollaborationRuntime {
     const sourceIds = new Set([
       ...j.accepted.map((r) => r.id),
       ...(intent.sourceRefs ?? []).map((r) => r.id),
+      ...m.objects.flatMap((o) => o.sources.map((r) => r.id)),
+      ...m.segments
+        .filter((r) => r.kind !== 'request')
+        .slice(-20)
+        .map((r) => r.id),
       ...(j.kind === 'impact' ? m.objects.flatMap((o) => o.sources.map((r) => r.id)) : []),
     ]);
-    const sources = m.segments
+    const sources = latestSegments(m)
       .filter((r) => r.kind !== 'request' && sourceIds.has(r.id))
       .slice(-30);
+    const target = s.components.find((c) => c.id === j.componentId);
+    const targetContent = target?.revisions.at(-1)?.content;
+    const conflictIds =
+      targetContent?.kind === 'conflict' ? targetContent.payload.conflictRefs.map((r) => r.id) : [];
+    const relatedResponses = new Set(
+      s.conflicts
+        .filter((f) => conflictIds.includes(f.id))
+        .flatMap((f) =>
+          f.evidence.flatMap((e) =>
+            e.kind === 'response' ? [`${e.responseId}:${e.responseVersion}`] : [],
+          ),
+        ),
+    );
     return {
       meetingId: m.id,
       locale: m.outputLocale,
+      timezone: m.timezone,
+      meetingDate: m.createdAt,
+      defaults: {
+        audienceIds: s.participants.filter((p) => p.active && p.role !== 'host').map((p) => p.id),
+        poll: {
+          selection: { mode: 'single', min: 1, max: 1 },
+          allowAbstain: true,
+          resultsVisibility: 'after_close',
+          closePolicy: { kind: 'host' },
+        },
+        assignment: { mode: 'request_acceptance' },
+        decision_confirmation: { rule: 'all_required_explicit_agree' },
+      },
       intent: j.input,
       sources,
       participants: s.participants,
@@ -251,9 +284,22 @@ export class CollaborationRuntime {
         .slice(-50),
       component: j.componentId ? s.components.find((c) => c.id === j.componentId) : null,
       conflicts: s.conflicts.slice(-12),
+      assignmentDirectory: s.components
+        .flatMap((c) => {
+          const content = c.revisions.at(-1)?.content;
+          return content?.kind === 'assignment' ? content.payload.items : [];
+        })
+        .slice(-30),
       responses:
-        j.kind === 'impact'
-          ? s.responses.filter((r) => !j.componentId || r.componentId === j.componentId).slice(-20)
+        j.kind === 'impact' || intent.family === 'conflict'
+          ? s.responses
+              .filter(
+                (r) =>
+                  !j.componentId ||
+                  r.componentId === j.componentId ||
+                  relatedResponses.has(`${r.id}:${r.version}`),
+              )
+              .slice(-20)
           : [],
     };
   }
@@ -265,6 +311,27 @@ export class CollaborationRuntime {
     ) {
       const m = structuredClone(this.ports.read()),
         s = m.collaboration!;
+      // A spoken start can finish PRIVATE preparation; only a later host command publishes.
+      const target = s.components.find((c) => c.id === j.componentId);
+      if (
+        intent.operation === 'publish' &&
+        intent.resolution !== 'needs_clarification' &&
+        target?.collection?.status === 'collecting' &&
+        !s.ended
+      ) {
+        target.collection.status = 'stopped';
+        target.collection.freezeWatermark = [...j.accepted];
+        target.draftState = publicationIssues(
+          s,
+          target,
+          target.revisions.at(-1)!.content,
+          target.revisions.at(-1)!.suggestedAudienceIds ??
+            s.participants.filter((p) => p.role !== 'host').map((p) => p.id),
+        ).length
+          ? 'draft'
+          : 'ready';
+        target.aggregateVersion++;
+      }
       addCollaborationEvent(s, 'component.suggested_action', 'agent', j.componentId, {
         operation: intent.operation,
         question:
@@ -289,6 +356,19 @@ export class CollaborationRuntime {
               return;
             }
             if (proposal.content.kind !== intent.family) throw Error('INVALID_COMPONENT_PROPOSAL');
+            const state = structuredClone(this.ports.read().collaboration!);
+            const audience = defaultAudience(state, proposal.content, proposal.audienceIds);
+            if (
+              new Set(audience).size !== audience.length ||
+              audience.some((id) => !state.participants.some((p) => p.id === id && p.active))
+            )
+              throw Error('INVALID_AUDIENCE');
+            if (intent.collectionMode !== 'prospective') {
+              const id = preparePrivate(state, proposal.content);
+              const candidate = state.components.find((c) => c.id === id)!;
+              const issue = publicationIssues(state, candidate, proposal.content, audience)[0];
+              if (issue) throw Error(issue);
+            }
             for (const ref of contentEvidence(proposal.content)) {
               if (
                 ref.kind === 'segment' &&
@@ -318,7 +398,7 @@ export class CollaborationRuntime {
     const current = s.jobs.find((x) => x.id === j.id)!;
     if (
       current.fence !== j.fence ||
-      [...j.accepted, ...intent.sourceRefs].some((r) =>
+      [...j.accepted, ...intent.sourceRefs, ...input.sources].some((r) =>
         m.segments.some((source) => source.id === r.id && source.rev > r.rev),
       )
     )
@@ -354,11 +434,25 @@ export class CollaborationRuntime {
         )
           savedRevision = saveDraft(s, c, content, 'agent:' + j.id, refs);
       }
-      if (savedRevision) savedRevision.objectRefs = intent.objectRefs ?? [];
+      if (savedRevision) {
+        savedRevision.objectRefs = intent.objectRefs ?? [];
+        savedRevision.suggestedAudienceIds = defaultAudience(s, result.content, result.audienceIds);
+      }
       if (c.collection)
         c.collection.consumedRefs = [
           ...new Map([...c.collection.consumedRefs, ...j.accepted].map((r) => [r.id, r])).values(),
         ];
+      if (c.collection?.status === 'collecting' && intent.collectionMode !== 'prospective') {
+        c.collection.status = 'stopped';
+        c.collection.freezeWatermark = [...j.accepted];
+        c.missingFields = publicationIssues(
+          s,
+          c,
+          c.revisions.at(-1)!.content,
+          defaultAudience(s, c.revisions.at(-1)!.content, c.revisions.at(-1)!.suggestedAudienceIds),
+        );
+        c.draftState = c.missingFields.length ? 'draft' : 'ready';
+      }
       if (s.ended) {
         if (c.collection) c.collection.status = 'stopped';
         c.draftState = 'draft';
@@ -453,7 +547,13 @@ export class CollaborationRuntime {
                   evidence: f.evidence,
                 },
               ],
-              questions: [],
+              questions: [
+                {
+                  id: crypto.randomUUID(),
+                  text: '请相关参与者补充可接受的调整方案。',
+                  participantIds: f.affectedParticipantIds,
+                },
+              ],
               resolutions: [],
             },
           },
@@ -461,6 +561,20 @@ export class CollaborationRuntime {
         );
         const card = s.components.find((c) => c.id === id)!;
         card.purposeKey = f.fingerprint;
+        card.revisions.at(-1)!.createdBy = 'agent:' + j.id;
+        if (this.ports.semanticAvailable !== false) {
+          job(s, 'component', j.rootEventId, id, j.accepted, {
+            family: 'conflict',
+            operation: 'update',
+            expression: 'suggested',
+            resolution: 'actionable_draft',
+            targetId: id,
+            scopeText: f.summary,
+            collectionMode: 'retrospective',
+            sourceRefs: f.evidence.flatMap((e) => (e.kind === 'segment' ? [e.ref] : [])),
+            objectRefs: f.objectRefs,
+          });
+        }
       } else {
         const previous = existing.revisions.at(-1)!;
         if (
@@ -498,12 +612,21 @@ export class CollaborationRuntime {
     }
     for (const c of s.components) {
       c.validatedAnalysisSequence = Math.max(c.validatedAnalysisSequence, sourceSequence);
-      if (!c.needsReview && c.draftState !== 'collecting' && c.draftState !== 'cancelled') {
+      if (
+        s.jobs.some(
+          (p) =>
+            p.kind === 'component' &&
+            p.componentId === c.id &&
+            ['pending', 'running'].includes(p.status),
+        )
+      ) {
+        if (c.draftState === 'ready') c.draftState = 'draft';
+      } else if (!c.needsReview && c.draftState !== 'collecting' && c.draftState !== 'cancelled') {
         c.missingFields = publicationIssues(
           s,
           c,
           c.revisions.at(-1)!.content,
-          s.participants.filter((p) => p.role !== 'host').map((p) => p.id),
+          defaultAudience(s, c.revisions.at(-1)!.content, c.revisions.at(-1)!.suggestedAudienceIds),
         );
         c.draftState = c.missingFields.length ? 'draft' : 'ready';
       }

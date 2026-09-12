@@ -1,11 +1,14 @@
 # 合成讨论测试材料
 
+旧[指令式v1](collaboration-read-aloud.zh-CN.txt)仅保留历史，不作为静默会议的正常验收输入。v2所有方括号是操作者检查点，不能朗读或送入模型。
+
 全部内容为synthetic/test，由助手为契约与验收编写，不代表真实会议、人物、事实或产品结果。
 
 三类不是三句“观点”，也不是三个限定业务：它们是三段会逐步变化的讨论，开发前用来核对系统应该怎么理解，开发后用真实模型和生成链路检验行为。
 
 | 文件 | 场景 | 主要验证 |
 |---|---|---|
+| [自然讨论v2台词](collaboration-natural-dialogue.zh-CN.txt)／[操作验收表](collaboration-manual-test.md) | 星桥试点：投票、准备收集、分工、冲突、决定确认 | 自然需求识别、默认组件生成、host审核一键分发，含否定／引用／改口；TTS与真实模型摘录检查见[本轮结果](../results/agent-component-review-validation.md) |
 | [观点分歧](discussion-options.json) | 功能开放范围：内部、客户、白名单 | 条件支持、分歧、话题回归、非数字比较、无共识 |
 | [执行安排](execution-plan.json) | 客户演示的日期、前置步骤和备选 | 时间关系、工期未知、来源改口、Agent拆解建议 |
 | [条件推演](scenario-calculation.json) | 有明确公式的活动费用试算 | 确定性结果、分支隔离、基线变化、未知条件 |

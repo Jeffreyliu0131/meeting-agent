@@ -14,6 +14,7 @@
 
 | 对象 | 已有记录／证据 | 不能推导的结论 |
 |---|---|---|
+| 自动组件缩略区 | 进行中：按用户要求自动出现已填充缩略卡，悬停／点击进入完整审核 | [记录](sessions/2026-09-12-component-dock.md) |
 | 首版本地实现 | 本地 Git 提交 `5fcd90f`；[首版验证](../tests/results/validation.md) 记录构建、19 项领域测试、6 项桌面测试、macOS 打包启动和 Windows x64 构建 | 不表示后续工作树改动也通过；本页未重新核验远端 |
 | 真实输入／模型 | 首版记录 3 秒本地麦克风探针；真实模型、转写、多人数音频、线上双方和 Windows 真机尚未验收 | 测试服务／合成音源不能证明真实模型质量或完整会议可用 |
 | Agent与会议入口交付 | 本地提交 `3f6279a` 的源码指纹与[38项／7项验证记录](../tests/results/live-agent-summary.json)完全一致；后续前端提交基于此版本 | 这些旧结果仅覆盖该基线；后续前端有独立验证与交付记录 |
@@ -22,7 +23,11 @@
 
 | 工作 | 核实到的状态 | 接手记录 |
 |---|---|---|
+| Agent组件审核体验修正 | 本地修正与自然TTS完成：静默识别、完整预览、一键分发；构建／145单元通过，26桌面功能断言通过但worker退出超时未解决；未提交、未重启日常应用 | [本轮记录](sessions/2026-09-12-agent-component-review.md) |
+| 首批组件测试材料 | 指令式v1已被自然讨论v2替代；14段AI语音＋5分17秒主线＋播放器已生成，真实模型摘录检查见审核修正记录，真实采音全链路未验 | [台词与操作](../tests/fixtures/collaboration-manual-test.md)／[记录](sessions/2026-09-12-collaboration-test-script.md) |
+| Windows同步与重启 | 完成：main=origin/main 5878c20，YH=a91dcce已推送；141单元／3桌面与构建通过。新应用PID42244工作页响应正常，8场记录保留、0活动会议；第二阶段规划仍为本地未提交文档 | [本轮记录](sessions/2026-09-12-main-sync-restart.md) |
 | PR #3修复与合并 | 修复与验证通过，待合并及日常包回写：PR141单元／25桌面；本地整合152／31，双端候选同源，Mac包通过 | [本轮记录](sessions/2026-09-12-pr3-fix-merge.md) |
+| 第二阶段协作组件规划 | 规划完成、未开始实现。按用户确认先补修订／复核／等待恢复／会后核对，再依次新增议程、信息收集、方案对比、风险与问题清单；当前源码仍仅四类组件 | [设计](collaboration-phase2-design.md)／[九项计划](collaboration-phase2-plan.md)／[规划记录](sessions/2026-09-12-collaboration-phase2-plan.md) |
 | 首版协作组件实施 | 已提交／推送，[PR #3](https://github.com/Jeffreyliu0131/meeting-agent/pull/3)，合入596c8b7并解决9份冲突（dde60ad），133单元／桌面25项覆盖通过。核心实现：四类悬浮窗、悬浮球提示、可信本地三人互动及M/C/R；115单元／17桌面通过；真实模型／macOS和完整设计差距待补验，未重启日常应用或替换包 | [实施计划](collaboration-v1-implementation.md)／[实施记录](sessions/2026-09-12-collaboration-implementation.md) |
 | 首版协作组件与 LangGraph | 目标设计已批准；首版核心已实施，62项按[结果矩阵](../tests/results/collaboration-v1-validation.md)区分覆盖／差距 | [完整设计](collaboration-v1-design.md)／[设计记录](sessions/2026-09-12-collaboration-components-design.md) |
 | GPT Live Transcribe 接入 | 已切换并重启：44项单元／8项桌面测试与合成语音实际流式转写通过，保留DeepSeek及暂停会议；真实会议未测 | [流式转写接入](sessions/2026-09-12-live-transcribe.md)／[验证](../tests/results/live-transcription-validation.md) |

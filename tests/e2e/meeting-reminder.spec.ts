@@ -23,6 +23,8 @@ async function launch(fixture = true) {
       OPENAI_API_KEY: '',
       MEETING_STT_API_KEY: 'synthetic-not-a-real-key',
       MEETING_STT_API_BASE: base,
+      // This fixture serves batch HTTP transcription, not the live WebSocket protocol.
+      MEETING_STT_MODEL: 'whisper-1',
     },
   });
   await expect

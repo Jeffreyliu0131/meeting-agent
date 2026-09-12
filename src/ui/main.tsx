@@ -1,6 +1,7 @@
 import { MeetingReminderBubble } from './MeetingReminderBubble';
 import { WorkflowPanel } from './WorkflowPanel';
 import { CollaborationPanel } from './collaboration/Panel';
+import { ComponentDock } from './collaboration/ComponentDock';
 import launcherArtwork from './assets/launcher-dialogue-v1.png';
 import { launcherIndicator, readyComponents } from './launcher-status';
 import {
@@ -1170,5 +1171,5 @@ function App() {
   );
 }
 createRoot(document.getElementById('root')!).render(
-  role === 'participant' || role === 'component' ? <CollaborationPanel floating /> : <App />,
+  role === 'component-dock' ? <ComponentDock /> : role === 'participant' || role === 'component' ? <CollaborationPanel floating /> : <App />,
 );

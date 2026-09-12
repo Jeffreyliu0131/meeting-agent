@@ -4,6 +4,42 @@
   border-top: 1px solid var(--divider, #dde4ee);
   color: var(--text-primary, #101828);
 }
+.component-review {
+  padding: 18px;
+  background: #fff;
+  border: 1px solid #dde4ee;
+  border-radius: 14px;
+  margin: 12px 0;
+}
+.component-review h3 {
+  margin-top: 0;
+}
+.component-review li {
+  padding-block: 8px;
+}
+.review-item {
+  padding-block: 10px;
+  border-bottom: 1px solid #e9edf4;
+}
+.review-item p {
+  margin-block: 6px;
+}
+.collaboration-advanced {
+  margin-block: 12px;
+}
+.collaboration-advanced summary {
+  cursor: pointer;
+  color: #526077;
+}
+.review-disclosure {
+  background: #f4f7fc;
+  padding: 12px;
+  border-radius: 10px;
+}
+.review-disclosure blockquote {
+  margin: 8px 0;
+  color: #526077;
+}
 .collaboration-index {
   display: flex;
   gap: 12px;
