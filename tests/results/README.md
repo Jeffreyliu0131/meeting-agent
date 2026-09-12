@@ -45,3 +45,5 @@ Agent三项可靠性迭代：[验证结果](agent-reliability-validation.md)／[
 - [设置即时保存](settings-autosave-validation.md)：104单元、22桌面全量及收尾6项设置复核；双端包一致、Mac包及日常刷新完成，Windows真机待验。
 
 - [PR #3修复与整合验证](pr3-fix-validation.md)：保留GPT Live Transcribe，首包／排队／收尾、异议重算及输入缺口门槛。
+
+- [FTY与xuwenzhe整合验证](branch-integration-validation.md)：私有草稿→正式协作→跨会议报告，组合回归与双端包。

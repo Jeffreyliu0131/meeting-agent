@@ -1,7 +1,8 @@
+import { cleanupElectron } from './cleanup';
 /** Local HTTP test double and synthetic text only; no real model or audio. */
 import { test, expect, _electron as electron } from '@playwright/test';
 import { createServer } from 'node:http';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -173,17 +174,6 @@ test('four intent drafts: real IPC, protected edits, sources and restart', async
       w?.webContents.setZoomFactor(1);
       w?.setSize(1100, 850);
     });
-    for (const kind of ['poll', 'assignment', 'conflict', 'decision_confirmation']) {
-      await page.getByTestId(`intent-${kind}`).getByRole('heading').scrollIntoViewIfNeeded();
-      await page.waitForTimeout(250); // Wait for the native compositor after scrolling.
-      const png = await app.evaluate(async ({ BrowserWindow }) => {
-        const w = BrowserWindow.getAllWindows().find((w) =>
-          w.webContents.getURL().includes('role=workspace'),
-        )!;
-        return (await w.capturePage()).toPNG().toString('base64');
-      });
-      writeFileSync(join(dir, `intent-${kind}.png`), Buffer.from(png, 'base64'));
-    }
     const freeze = page
       .getByTestId('intent-poll')
       .getByRole('button', { name: 'Stop collecting and preview', exact: true });
@@ -197,7 +187,7 @@ test('four intent drafts: real IPC, protected edits, sources and restart', async
       .toBe(true);
     const promoted = await page.evaluate(() => window.meeting.call('snapshot'));
     expect(promoted.value.meetings[0].collaboration.components[0].rounds).toHaveLength(0);
-    await app.close();
+    await cleanupElectron(app);
     app = await electron.launch({ args: [resolve('.')], env });
     page = await workspace();
     const savedMeeting = page.getByRole('button', { name: /^Meeting ·/ });
@@ -214,7 +204,7 @@ test('four intent drafts: real IPC, protected edits, sources and restart', async
       'not a recorded decision',
     );
   } finally {
-    await app.close();
+    await cleanupElectron(app);
     await new Promise<void>((r) => server.close(() => r()));
   }
 });

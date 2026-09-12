@@ -148,17 +148,24 @@ test('collections combine explicit collaboration decisions, preserve source meet
         .find((w) => w.webContents.getURL().includes('role=workspace'))
         ?.show(),
     );
-    await page.getByRole('button', { name: 'New collection', exact: true }).click();
+    await page.getByRole('button', { name: 'Select', exact: true }).click();
+    await page.locator('.meeting-row input[type=checkbox]').first().check();
+    await page.getByRole('button', { name: 'New collection from selection', exact: true }).click();
     const dialog = page.getByRole('dialog');
     await dialog.getByRole('textbox').first().fill('Pilot collection');
     await dialog.getByLabel('Synthetic kickoff', { exact: true }).check();
     await dialog.getByLabel('Synthetic review', { exact: true }).check();
     await dialog.getByRole('button', { name: 'Save', exact: true }).click();
     await page.getByRole('button', { name: 'Generate consolidated report', exact: true }).click();
+    await expect
+      .poll(async () => {
+        const snapshot = (await page.evaluate(() => window.meeting.call('snapshot'))).value;
+        const c = snapshot.collections[0];
+        return { status: c.reportStatus, error: c.reportError, reports: c.reports.length };
+      })
+      .toEqual({ status: 'idle', error: null, reports: 1 });
     await expect(
-      page
-        .getByText('Both selected meetings recorded scoped pilot decisions.', { exact: true })
-        .first(),
+      page.locator('.collection-report').getByText('Recorded scope', { exact: true }),
     ).toBeVisible();
     const state = await page.evaluate(() => window.meeting.call('snapshot'));
     expect(state.value.collections[0].reports).toHaveLength(1);
