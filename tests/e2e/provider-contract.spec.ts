@@ -540,7 +540,7 @@ test('normal meeting entry saves setup once, starts audio in one intent and reve
   await expect(page.getByLabel('Interface language', { exact: true })).toHaveCount(0);
   await page.screenshot({ path: test.info().outputPath('audio-settings.png'), fullPage: true });
   await expect(page.getByLabel('Meeting title', { exact: true })).toHaveCount(0);
-  await page.getByRole('button', { name: 'Save settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Done', exact: true }).click();
   let state = await page.evaluate(() => window.meeting.call('snapshot'));
   expect(state.value.meetings.length).toBe(0);
   expect(state.value.preferences.audio.setupCompleted).toBe(true);

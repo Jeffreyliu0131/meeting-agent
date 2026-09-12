@@ -6,6 +6,7 @@ import { createHash } from 'node:crypto';
 import { extractFile } from '@electron/asar';
 
 const resultDir = resolve('tests/results');
+const prefix = process.env.MEETING_CHECK_PREFIX || 'meeting-reminder';
 const hash = (bytes) => createHash('sha256').update(bytes).digest('hex');
 function files(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
@@ -43,7 +44,7 @@ for (const file of [
   sourceHashes[file] = hash(readFileSync(file));
 }
 writeFileSync(
-  join(resultDir, 'meeting-reminder-packages.json'),
+  join(resultDir, `${prefix}-packages.json`),
   JSON.stringify({ ranAt: new Date().toISOString(), packages: hashes, sourceHashes }, null, 2) +
     '\n',
 );
@@ -112,19 +113,19 @@ try {
         .toPNG()
         .toString('base64'),
     );
-    writeFileSync(
-      join(resultDir, `meeting-reminder-package-${locale}.png`),
-      Buffer.from(png, 'base64'),
-    );
+    writeFileSync(join(resultDir, `${prefix}-package-${locale}.png`), Buffer.from(png, 'base64'));
   }
   await page.getByLabel('Show desktop launcher', { exact: true }).uncheck();
-  await page.getByRole('button', { name: 'Save settings', exact: true }).click();
+  await page.waitForFunction(
+    async () => (await window.meeting.call('snapshot')).value.preferences.launcherVisible === false,
+  );
   const visible = await app.evaluate(({ BrowserWindow }) =>
     BrowserWindow.getAllWindows()
       .find((w) => w.webContents.getURL().includes('role=launcher'))
       ?.isVisible(),
   );
-  if (visible) throw new Error('Packaged launcher did not hide');
+  if (visible) throw new Error('Packaged launcher did not hide immediately');
+  await page.getByRole('button', { name: 'Done', exact: true }).click();
   const final = (await page.evaluate(() => window.meeting.call('snapshot'))).value;
   if (final.meetings.length !== 0) throw new Error('Unexpected capture');
   const result = {
@@ -133,6 +134,7 @@ try {
     packaged: true,
     locales: ['zh-CN', 'en'],
     hiddenLauncher: true,
+    immediateLauncherToggle: true,
     testInjectionDenied: true,
     meetings: 0,
     realAudioCaptured: false,
@@ -140,7 +142,7 @@ try {
     realNativeNotificationDelivery: 'not verified; signing/OS setup required',
   };
   writeFileSync(
-    join(resultDir, 'meeting-reminder-package-smoke.json'),
+    join(resultDir, `${prefix}-package-smoke.json`),
     JSON.stringify(result, null, 2) + '\n',
   );
   console.log(

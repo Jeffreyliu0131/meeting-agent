@@ -224,7 +224,7 @@ test('click starts one synthetic recording quietly; hide launcher and disable re
   await page.evaluate(() => window.meeting.call('open'));
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByLabel('Show desktop launcher', { exact: true }).check();
-  await page.getByRole('button', { name: 'Save settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Done', exact: true }).click();
   await expect.poll(() => visible('launcher')).toBe(true);
 });
 test('hidden launcher routes to native adapter: close/failure/expiry are inert; click records once without workspace', async () => {

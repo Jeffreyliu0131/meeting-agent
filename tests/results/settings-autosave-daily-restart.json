@@ -1,0 +1,17 @@
+{
+  "oldProcess": [
+    {
+      "pid": 33686,
+      "startedAt": "Sat Sep 12 12:30:19 2026"
+    }
+  ],
+  "newProcess": {
+    "pid": 39735,
+    "startedAt": "Sat Sep 12 12:50:31 2026"
+  },
+  "meetings": 0,
+  "activeMeetings": 0,
+  "packageSha256": "a1e5f79a896da0027eb9ed861329ed20bc3e67cb284049fc6c2cff1d282e5e94",
+  "sourceFilesMatched": 83,
+  "realAudioCaptured": false
+}

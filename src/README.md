@@ -33,3 +33,6 @@
 ## 会议候选提醒
 
 [desktop/meeting-signals.ts](desktop/meeting-signals.ts)是可信检测事件接入点（生产检测器未接入）；[meeting-reminder.ts](desktop/meeting-reminder.ts)管理一次提醒、时效与点击授权；[system-reminder.ts](desktop/system-reminder.ts)适配原生通知；[MeetingReminderBubble.tsx](ui/MeetingReminderBubble.tsx)呈现气泡。[契约与限制](../docs/meeting-reminder-spec.md)区分信号、提醒、采集以及合成测试。
+
+
+[ui/preference-writer.ts](ui/preference-writer.ts)串行发送字段补丁、保留最新用户意图、失败回滚／重试；[domain/preferences.ts](domain/preferences.ts)定义preferencesPatch的严格校验与嵌套合并。设置不再等待整份Save，快捷键注册由桌面层协调持久化失败回滚。

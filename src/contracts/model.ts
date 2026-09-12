@@ -544,6 +544,7 @@ export const Command = z
       'scenario',
       'decision',
       'preferences',
+      'preferencesPatch',
       'rename',
       'audioSettings',
     ]),

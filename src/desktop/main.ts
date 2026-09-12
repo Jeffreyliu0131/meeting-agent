@@ -1,3 +1,4 @@
+import { PreferencesPatchSchema } from '../domain/preferences';
 import { EventEmitter } from 'node:events';
 import { MeetingReminder } from './meeting-reminder';
 import { SystemReminder } from './system-reminder';
@@ -153,6 +154,36 @@ function dispatch(
 ) {
   return request('command', { id: randomUUID(), meetingId, type, payload });
 }
+let preferenceWrites: Promise<unknown> = Promise.resolve();
+function writePreferences(command: Command) {
+  const operation = preferenceWrites.then(async () => {
+    if (command.type === 'preferencesPatch') PreferencesPatchSchema.parse(command.payload);
+    const fresh = (await request('snapshot')) as Snapshot;
+    const old = fresh.preferences.shortcut;
+    const next = typeof command.payload.shortcut === 'string' ? command.payload.shortcut : old;
+    const changed = next !== old;
+    let installedNext = false;
+    const toggle = () => (workspace.isVisible() ? workspace.hide() : openWorkspace());
+    try {
+      if (changed) {
+        if (old) globalShortcut.unregister(old);
+        if (next) {
+          if (!globalShortcut.register(next, toggle)) throw new Error('SHORTCUT_CONFLICT');
+          installedNext = true;
+        }
+      }
+      return await request('command', command);
+    } catch (error) {
+      if (changed) {
+        if (installedNext) globalShortcut.unregister(next);
+        if (old) globalShortcut.register(old, toggle);
+      }
+      throw error;
+    }
+  });
+  preferenceWrites = operation.catch(() => {});
+  return operation;
+}
 let stopResolve: (() => void) | null = null;
 async function drainCapture() {
   if (!active() || active()!.capture !== 'capturing') {
@@ -242,11 +273,12 @@ async function contextMenu() {
       label: t(state?.preferences.launcherVisible === false ? 'launcher.show' : 'launcher.hide'),
       click: () => {
         if (!state) return;
-        void dispatch(
-          'preferences',
-          { ...state.preferences, launcherVisible: state.preferences.launcherVisible === false },
-          null,
-        ).catch(() => recoverReminderStart('STORAGE_FAILED'));
+        void writePreferences({
+          id: randomUUID(),
+          meetingId: null,
+          type: 'preferencesPatch',
+          payload: { launcherVisible: state.preferences.launcherVisible === false },
+        }).catch(() => recoverReminderStart('STORAGE_FAILED'));
       },
     },
     { type: 'separator' },
@@ -762,6 +794,7 @@ app.whenReady().then(async () => {
               'scenario',
               'decision',
               'preferences',
+              'preferencesPatch',
               'end',
             ].includes(args.type)
           )
@@ -771,26 +804,9 @@ app.whenReady().then(async () => {
           if (args.type === 'ingest' && !['manual', 'replay'].includes(args.payload?.kind))
             throw new Error('PERMISSION_DENIED');
           if (args.type === 'end') await drainCapture();
-          if (
-            args.type === 'preferences' &&
-            typeof args.payload.shortcut === 'string' &&
-            args.payload.shortcut !== state?.preferences.shortcut
-          ) {
-            const old = state?.preferences.shortcut || '',
-              next = args.payload.shortcut;
-            if (old) globalShortcut.unregister(old);
-            if (
-              next &&
-              !globalShortcut.register(next, () =>
-                workspace.isVisible() ? workspace.hide() : openWorkspace(),
-              )
-            ) {
-              if (old)
-                globalShortcut.register(old, () =>
-                  workspace.isVisible() ? workspace.hide() : openWorkspace(),
-                );
-              throw new Error('SHORTCUT_CONFLICT');
-            }
+          if (args.type === 'preferences' || args.type === 'preferencesPatch') {
+            value = await writePreferences(args);
+            break;
           }
           value = await request('command', args);
           break;

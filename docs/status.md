@@ -20,6 +20,7 @@
 
 | 工作 | 核实到的状态 | 接手记录 |
 |---|---|---|
+| 设置即时生效 | 代码／双端包已同步；104单元、22桌面及收尾6项设置复核通过；Mac包与日常进程已更新，Windows运行待验，未提交 | [本轮记录](sessions/2026-09-12-settings-autosave.md) |
 | 会议候选提醒 | 提醒代码／双端本地包已同步，99单元／19桌面及Mac包检查通过；真实检测待接入、双端原生投递待验；[PR #1](https://github.com/Jeffreyliu0131/meeting-agent/pull/1) | [本轮记录](sessions/2026-09-12-meeting-reminder.md) |
 | 界面语言与交互打磨 | 代码／两端本地包已同步：跟随系统及即时切换、文字与焦点打磨；86单元／14桌面、Mac包检查通过；Windows运行待验；91962b9已推送origin/main | [本轮记录](sessions/2026-09-12-interface-polish.md) |
 | Mac／Windows本地包同步 | 本地release均已更新至9b6886d产品源码，14文件及app.asar一致；11项桌面通过，Mac新包已打开；同步证据06f57d2已推送，当前日常库0会议，Windows真机待验 | [本轮记录](sessions/2026-09-12-cross-platform-sync.md) |

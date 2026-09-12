@@ -1099,18 +1099,9 @@ function App() {
           snapshot={snapshot}
           t={t}
           close={() => setSettings(false)}
-          save={(p, keepOpen) =>
-            act(async () => {
-              await command('preferences', p as unknown as Record<string, unknown>, null);
-              if (!keepOpen) setSettings(false);
-              return true;
-            })
-          }
-          changeInterface={(uiLanguage) =>
-            command('preferences', { ...snapshot.preferences, uiLanguage }, null)
-          }
+          savePatch={(patch) => command('preferencesPatch', patch as Record<string, unknown>, null)}
           current={current}
-          changeOutput={(output) => act(() => command('language', { locale: output }))}
+          changeOutput={(output) => command('language', { locale: output })}
         />
       )}
       {decisionScope && artifact && current && (
