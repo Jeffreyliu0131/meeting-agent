@@ -1,6 +1,6 @@
 # 设置即时保存验证
 
-日期：2026-09-12 12:52（Asia/Singapore），macOS arm64、Electron44.3.0，HEAD62e3f5c＋本轮工作树。未提交／推送。
+日期：2026-09-12 12:52（Asia/Singapore），macOS arm64、Electron44.3.0，HEAD62e3f5c＋本轮工作树；随后源码a47cf8c经[PR #2](https://github.com/Jeffreyliu0131/meeting-agent/pull/2)交付。
 
 ## 实现
 
@@ -31,3 +31,5 @@
 真实检测器和系统通知投递边界未改变。另一任务的会中工作页精修仅按当前观察保留其文档／素材，不代其宣布完成。
 
 交接：[本轮记录](../../docs/sessions/2026-09-12-settings-autosave.md)。
+
+用户后续明确不进行Windows真机研究。PR交付复核仅声明Windows共用代码／构建无已知阻塞、83个验证指纹一致及双端包一致，不扩大为真机通过。GitHub合并结果以[PR #2](https://github.com/Jeffreyliu0131/meeting-agent/pull/2)为准。
