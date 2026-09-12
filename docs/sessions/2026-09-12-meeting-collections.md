@@ -128,4 +128,8 @@ UI 上 `CollectionWorkspace` 在报告区**上方**渲染确定性面板，引�
 
 **检查**：`PYTHONUTF8=1 python scripts/check-docs.py` → passed（71 个 MD，17 条 session，0 错误）。注意该脚本在中文 Windows 上默认以 GBK 读文件会崩，**须加 `PYTHONUTF8=1`**。
 
-**未提交、未推送。** 全部改动在 `xuwenzhe` 分支工作树。
+**已交付**：提交 `9f43e7a` 已推送 `origin/xuwenzhe`（远端 SHA 已核对一致）。提交前做过凭证扫描（`sk-`／`AIza`／私钥／密码模式），结果干净；`.env`、`dist/`、`node_modules/` 均未入库。`main` 未改动。
+
+**本机模型配置**：理解模型经本地 LiteLLM 走 DeepSeek `deepseek-chat`，转写走 OpenAI `gpt-4o-transcribe`；探测七项中六项通过，唯一失败的 `json_schema strict` 是 DeepSeek 的已知限制，应用以 `MEETING_RESPONSE_FORMAT=json_object` 规避。该配置位于仓库外的 `Hackathon/litellm-proxy/`，不入库。
+
+**环境坑（非本仓库问题）**：本机卡巴斯基的 HTTPS 扫描会以自身根证书重签 TLS，`curl` 读 Windows 证书库因而正常，Python 读 `certifi` 因而 `CERTIFICATE_VERIFY_FAILED`。修法是导出 Windows 证书库并设 `SSL_CERT_FILE`，已在 `litellm-proxy/start.ps1` 固化。另：本机 Python 默认 GBK，运行 `scripts/check-docs.py` 须加 `PYTHONUTF8=1`，否则直接崩。
