@@ -549,6 +549,11 @@ app.whenReady().then(async () => {
               'decision',
               'preferences',
               'end',
+              'collectionCreate',
+              'collectionUpdate',
+              'collectionMembers',
+              'collectionDelete',
+              'collectionReport',
             ].includes(args.type)
           )
             throw new Error('PERMISSION_DENIED');

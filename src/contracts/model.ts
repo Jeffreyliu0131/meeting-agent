@@ -370,7 +370,7 @@ export type Translation = {
 };
 export type CallRecord = {
   id: string;
-  kind: 'understand' | 'personal' | 'generate' | 'translate' | 'transcribe';
+  kind: 'understand' | 'personal' | 'generate' | 'translate' | 'transcribe' | 'collection';
   startedAt: string;
   durationMs: number;
   status: 'pending' | 'ok' | 'failed';
@@ -379,6 +379,15 @@ export type CallRecord = {
   reservedTokens: number;
   audioSeconds?: number;
   error?: string;
+};
+/** Shared by meetings and collections; both keep their own hourly ledger. */
+export type UsageTotals = {
+  reservedTokens: number;
+  calls: number;
+  inputTokens: number;
+  outputTokens: number;
+  unknownUsageCalls: number;
+  audioSeconds: number;
 };
 export type ExpressionJob = {
   workflowJobId?: string;
@@ -458,14 +467,7 @@ export type Meeting = {
   decisions: Decision[];
   processedSources?: Record<string, number>;
   calls?: CallRecord[];
-  usageTotals?: {
-    reservedTokens: number;
-    calls: number;
-    inputTokens: number;
-    outputTokens: number;
-    unknownUsageCalls: number;
-    audioSeconds: number;
-  };
+  usageTotals?: UsageTotals;
   expressionJobs?: ExpressionJob[];
   failedExpression?: ExpressionJob;
   expressionStatus?: 'idle' | 'working' | 'error';
@@ -502,8 +504,98 @@ export type Preferences = {
   reduceTransparency: boolean;
   shortcut: string;
 };
+/** Supported ceiling. Above 8 the "every dispute must appear" coverage check
+ *  stops being satisfiable inside the collection context budget. */
+export const MAX_COLLECTION_MEMBERS = 8;
+
+/**
+ * Cross-meeting consolidated report. Field-for-field identical to `Artifact` so
+ * ArtifactView and preflightMarkup accept it unchanged; only the runtime caps
+ * differ, because N meetings cite far more sources than one.
+ *
+ * `formulas` is capped at 0: a collection report may not carry tool-computed
+ * values or chart bindings. That is a structural guarantee, not a prompt rule —
+ * see assertCollectionCoverage.
+ */
+export const CollectionReport = z
+  .object({
+    id,
+    purposeKey: id,
+    question: z.string().max(180),
+    summary: z.string().max(500),
+    layout: z.enum(['stack', 'columns']),
+    objectIds: z.array(id).max(160),
+    blocks: z.array(Block).min(1).max(12),
+    formulas: z.array(Formula).max(0),
+    sources: z.array(Ref).max(160),
+  })
+  .strict();
+export type CollectionReport = z.infer<typeof CollectionReport>;
+
+/** Host-side only. The model sees `alias` and `meetingAlias`; never `meetingId`. */
+export type CollectionAlias = {
+  alias: string;
+  meetingAlias: string;
+  meetingId: string;
+  /** A decision is citable evidence, not a semantic object. */
+  kind: 'source' | 'object' | 'relation' | 'decision';
+  id: string;
+  rev: number;
+};
+export type CollectionWatermark = {
+  meetingId: string;
+  revision: number;
+  languageRevision: number;
+  inputVersion: number;
+};
+/** What the digest could not fit. Surfaced so the model never claims completeness. */
+export type CollectionOmitted = { openItems: number; meetings: number; quotes: number };
+
+export type CollectionReportRevision = CollectionReport & {
+  reportId: string;
+  rev: number;
+  generation: number;
+  locale: Locale;
+  languageRevision: number;
+  inputVersion: number;
+  objectRefs: Ref[];
+  relationRefs: Ref[];
+  changedBlockIds: string[];
+  updateKind: 'create';
+  createdAt: string;
+  meetingIds: string[];
+  watermarks: CollectionWatermark[];
+  aliasMap: Record<string, CollectionAlias>;
+  aliasRefs: CollectionAlias[];
+  digestHash: string;
+  omitted: CollectionOmitted;
+  modelCalls: number;
+};
+
+/**
+ * A user-declared grouping of meetings. Not a partition: one meeting may belong
+ * to several collections.
+ */
+export type MeetingCollection = {
+  id: string;
+  title: string;
+  brief: string;
+  meetingIds: string[];
+  outputLocale: Locale;
+  revision: number;
+  createdAt: string;
+  updatedAt: string;
+  reports: CollectionReportRevision[];
+  calls?: CallRecord[];
+  usageTotals?: UsageTotals;
+  reportStatus: 'idle' | 'working' | 'error';
+  reportError: string | null;
+  lastReportAt?: string;
+};
+
 export type Snapshot = {
   meetings: Meeting[];
+  collections: MeetingCollection[];
   preferences: Preferences;
   capabilities: {
     developerInputs?: boolean;
@@ -541,6 +633,11 @@ export const Command = z
       'preferences',
       'rename',
       'audioSettings',
+      'collectionCreate',
+      'collectionUpdate',
+      'collectionMembers',
+      'collectionDelete',
+      'collectionReport',
     ]),
     payload: z.record(z.string(), z.unknown()),
   })

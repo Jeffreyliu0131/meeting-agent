@@ -1,5 +1,9 @@
-type Lane = 'understand' | 'personal' | 'generate' | 'transcribe' | 'translate';
-/** Four total calls; background lanes cannot consume understanding's reserved slot. */
+type Lane = 'understand' | 'personal' | 'generate' | 'transcribe' | 'translate' | 'collection';
+/**
+ * Four total calls; background lanes cannot consume understanding's reserved slot.
+ * The `collection` lane adds no throughput - it buys mutual non-starvation, so a
+ * multi-meeting synthesis never queues ahead of a live meeting's expression work.
+ */
 export class CallPool {
   private active = new Map<Lane, number>();
   private queue: Array<{

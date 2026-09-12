@@ -29,10 +29,27 @@ import {
   type CallRecord,
   type Artifact,
   type Ref,
+  type MeetingCollection,
 } from '../contracts/model';
 import type { ModelPort, ProviderConfig } from '../agent/provider';
 import type { StorePort } from './store';
 import { createMeeting, reduceMeeting } from '../domain/commands';
+import { createCollection, reduceCollection } from '../domain/collection';
+import { buildCollectionDigest } from '../domain/collection-digest';
+import { collectionPayload } from '../agent/collection-context';
+import {
+  resolveAliases,
+  syntheticCollectionMeeting,
+  assertCollectionCoverage,
+} from './collection-state';
+import type { CollectionReportRevision, UsageTotals } from '../contracts/model';
+
+/** The parts of a meeting or a collection that the shared call ledger touches. */
+type LedgerOwner = {
+  calls?: CallRecord[];
+  usageTotals?: UsageTotals;
+  metrics?: Meeting['metrics'];
+};
 import type { AudioLease } from '../integrations/audio-leases';
 import { validateArtifact, validateDelta } from '../renderers/validate';
 import {
@@ -49,12 +66,15 @@ import { resolvePreferences } from '../domain/preferences';
 import type { CallOptions } from '../agent/provider';
 export class SessionService {
   meetings: Meeting[];
+  collections: MeetingCollection[];
   preferences: Preferences;
   storageError: string | null = null;
   private pool = new CallPool();
   private requestControllers = new Map<string, AbortController>();
   private running = new Set<string>();
   private expressing = new Map<string, Promise<void>>();
+  /** Collections with a report in flight, so flush() and tests can wait for them. */
+  private reporting = new Set<string>();
   private controllers = new Set<AbortController>();
   private closed = false;
   private dirty = new Set<string>();
@@ -73,6 +93,7 @@ export class SessionService {
   ) {
     const state = store.load();
     this.meetings = state.meetings;
+    this.collections = state.collections;
     this.preferences = state.preferences;
     // Reopening a process restores saved content, never devices.
     for (const m of this.meetings) {
@@ -119,6 +140,24 @@ export class SessionService {
           c.error = 'PROCESS_INTERRUPTED';
         }
     }
+    for (const collection of this.collections) {
+      collection.reports ??= [];
+      collection.meetingIds ??= [];
+      collection.brief ??= '';
+      collection.calls ??= [];
+      // A report is never left mid-flight: the process that was generating it is gone.
+      collection.reportStatus = 'idle';
+      collection.reportError = null;
+      // Members removed while this collection was not loaded must not linger.
+      collection.meetingIds = collection.meetingIds.filter((id) =>
+        this.meetings.some((m) => m.id === id),
+      );
+      for (const call of collection.calls)
+        if (call.status === 'pending') {
+          call.status = 'failed';
+          call.error = 'PROCESS_INTERRUPTED';
+        }
+    }
     this.persist();
     if (config.key)
       for (const m of this.meetings) {
@@ -129,6 +168,7 @@ export class SessionService {
   snapshot(): Snapshot {
     return structuredClone({
       meetings: this.meetings,
+      collections: this.collections,
       preferences: this.preferences,
       storageError: this.storageError,
       capabilities: {
@@ -160,9 +200,10 @@ export class SessionService {
       throw new Error('STORAGE_FAILED', { cause });
     }
   }
+  /** Every write path must carry collections; a missed argument would erase them. */
   private persist() {
     try {
-      this.saveState(this.meetings, this.preferences);
+      this.saveState(this.meetings, this.preferences, undefined, this.collections);
       this.storageError = null;
     } catch {
       this.storageError = 'STORAGE_FAILED';
@@ -178,6 +219,7 @@ export class SessionService {
       return old.result;
     }
     const meetings = structuredClone(this.meetings);
+    const collections = structuredClone(this.collections);
     let prefs = structuredClone(this.preferences);
     let result: unknown = null,
       schedule = false;
@@ -208,6 +250,63 @@ export class SessionService {
         meetings.unshift(m);
         result = m.id;
       }
+    } else if (
+      c.type === 'collectionCreate' ||
+      c.type === 'collectionUpdate' ||
+      c.type === 'collectionMembers' ||
+      c.type === 'collectionDelete' ||
+      c.type === 'collectionReport'
+    ) {
+      if (c.type === 'collectionReport') {
+        const collectionId = z
+          .string()
+          .regex(/^[\w-]{1,100}$/)
+          .parse(c.payload.collectionId);
+        const target = collections.find((x) => x.id === collectionId);
+        if (!target) throw new Error('COLLECTION_NOT_FOUND');
+        if (target.reportStatus === 'working') throw new Error('COLLECTION_REPORT_RUNNING');
+        if (!this.model.synthesize) throw new Error('COLLECTION_REPORT_UNAVAILABLE');
+        // Persist the request, then generate outside the transaction. Mirrors the
+        // expression path: command() stays synchronous and idempotent.
+        this.saveState(meetings, prefs, { id: c.id, hash, result: collectionId }, collections);
+        this.storageError = null;
+        this.meetings = meetings;
+        this.collections = collections;
+        this.preferences = prefs;
+        this.changed();
+        this.reporting.add(collectionId);
+        // The failure is recorded on the collection and published through the
+        // snapshot; letting it reject here would only surface as an unhandled
+        // rejection in whatever process happens to be hosting the service.
+        void this.drainCollectionReport(collectionId)
+          .catch(() => {})
+          .finally(() => this.reporting.delete(collectionId));
+        return collectionId;
+      }
+      // Collections route on a payload id, not c.meetingId: a collection is not a
+      // meeting, and reusing meetingId for it would make the payload ambiguous.
+      const known = new Set(meetings.map((m) => m.id));
+      if (c.type === 'collectionCreate') {
+        const collection = createCollection(c.payload, prefs);
+        if (collection.meetingIds.some((id) => !known.has(id)))
+          throw new Error('COLLECTION_MEMBER_NOT_FOUND');
+        collections.unshift(collection);
+        result = collection.id;
+      } else {
+        const collectionId = z
+          .string()
+          .regex(/^[\w-]{1,100}$/)
+          .parse(c.payload.collectionId);
+        const index = collections.findIndex((x) => x.id === collectionId);
+        if (index < 0) throw new Error('COLLECTION_NOT_FOUND');
+        if (c.type === 'collectionDelete') {
+          collections.splice(index, 1);
+          result = true;
+        } else {
+          reduceCollection(collections[index], c, known);
+          result = collections[index].id;
+        }
+      }
     } else {
       const m = meetings.find((m) => m.id === c.meetingId);
       if (!m) throw new Error('MEETING_NOT_FOUND');
@@ -232,7 +331,7 @@ export class SessionService {
       m.workflowJobs.push(makeWorkflowJob(batch.meeting, batch.accepted, request.id));
     }
     try {
-      this.saveState(meetings, prefs, { id: c.id, hash, result });
+      this.saveState(meetings, prefs, { id: c.id, hash, result }, collections);
       this.storageError = null;
     } catch {
       this.storageError = 'STORAGE_FAILED';
@@ -240,6 +339,7 @@ export class SessionService {
       throw new Error('STORAGE_FAILED');
     }
     this.meetings = meetings;
+    this.collections = collections;
     if (c.type === 'cancelRequest')
       this.requestControllers.get(String(c.payload.requestId))?.abort();
     this.preferences = prefs;
@@ -366,6 +466,29 @@ export class SessionService {
     if (this.closed) throw new Error('SERVICE_CLOSED');
     const m = this.meetings.find((m) => m.id === id);
     if (!m) throw new Error('MEETING_NOT_FOUND');
+    return this.runLedgerCall(
+      m,
+      kind,
+      run,
+      () => this.meetings.find((x) => x.id === id),
+      audioSeconds,
+      requestId,
+    );
+  }
+  /**
+   * Budget check and ledger bookkeeping, shared by meetings and collections.
+   * Only the ledger owner and how to re-read it live differ; the hourly window,
+   * reservation and accounting must not diverge between the two.
+   */
+  private async runLedgerCall<T>(
+    owner: LedgerOwner,
+    kind: CallRecord['kind'],
+    run: (options: CallOptions) => Promise<T>,
+    live: () => LedgerOwner | undefined,
+    audioSeconds?: number,
+    requestId?: string,
+  ): Promise<T> {
+    const m = owner;
     m.calls ??= [];
     const now = Date.now(),
       window = m.calls.filter((c) => Date.parse(c.startedAt) > now - 3600000);
@@ -434,9 +557,9 @@ export class SessionService {
       if (requestId) this.requestControllers.delete(requestId);
       this.controllers.delete(controller);
       if (!this.closed) {
-        const current = this.meetings.find((m) => m.id === id)!;
-        const r = current.calls?.find((c) => c.id === record.id);
-        if (r) {
+        const current = live();
+        const r = current?.calls?.find((c) => c.id === record.id);
+        if (current && r) {
           Object.assign(r, {
             durationMs: Date.now() - now,
             status,
@@ -450,13 +573,131 @@ export class SessionService {
             total.outputTokens += usage.output;
             total.reservedTokens -= reserve;
           } else total.unknownUsageCalls++;
-          current.metrics.calls = total.calls;
-          current.metrics.inputTokens = total.inputTokens;
-          current.metrics.outputTokens = total.outputTokens;
+          // Collections carry no metrics block; meetings do.
+          if (current.metrics) {
+            current.metrics.calls = total.calls;
+            current.metrics.inputTokens = total.inputTokens;
+            current.metrics.outputTokens = total.outputTokens;
+          }
           this.persist();
           this.changed();
         }
       }
+    }
+  }
+  private runCollectionCall<T>(
+    collectionId: string,
+    run: (options: CallOptions) => Promise<T>,
+  ): Promise<T> {
+    const collection = this.collections.find((c) => c.id === collectionId);
+    if (!collection) throw new Error('COLLECTION_NOT_FOUND');
+    return this.runLedgerCall(collection, 'collection', run, () =>
+      this.collections.find((c) => c.id === collectionId),
+    );
+  }
+  /**
+   * Generates one immutable consolidated report. At most two model calls - one
+   * synthesis, one repair - matching the expression budget.
+   *
+   * There is no evidence-tool branch, deliberately: EvidenceRequest is strict and
+   * carries no meeting selector, and that is what stops a hostile proposal from
+   * naming a foreign meeting. The collection path must not be what adds one.
+   */
+  async drainCollectionReport(collectionId: string): Promise<void> {
+    const collection = this.collections.find((c) => c.id === collectionId);
+    if (!collection || !this.model.synthesize) return;
+    collection.reportStatus = 'working';
+    collection.reportError = null;
+    this.persist();
+    this.changed();
+    try {
+      const budget = Math.min(
+        this.config.collectionContextBytes ?? 32000,
+        this.model.maxCollectionContextBytes ?? Infinity,
+      );
+      const collectionDigest = buildCollectionDigest(collection, this.meetings, budget);
+      // validateRefs requires at least one source, and rightly so: a report with
+      // nothing to cite is not a report. Say so plainly instead of failing deep
+      // inside validation with MISSING_SOURCE.
+      if (!collectionDigest.aliasRefs.some((a) => a.kind === 'source'))
+        throw new Error('COLLECTION_EMPTY');
+      const payload = collectionPayload(collectionDigest);
+      let repair: string | undefined;
+      let lastError: Error = new Error('INVALID_REPORT');
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const result = await this.runCollectionCall(collectionId, (options) =>
+          this.model.synthesize!(payload, repair, options),
+        );
+        try {
+          const aliasRefs = resolveAliases(result.report, collectionDigest.aliasMap);
+          const synthetic = syntheticCollectionMeeting(collectionDigest.aliasMap, this.meetings);
+          validateArtifact(
+            result.report as unknown as Artifact,
+            synthetic,
+            synthetic.objects,
+            synthetic.relations,
+          );
+          assertCollectionCoverage(result.report, collectionDigest);
+          const live = this.collections.find((c) => c.id === collectionId);
+          if (!live) throw new Error('COLLECTION_NOT_FOUND');
+          const createdAt = new Date().toISOString();
+          const revision: CollectionReportRevision = {
+            ...result.report,
+            reportId: crypto.randomUUID(),
+            id: crypto.randomUUID(),
+            purposeKey: 'collection-report',
+            rev: (live.reports.at(-1)?.rev ?? 0) + 1,
+            generation: 1,
+            locale: live.outputLocale,
+            languageRevision: 1,
+            inputVersion: 1,
+            objectRefs: [],
+            relationRefs: [],
+            changedBlockIds: result.report.blocks.map((b) => b.id),
+            updateKind: 'create',
+            createdAt,
+            meetingIds: [...live.meetingIds],
+            watermarks: this.meetings
+              .filter((m) => live.meetingIds.includes(m.id))
+              .map((m) => ({
+                meetingId: m.id,
+                revision: m.revision,
+                languageRevision: m.languageRevision,
+                inputVersion: m.inputVersion,
+              })),
+            aliasMap: collectionDigest.aliasMap,
+            aliasRefs,
+            digestHash: digest({ ...collectionDigest, bytes: undefined }),
+            omitted: collectionDigest.omitted,
+            modelCalls: attempt + 1,
+          };
+          live.reports.push(revision);
+          live.reportStatus = 'idle';
+          live.reportError = null;
+          live.lastReportAt = createdAt;
+          live.revision++;
+          this.persist();
+          this.changed();
+          return;
+        } catch (e) {
+          lastError = e instanceof Error ? e : new Error('INVALID_REPORT');
+          repair = lastError.message;
+        }
+      }
+      throw lastError;
+    } catch (e) {
+      const live = this.collections.find((c) => c.id === collectionId);
+      if (live) {
+        live.reportStatus = 'error';
+        // Keep the previous revision intact; only the error is published.
+        live.reportError =
+          e instanceof Error && /^[A-Z0-9_]+$/.test(e.message)
+            ? e.message
+            : 'PROVIDER_UNAVAILABLE';
+        this.persist();
+        this.changed();
+      }
+      throw e;
     }
   }
   async process(id: string) {
@@ -1247,7 +1488,10 @@ export class SessionService {
     return work;
   }
   async flush() {
-    while (!this.closed && (this.running.size || this.timers.size || this.expressing.size)) {
+    while (
+      !this.closed &&
+      (this.running.size || this.timers.size || this.expressing.size || this.reporting.size)
+    ) {
       await new Promise((r) => setTimeout(r, 10));
     }
   }
