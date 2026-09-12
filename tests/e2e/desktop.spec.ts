@@ -5,7 +5,7 @@ import {
   type ElectronApplication,
   type Page,
 } from '@playwright/test';
-import { mkdtempSync } from 'node:fs';
+import { mkdtempSync, writeFileSync } from 'node:fs';
 import { cleanupElectron } from './cleanup';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -38,7 +38,7 @@ async function launch() {
     w?.focus();
   });
   await expect(
-    page.getByRole('heading', { name: 'A little clarity, while the conversation moves.' }),
+    page.getByRole('heading', { name: 'Make room for a clearer conversation.' }),
   ).toBeVisible();
 }
 test.beforeEach(async () => {
@@ -56,7 +56,7 @@ test('real Electron: event, manual original source, honest missing model, correc
     .getByRole('dialog')
     .getByRole('button', { name: 'Start meeting', exact: true })
     .click();
-  await expect(page.getByText('There is no generated work yet.')).toBeVisible();
+  await expect(page.getByText('Space for the conversation to take shape.')).toBeVisible();
   await page.getByRole('button', { name: 'Add a transcript excerpt' }).click();
   await page
     .getByRole('textbox', { name: 'Original words…' })
@@ -74,6 +74,14 @@ test('real Electron: event, manual original source, honest missing model, correc
   await page
     .getByLabel('Original words', { exact: true })
     .fill('Only invite customers if support confirms capacity. No date is agreed.');
+  // Closing evidence must preserve a correction draft and return focus to its trigger.
+  await page.getByLabel('Original words', { exact: true }).press('Escape');
+  await expect(page.getByRole('dialog', { name: 'View sources' })).toBeHidden();
+  await expect(page.getByRole('button', { name: 'View sources', exact: true })).toBeFocused();
+  await page.getByRole('button', { name: 'View sources', exact: true }).click();
+  await expect(page.getByLabel('Original words', { exact: true })).toHaveValue(
+    'Only invite customers if support confirms capacity. No date is agreed.',
+  );
   await page.getByRole('button', { name: 'Save correction' }).click();
   await expect(
     page.getByText('Only invite customers if support confirms capacity. No date is agreed.', {
@@ -86,11 +94,11 @@ test('real Electron: event, manual original source, honest missing model, correc
     .click();
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByLabel('Interface language', { exact: true }).selectOption('zh-CN');
-  await page.getByRole('button', { name: 'Save settings', exact: true }).click();
+  await page.getByRole('button', { name: '保存设置', exact: true }).click();
   await expect(page.getByRole('button', { name: '结束会议' })).toBeVisible();
   await page.getByRole('button', { name: '结束会议' }).click();
   await expect(page.getByText('会议已结束', { exact: true }).first()).toBeVisible();
-  await page.screenshot({ path: 'tests/results/e2e-artifacts/ended-zh.png', fullPage: true });
+  await page.screenshot({ path: test.info().outputPath('ended-zh.png'), fullPage: true });
   const state = await page.evaluate(async () => {
     const r = await window.meeting.call('snapshot');
     return r.value;
@@ -206,7 +214,7 @@ test('UI cannot impersonate audio adapter; no frame gets filesystem or arbitrary
     await expect
       .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
       .toBe(true);
-    await page.screenshot({ path: `tests/results/e2e-artifacts/library-${size.width}.png` });
+    await page.screenshot({ path: test.info().outputPath(`library-${size.width}.png`) });
   }
   await app.evaluate(({ BrowserWindow }) =>
     BrowserWindow.getAllWindows()
@@ -216,4 +224,157 @@ test('UI cannot impersonate audio adapter; no frame gets filesystem or arbitrary
   await expect
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
     .toBe(true);
+});
+
+test('meeting library filters, search recovery and settings keyboard loop', async () => {
+  await page.getByText('Development tools', { exact: true }).click();
+  await page.getByRole('button', { name: 'Development input', exact: true }).click();
+  await page.getByLabel('Meeting title', { exact: true }).fill('Searchable synthetic meeting');
+  await page.getByRole('dialog').getByRole('button', { name: 'Start meeting' }).click();
+  await page.getByRole('button', { name: 'End meeting', exact: true }).click();
+  await page.getByRole('button', { name: 'Meetings', exact: true }).click();
+  await page.getByRole('button', { name: 'In progress', exact: true }).click();
+  await expect(page.getByText('No meetings match your search.')).toBeVisible();
+  await page.getByRole('button', { name: 'Clear filters', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Search meetings', exact: true }).fill('Searchable');
+  await expect(page.locator('.meeting-row')).toHaveCount(1);
+  await page.getByRole('textbox', { name: 'Search meetings', exact: true }).fill('unmatched');
+  await expect(page.getByText('No meetings match your search.')).toBeVisible();
+  await page.getByRole('button', { name: 'Clear search', exact: true }).click();
+  await expect(page.locator('.meeting-row')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: 'Settings' });
+  await app.evaluate(({ BrowserWindow }) => {
+    const w = BrowserWindow.getAllWindows().find((w) =>
+      w.webContents.getURL().includes('role=workspace'),
+    );
+    w?.setSize(800, 600);
+    w?.webContents.setZoomFactor(2);
+  });
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+  await expect(dialog.getByRole('button', { name: 'Save settings', exact: true })).toBeVisible();
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const r = document.querySelector('.modal')!.getBoundingClientRect();
+        return (
+          r.left >= 0 && r.right <= innerWidth + 1 && r.top >= 0 && r.bottom <= innerHeight + 1
+        );
+      }),
+    )
+    .toBe(true);
+  await dialog.getByLabel('Interface language', { exact: true }).scrollIntoViewIfNeeded();
+  await dialog.getByLabel('Interface language', { exact: true }).selectOption('en');
+  await expect(dialog.getByLabel('Interface language', { exact: true })).toBeInViewport();
+  // Electron zoom affects CDP screenshot cropping; use the native surface at 200%.
+  const zoomCapture = await app.evaluate(async ({ BrowserWindow }) =>
+    (
+      await BrowserWindow.getAllWindows()
+        .find((w) => w.webContents.getURL().includes('role=workspace'))!
+        .webContents.capturePage()
+    )
+      .toPNG()
+      .toString('base64'),
+  );
+  writeFileSync(
+    test.info().outputPath('refresh-settings-200.png'),
+    Buffer.from(zoomCapture, 'base64'),
+  );
+
+  await dialog.getByRole('button', { name: 'Close', exact: true }).press('Shift+Tab');
+  await expect(dialog.getByRole('button', { name: 'Save settings', exact: true })).toBeFocused();
+  await dialog.getByRole('button', { name: 'Save settings', exact: true }).press('Escape');
+  await expect(dialog).toBeHidden();
+  await expect(page.getByRole('button', { name: 'Settings', exact: true })).toBeFocused();
+});
+
+test('launcher uses transparent chrome and distinct synthetic capture indicators with truthful labels', async () => {
+  await page.getByText('Development tools', { exact: true }).click();
+  await page.getByRole('button', { name: 'Development input', exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Start meeting' }).click();
+  const launcher = (await app.windows()).find((p) => p.url().includes('role=launcher'))!;
+  const snapshot = await page.evaluate(async () => (await window.meeting.call('snapshot')).value);
+  const icon = launcher.getByRole('button');
+  await expect(launcher.locator('.launcher-artwork img')).toBeVisible();
+  await expect
+    .poll(() =>
+      launcher
+        .locator('img')
+        .evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0),
+    )
+    .toBe(true);
+  expect(
+    await launcher.locator('button').evaluate((el) => getComputedStyle(el).borderTopWidth),
+  ).toBe('0px');
+  expect(
+    await launcher.locator('html').evaluate((el) => getComputedStyle(el).backgroundColor),
+  ).toBe('rgba(0, 0, 0, 0)');
+  const alpha = await app.evaluate(async ({ BrowserWindow }) => {
+    const surface = await BrowserWindow.getAllWindows()
+      .find((w) => w.webContents.getURL().includes('role=launcher'))!
+      .webContents.capturePage();
+    const pixels = surface.toBitmap(),
+      { width, height } = surface.getSize();
+    return {
+      corner: pixels[3],
+      center: pixels[(Math.floor(height / 2) * width + Math.floor(width / 2)) * 4 + 3],
+    };
+  });
+  expect(alpha.corner).toBe(0);
+  expect(alpha.center).toBeGreaterThan(240); // Generated artwork may retain slight satin alpha.
+  // Renderer-only fixtures: not a claim that real audio was captured.
+  for (const [capture, state, label] of [
+    ['idle', 'ready', 'not recording'],
+    ['starting', 'connecting', 'not ready yet'],
+    ['capturing', 'listening', 'audio input active'],
+    ['paused', 'paused', 'not recording'],
+    ['input_error', 'error', 'reconnect needed'],
+  ]) {
+    const fixture = structuredClone(snapshot);
+    fixture.meetings[0].capture = capture;
+    await app.evaluate(
+      ({ BrowserWindow }, fixture) =>
+        BrowserWindow.getAllWindows()
+          .find((w) => w.webContents.getURL().includes('role=launcher'))!
+          .webContents.send('snapshot', fixture),
+      fixture,
+    );
+    await expect(icon).toHaveAttribute('data-state', state);
+    await expect(icon).toHaveAttribute('title', new RegExp(label));
+    // Native capturePage can otherwise capture the previous compositor frame.
+    await launcher.evaluate(
+      () =>
+        new Promise<void>((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+        ),
+    );
+    const shot = await app.evaluate(async ({ BrowserWindow }) =>
+      (
+        await BrowserWindow.getAllWindows()
+          .find((w) => w.webContents.getURL().includes('role=launcher'))!
+          .webContents.capturePage()
+      )
+        .toPNG()
+        .toString('base64'),
+    );
+    writeFileSync(test.info().outputPath(`launcher-${state}.png`), Buffer.from(shot, 'base64'));
+  }
+  await app.evaluate(({ BrowserWindow }) =>
+    BrowserWindow.getAllWindows()
+      .find((w) => w.webContents.getURL().includes('role=launcher'))!
+      .webContents.send('snapshot', { serviceError: 'SERVICE_UNAVAILABLE' }),
+  );
+  await expect(icon).toHaveAttribute('title', /Service unavailable/);
+  await expect(icon).toHaveAttribute('data-state', 'error');
+  await app.evaluate(
+    ({ BrowserWindow }, snapshot) =>
+      BrowserWindow.getAllWindows()
+        .find((w) => w.webContents.getURL().includes('role=launcher'))!
+        .webContents.send('snapshot', snapshot),
+    snapshot,
+  );
+  await expect(icon).toHaveAttribute('data-state', 'ready');
+  await icon.press('Tab');
 });

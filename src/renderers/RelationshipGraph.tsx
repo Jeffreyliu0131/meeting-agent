@@ -17,6 +17,28 @@ export function RelationshipGraph({
   const cite = (id: string) => onSources(artifact.elementSources?.[id] ?? block.sources);
   return (
     <div className="relationship-scroll" tabIndex={0} aria-label={block.title}>
+      <div className="relationship-list">
+        {block.edges.map((e) => (
+          <div className="relationship-chain" key={e.relationId}>
+            <button onClick={() => cite(block.nodes.find((n) => n.id === e.from)!.objectId)}>
+              {block.nodes.find((n) => n.id === e.from)?.label}
+            </button>
+            <button className="source-link" onClick={() => cite(e.relationId)}>
+              {e.label}
+            </button>
+            <button onClick={() => cite(block.nodes.find((n) => n.id === e.to)!.objectId)}>
+              {block.nodes.find((n) => n.id === e.to)?.label}
+            </button>
+          </div>
+        ))}
+        {block.nodes
+          .filter((n) => !block.edges.some((e) => e.from === n.id || e.to === n.id))
+          .map((n) => (
+            <button key={n.id} onClick={() => cite(n.objectId)}>
+              {n.label}
+            </button>
+          ))}
+      </div>
       <div className="relationship-canvas" style={{ width: layout.width, height: layout.height }}>
         <svg
           className="relationship-edges"

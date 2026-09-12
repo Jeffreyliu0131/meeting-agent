@@ -43,6 +43,14 @@ def main():
             else:
                 edges[relative].add(str(resolved.relative_to(ROOT)))
 
+    # These authoritative documents have different responsibilities; catch accidental copy-over.
+    for relative, title in {
+        "docs/expression-language.md": "# 会议表达语言与Agent判断规则",
+        "docs/meeting-entry-spec.md": "# 会议启动、设备设置与内容入口",
+    }.items():
+        if (ROOT / relative).read_text().splitlines()[0] != title:
+            errors.append(f"{relative}: wrong document responsibility/title")
+
     required = {
         "AGENTS.md": ("docs/status.md", "docs/sessions/README.md"),
         "README.md": ("docs/status.md", "AGENTS.md"),

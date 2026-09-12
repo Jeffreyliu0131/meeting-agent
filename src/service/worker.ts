@@ -1,3 +1,4 @@
+import { RenderFailure } from '../contracts/render-report';
 import { SQLiteStore } from './store';
 import { SessionService } from './session';
 import { OpenAIProvider, configFromEnv } from '../agent/provider';
@@ -33,12 +34,18 @@ const liveStreams = new Map<
   string,
   { meetingId: string; epoch: number; stream: LiveTranscription }
 >();
-const pendingAudio = () =>
+const pendingAudio = new Map<string, string>();
+function updateAudio(meetingId: string) {
   service.audioQueueChanged(
-    audioQueue.pending +
-      [...liveStreams.values()].reduce((n, entry) => n + entry.stream.pending, 0),
+    [...pendingAudio.values()].filter((id) => id === meetingId).length +
+      [...liveStreams.values()]
+        .filter((entry) => entry.meetingId === meetingId)
+        .reduce((n, entry) => n + entry.stream.pending, 0),
+    meetingId,
   );
+}
 async function finishLive(meetingId?: string, epoch?: number) {
+  const affected = new Set<string>();
   await Promise.all(
     [...liveStreams.entries()]
       .filter(
@@ -49,27 +56,43 @@ async function finishLive(meetingId?: string, epoch?: number) {
       .map(async ([key, entry]) => {
         await entry.stream.finish();
         liveStreams.delete(key);
+        affected.add(entry.meetingId);
       }),
   );
-  pendingAudio();
+  affected.forEach(updateAudio);
 }
 const audioQueue = new TranscriptionQueue<{
+  queueId: string;
   lease: AudioLease;
   wav: Uint8Array;
   bytes: number;
   durationMs: number;
 }>(
   async (item) => {
-    const text = await service.runCall(
-      item.lease.meetingId,
-      'transcribe',
-      (options) => provider.transcribe(item.wav, options),
-      item.durationMs / 1000,
-    );
-    if (text) service.completeAudio(item.lease, text);
+    try {
+      const text = await service.runCall(
+        item.lease.meetingId,
+        'transcribe',
+        (options) => provider.transcribe(item.wav, options),
+        item.durationMs / 1000,
+      );
+      if (text) service.completeAudio(item.lease, text);
+    } catch (error) {
+      // Record failure before releasing the pending marker: no temporary complete report.
+      service.recordInputGap(
+        item.lease,
+        error instanceof Error && /^[A-Z0-9_]+$/.test(error.message) ? error.message : 'STT_FAILED',
+      );
+    } finally {
+      pendingAudio.delete(item.queueId);
+      updateAudio(item.lease.meetingId);
+    }
   },
-  (item, code) => service.recordInputGap(item.lease, code),
-  () => pendingAudio(),
+  (item, code) => {
+    service.recordInputGap(item.lease, code);
+    pendingAudio.delete(item.queueId);
+    updateAudio(item.lease.meetingId);
+  },
 );
 parent.on('message', async ({ data }: any) => {
   const { id, method, args } = data;
@@ -78,7 +101,13 @@ parent.on('message', async ({ data }: any) => {
     if (p) {
       clearTimeout(p.timer);
       previews.delete(id);
-      args.ok ? p.resolve() : p.reject(new Error('RENDER_FAILED'));
+      args.ok
+        ? p.resolve()
+        : p.reject(
+            new RenderFailure(
+              args.report ?? { ok: false, issues: [{ blockId: null, errorCode: 'RENDER_FAILED' }] },
+            ),
+          );
     }
     return;
   }
@@ -134,7 +163,7 @@ parent.on('message', async ({ data }: any) => {
               complete: (lease, text) => service.completeAudio(lease, text),
               gap: (lease, code) => service.recordInputGap(lease, code),
               failed: (code) => parent.postMessage({ type: 'sttError', meetingId, epoch, code }),
-              changed: pendingAudio,
+              changed: () => updateAudio(meetingId),
             },
           );
           entry = { meetingId, epoch, stream };
@@ -142,9 +171,14 @@ parent.on('message', async ({ data }: any) => {
         }
         const accepted = entry.stream.append(lease, wav.subarray(44));
         if (!accepted) throw new Error('TRANSCRIPTION_FAILED');
+        updateAudio(meetingId);
         value = { accepted, pending: entry.stream.pending };
       } else {
+        const queueId = crypto.randomUUID();
+        pendingAudio.set(queueId, meetingId);
+        updateAudio(meetingId);
         const accepted = audioQueue.enqueue(meetingId + ':' + epoch + ':' + channel, {
+          queueId,
           lease,
           wav,
           bytes: wav.length,

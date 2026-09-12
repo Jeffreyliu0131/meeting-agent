@@ -359,3 +359,208 @@ Object.assign(extra['zh-CN'], {
   'error.AUDIO_SETUP_REQUIRED': '开始前请完成音频设置。',
   'error.PAUSE_BEFORE_DEVICE_CHANGE': '切换本场会议音源前请先暂停采集。',
 });
+
+Object.assign(extra.en, {
+  welcome: 'Make room for a clearer conversation.',
+  welcomeBody:
+    'Stay with the discussion. The important ideas, connections and open questions come together here.',
+  setup: 'Meeting intelligence is not connected',
+  setupBody: 'Connect the service to turn your conversation into a shared view of the work.',
+  'design.personalWorkspace': 'Personal workspace',
+  'design.homeKicker': 'A little space for clearer thinking',
+  'design.startHint': 'Start when you’re ready. Open this space whenever you need it.',
+  'design.recentHint': 'Pick up where the conversation left off',
+  'design.emptyHint': 'Your meetings will be kept here, ready to revisit.',
+  'design.savedView': 'Meeting review',
+  'design.personalNote': 'Personal exploration · not a confirmed meeting decision',
+  'design.context': 'Context',
+  'design.removeContext': 'Remove context',
+  'design.emptyTitle': 'Space for the conversation to take shape.',
+  'design.waitingEmpty':
+    'Useful ideas and connections will appear when meeting content is available.',
+  'design.endedEmpty':
+    'This meeting ended without generated content. Any captured sources are available to review.',
+  'design.settingsHint': 'Set up how you listen, read and work.',
+  'design.language': 'Language',
+  'design.experience': 'Display & experience',
+  'design.languageImmediate': 'Applies immediately and is saved automatically.',
+  'design.languageSaving': 'Changing language…',
+  'design.saveHint': 'Audio and output defaults apply to your next meeting.',
+  'design.sourcesHint':
+    'Return to the original words. Check the source before drawing a conclusion.',
+});
+Object.assign(extra['zh-CN'], {
+  welcome: '让每一次讨论，都更清楚。',
+  welcomeBody: '专注于眼前的交流。重要的观点、关系和待解问题，会在这里逐渐清晰。',
+  setup: '会议理解服务尚未连接',
+  setupBody: '连接服务后，即可将讨论整理为可追溯的工作内容。',
+  'design.personalWorkspace': '个人工作空间',
+  'design.homeKicker': '留一点空间，让思路更清晰',
+  'design.startHint': '准备好时开始，需要时再打开。',
+  'design.recentHint': '回到讨论，接着思考',
+  'design.emptyHint': '开始后的会议会保存在这里，方便随时回看。',
+  'design.savedView': '会议回看',
+  'design.personalNote': '个人推演 · 尚未形成会议决定',
+  'design.context': '围绕',
+  'design.removeContext': '移除上下文',
+  'design.emptyTitle': '让讨论，自然展开。',
+  'design.waitingEmpty': '收到会议内容后，值得整理的观点与关系会在这里呈现。',
+  'design.endedEmpty': '本场会议已结束，尚未生成工作内容。已采集的原话仍可查看。',
+  'design.settingsHint': '按你的习惯，设置收听、语言和显示方式。',
+  'design.language': '语言',
+  'design.experience': '显示与体验',
+  'design.languageImmediate': '选择后立即生效并自动保存。',
+  'design.languageSaving': '正在切换语言…',
+  'design.saveHint': '音频与默认输出设置用于下次会议。',
+  'design.sourcesHint': '回到原话，核对理解。原始发言与推断保持分开。',
+});
+Object.assign(extra.en, {
+  'design.filterMeetings': 'Filter meetings',
+  'design.filter.all': 'All meetings',
+  'design.filter.active': 'In progress',
+  'design.filter.ended': 'Ended',
+  'design.searchMeetings': 'Search meetings',
+  'design.clearSearch': 'Clear search',
+  'design.noResults': 'No meetings match your search.',
+  'design.clearFilters': 'Clear filters',
+  'design.workContent': 'Meeting work',
+  'design.outline': 'Contents',
+  'design.updated': 'Updated',
+  'design.receivedContext': 'Based on received meeting content',
+  'design.closedContext': 'Reviewing the completed meeting',
+  'design.waitingContext': 'Waiting for meeting content',
+  'design.viewingHistory': 'You are viewing a saved version.',
+  'design.noVersions': 'Versions appear when meeting work is generated.',
+  'design.checking': 'Checking the source for',
+});
+Object.assign(extra['zh-CN'], {
+  'design.filterMeetings': '筛选会议',
+  'design.filter.all': '全部会议',
+  'design.filter.active': '进行中',
+  'design.filter.ended': '已结束',
+  'design.searchMeetings': '搜索会议',
+  'design.clearSearch': '清除搜索',
+  'design.noResults': '没有找到符合条件的会议。',
+  'design.clearFilters': '清除筛选',
+  'design.workContent': '会议内容',
+  'design.outline': '内容目录',
+  'design.updated': '更新于',
+  'design.receivedContext': '根据已接收的会议内容整理',
+  'design.closedContext': '回看本次会议已整理的内容',
+  'design.waitingContext': '等待会议内容',
+  'design.viewingHistory': '正在查看保存的内容版本。',
+  'design.noVersions': '生成工作内容后，修订记录会出现在这里。',
+  'design.checking': '正在核对',
+});
+
+Object.assign(extra.en, {
+  'design.setupHint': 'Choose what to listen to. Save once, then start when you’re ready.',
+  'design.setupSaveHint': 'Saving returns to the home page. No audio starts.',
+});
+Object.assign(extra['zh-CN'], {
+  'design.setupHint': '先选择收听范围。设置保存后，下次即可直接开始。',
+  'design.setupSaveHint': '保存后返回首页，不会开始录音。',
+});
+
+Object.assign(extra.en, {
+  'launcher.ready': 'Ready · not recording',
+  'launcher.idle': 'Meeting open · not recording',
+  'launcher.connecting': 'Connecting audio · not ready yet',
+  'launcher.listening': 'Listening · audio input active',
+  'launcher.paused': 'Paused · not recording',
+  'launcher.inputError': 'Audio interrupted · reconnect needed',
+  'launcher.serviceError': 'Service unavailable · input stopped',
+});
+Object.assign(extra['zh-CN'], {
+  'launcher.ready': '待命 · 未录音',
+  'launcher.idle': '会议已打开 · 未录音',
+  'launcher.connecting': '正在连接音频 · 尚未就绪',
+  'launcher.listening': '正在收听 · 音频采集中',
+  'launcher.paused': '已暂停 · 未录音',
+  'launcher.inputError': '音频中断 · 需要重新连接',
+  'launcher.serviceError': '服务不可用 · 输入已停止',
+});
+
+Object.assign(extra.en, {
+  'meaning.asserted': 'Stated, not a decision',
+  'meaning.proposed': 'Proposal',
+  'meaning.conditional': 'Conditional',
+  'meaning.committed': 'Reported commitment, not group consensus',
+  'meaning.unknown': 'Not classified',
+  'review.title': 'Meeting wrap-up',
+  'review.basis': 'Conditions and commitment basis',
+  'review.basisNote':
+    'Current meeting understanding; historical views keep their original content above.',
+  'review.changed': 'Changed basis · review needed',
+  'review.conditions': 'Conditions still to check',
+  'review.owner': 'Named owner',
+  'review.deadline': 'Original time statement',
+  'review.pending': 'Finishing received content',
+  'review.needs_review': 'Saved with items to review',
+  'review.ready': 'Record checks complete',
+  'review.limit':
+    'Sources and open items are preserved. Decisions require an explicit confirmation record.',
+  'review.pendingSources': 'Unprocessed excerpts',
+  'review.gaps': 'Input gaps · conclusions may be incomplete',
+  'review.unresolved': 'Open questions and disagreements',
+  'review.incomplete': 'Tasks without complete commitments',
+  'review.unclassified': 'Unclassified items',
+  'review.staleArtifacts': 'Outdated working views',
+  'review.staleDecisions': 'Recorded decisions with changed evidence',
+  'review.minutes': 'Consolidated meeting record',
+  'review.recordedDecision': 'Recorded meeting decision',
+  'review.noItems': 'No structured meeting items yet.',
+});
+Object.assign(extra['zh-CN'], {
+  'meaning.asserted': '原话陈述，非决定',
+  'meaning.proposed': '提议',
+  'meaning.conditional': '有条件',
+  'meaning.committed': '原话中的承诺，非全体共识',
+  'meaning.unknown': '尚未分类',
+  'review.title': '会议结束核对',
+  'review.basis': '条件与承诺依据',
+  'review.basisNote': '这里显示当前会议理解；历史版本的正文仍保留原貌。',
+  'review.changed': '依据已变化，待核对',
+  'review.conditions': '仍需核对的条件',
+  'review.owner': '原话中的负责人',
+  'review.deadline': '原话中的时间',
+  'review.pending': '正在整理已接收内容',
+  'review.needs_review': '已保存，仍有事项待核对',
+  'review.ready': '记录检查已完成',
+  'review.limit': '来源与未决事项已保留，决定以明确确认记录为准。',
+  'review.pendingSources': '尚未处理的原话',
+  'review.gaps': '输入缺口，结论可能不完整',
+  'review.unresolved': '未决问题与分歧',
+  'review.incomplete': '承诺信息不完整的任务',
+  'review.unclassified': '尚未分类的事项',
+  'review.staleArtifacts': '需要更新的工作内容',
+  'review.staleDecisions': '依据已变化的决定记录',
+  'review.minutes': '汇总会议记录',
+  'review.recordedDecision': '已记录的会议决定',
+  'review.noItems': '尚未形成结构化会议事项。',
+});
+
+Object.assign(extra.en, {
+  'error.CONTEXT_MEMORY_LIMIT':
+    'Active conditions exceed the current context limit. Sources are saved; understanding is paused until the context budget or meeting state is adjusted.',
+  'error.REQUEST_CONTEXT_TOO_LARGE':
+    'The selected context is too large. Remove the context selection or narrow the request.',
+  'error.PERSONAL_SOURCE_IN_MEETING':
+    'Personal exploration cannot serve as meeting confirmation evidence.',
+  'error.PERSONAL_ARTIFACT_NOT_MEETING_DECISION':
+    'This is a personal exploration. Record a meeting decision against meeting content and its explicit evidence.',
+  'error.MEANING_CHANGE_REQUIRES_NEW_EVIDENCE':
+    'The proposed change has no new supporting source. Previous conditions are preserved.',
+  'error.QUOTE_NOT_IN_SOURCE':
+    'The cited words were not found in the source. The proposed understanding was not saved.',
+});
+Object.assign(extra['zh-CN'], {
+  'error.CONTEXT_MEMORY_LIMIT':
+    '有效条件已超出当前上下文容量。原话已保存；调整上下文预算或会议状态前，理解暂停。',
+  'error.REQUEST_CONTEXT_TOO_LARGE': '选中的上下文过大。请移除上下文选择，或缩小问题范围。',
+  'error.PERSONAL_SOURCE_IN_MEETING': '个人探索不能作为会议确认依据。',
+  'error.PERSONAL_ARTIFACT_NOT_MEETING_DECISION':
+    '这是个人探索。请基于会议内容及明确依据记录会议决定。',
+  'error.MEANING_CHANGE_REQUIRES_NEW_EVIDENCE': '本次修订缺少新的原话依据，原有条件仍保留。',
+  'error.QUOTE_NOT_IN_SOURCE': '引用的文字未在来源中找到，本次理解修订未保存。',
+});

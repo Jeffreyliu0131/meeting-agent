@@ -1,3 +1,4 @@
+import { EvidenceRequest } from './workflow';
 import { z } from 'zod';
 export const Locale = z.enum(['en', 'zh-CN']);
 export type Locale = z.infer<typeof Locale>;
@@ -11,6 +12,21 @@ export type Ref = z.infer<typeof Ref>;
 const refs = z.array(Ref).max(50);
 export const Provenance = z.enum(['stated', 'agent_inferred', 'user_entered', 'tool_computed']);
 export const Status = z.enum(['unverified', 'assumed', 'disputed', 'unknown']);
+export const QuotedEvidence = z
+  .object({ quote: z.string().trim().min(1).max(700), sources: refs.min(1) })
+  .strict();
+const evidencedValue = z
+  .object({ value: z.string().trim().min(1).max(180), evidence: QuotedEvidence })
+  .strict();
+export const Meaning = z
+  .object({
+    stance: z.enum(['asserted', 'proposed', 'conditional', 'committed', 'unknown']),
+    conditionIds: z.array(id).max(20),
+    owner: evidencedValue.nullable(),
+    deadline: evidencedValue.nullable(),
+    evidence: z.array(QuotedEvidence).max(12),
+  })
+  .strict();
 export const SemanticObject = z
   .object({
     id,
@@ -30,6 +46,8 @@ export const SemanticObject = z
     status: Status,
     sources: refs,
     lifecycle: z.enum(['active', 'superseded', 'archived']),
+    meaning: Meaning.nullable().optional(),
+    changeSources: refs.optional(),
   })
   .strict();
 export const Relation = z
@@ -108,7 +126,12 @@ const chart = z
     values: z
       .array(
         z
-          .object({ label: z.string().max(100), value: z.number().finite(), sources: refs })
+          .object({
+            label: z.string().max(100),
+            value: z.number().finite(),
+            sources: refs,
+            binding: z.object({ resultId: id }).strict().nullable().optional(),
+          })
           .strict(),
       )
       .max(16),
@@ -223,6 +246,22 @@ export const ExpressionPlan = z
 export type ExpressionPlan = z.infer<typeof ExpressionPlan>;
 export const Proposal = z
   .object({
+    evidenceRequest: EvidenceRequest.nullable().optional(),
+    clarification: z
+      .object({
+        question: z.string().min(1).max(300),
+        candidates: z.array(Ref).max(10),
+        affectedObjectIds: z.array(id).max(20),
+        sources: refs,
+      })
+      .strict()
+      .nullable()
+      .optional(),
+    resolvesClarification: z
+      .object({ id, sources: refs.min(1) })
+      .strict()
+      .nullable()
+      .optional(),
     focus: z.string().max(180),
     changes: z.array(z.string().max(220)).max(3),
     objects: z.array(SemanticObject).max(60),
@@ -263,15 +302,20 @@ export type Segment = {
   identity: 'unknown' | 'user_mapped';
   identityBasis: string | null;
   synthetic: boolean;
-  requestContext?: { artifactId: string; artifactRev: number };
+  requestContext?: { artifactId?: string; artifactRev?: number; objectRefs?: Ref[] };
   version?: number;
   captureStartMs?: number;
   captureEndMs?: number;
   channelSequence?: number;
 };
-export type ObjectState = z.infer<typeof SemanticObject> & { rev: number };
+export type ObjectState = z.infer<typeof SemanticObject> & {
+  rev: number;
+  dependencyRefs?: Ref[];
+  reviewRequired?: boolean;
+};
 export type RelationState = z.infer<typeof Relation> & { rev: number };
 export type ArtifactRevision = Artifact & {
+  branchId?: string;
   rev: number;
   generation: number;
   locale: Locale;
@@ -304,6 +348,19 @@ export type Decision = {
   sources: Ref[];
   createdAt: string;
 };
+export type Closeout = {
+  inputVersion: number;
+  state: 'pending' | 'needs_review' | 'ready';
+  pendingSources: Ref[];
+  reviewObjectIds: string[];
+  unresolvedObjectIds: string[];
+  conditionalObjectIds: string[];
+  incompleteTaskIds: string[];
+  staleDecisionIds: string[];
+  staleArtifactIds: string[];
+  gapCount: number;
+  provisionalObjectIds: string[];
+};
 export type Translation = {
   segmentId: string;
   sourceRev: number;
@@ -313,7 +370,7 @@ export type Translation = {
 };
 export type CallRecord = {
   id: string;
-  kind: 'understand' | 'generate' | 'translate' | 'transcribe';
+  kind: 'understand' | 'personal' | 'generate' | 'translate' | 'transcribe';
   startedAt: string;
   durationMs: number;
   status: 'pending' | 'ok' | 'failed';
@@ -324,6 +381,10 @@ export type CallRecord = {
   error?: string;
 };
 export type ExpressionJob = {
+  workflowJobId?: string;
+  branchId?: string;
+  modelCalls?: number;
+  candidate?: Artifact;
   id: string;
   inputVersion: number;
   languageRevision: number;
@@ -333,12 +394,33 @@ export type ExpressionJob = {
   artifact: Artifact | null;
   patch: ArtifactPatch | null;
   plan: ExpressionPlan | null;
+  personalContext?: Meeting;
   personalObjects?: ObjectState[];
   personalRelations?: RelationState[];
   scope: 'meeting' | 'personal';
   updateKind: 'patch' | 'create' | 'restructure';
 };
 export type Meeting = {
+  clarifications?: Array<{
+    id: string;
+    key: string;
+    question: string;
+    candidates: Ref[];
+    affectedObjectIds: string[];
+    sources: Ref[];
+    status: 'pending' | 'answered' | 'cancelled' | 'resolved' | 'stale';
+    answer?: string;
+    resolutionSources: Ref[];
+    branchId?: string;
+  }>;
+  workflowJobs?: import('./workflow').WorkflowJob[];
+  quarantinedSources?: Record<string, number>;
+  contextIndex?: {
+    artifacts: unknown[];
+    objects: unknown[];
+    coverage: { hasMore: boolean; total: number; loaded: number; incompleteEvidence?: boolean };
+  };
+  toolObservations?: unknown[];
   id: string;
   title: string;
   titleMeta?: { origin: 'placeholder' | 'agent' | 'user'; revision: number; sources: Ref[] };
@@ -359,12 +441,17 @@ export type Meeting = {
   revision: number;
   inputVersion: number;
   understoodVersion: number;
+  understoodLanguageRevision?: number;
   languageRevision: number;
   outputLocale: Locale;
   segments: Segment[];
   translations: Translation[];
   inputGaps: Array<{ epoch: number; channel: string; receivedAt: string; code: string }>;
   objects: ObjectState[];
+  objectHistory?: ObjectState[];
+  closeout?: Closeout;
+  /** Ephemeral provider projection, never authority to change meeting facts. */
+  contextScope?: 'meeting' | 'personal';
   relations: RelationState[];
   artifacts: ArtifactRevision[];
   scenarios: Scenario[];
@@ -386,6 +473,12 @@ export type Meeting = {
   lastUnderstandingAt?: string;
   lastExpressionAt?: string;
   lastContextBytes?: number;
+  contextCoverage?: {
+    total: number;
+    loaded: number;
+    hasMore: boolean;
+    incompleteEvidence?: boolean;
+  };
   audioPending?: number;
   focus: string;
   changes: string[];
@@ -437,6 +530,9 @@ export const Command = z
       'correct',
       'language',
       'ask',
+      'cancelRequest',
+      'answerClarification',
+      'cancelClarification',
       'retry',
       'captureStart',
       'captureReady',

@@ -1,0 +1,104 @@
+{
+  "date": "2026-09-11",
+  "baseline": "3f6279a",
+  "scope": "local frontend refresh; synthetic provider and audio only",
+  "unitTests": {
+    "passed": 38,
+    "failed": 0
+  },
+  "desktopTests": [
+    {
+      "title": "real Electron: event, manual original source, honest missing model, correction, UI locale, end and restore",
+      "passed": true
+    },
+    {
+      "title": "native launcher opens one workspace; hiding does not stop the event; hover uses real windows",
+      "passed": true
+    },
+    {
+      "title": "UI cannot impersonate audio adapter; no frame gets filesystem or arbitrary IPC; responsive shell",
+      "passed": true
+    },
+    {
+      "title": "meeting library filters, search recovery and settings keyboard loop",
+      "passed": true
+    },
+    {
+      "title": "provider transport, isolated preflight, generated structure, source binding, updates and personal calculator",
+      "passed": true
+    },
+    {
+      "title": "synthetic oscillator keeps capturing through a slow STT response and stops cleanly",
+      "passed": true
+    },
+    {
+      "title": "text, timeline, chart, SVG and passive HTML render without a privileged bridge",
+      "passed": true
+    },
+    {
+      "title": "normal meeting entry saves setup once, starts audio in one intent and reveals exploration only after content",
+      "passed": true
+    }
+  ],
+  "desktopDurationMs": 58187.538,
+  "sourceSha256": {
+    "docs/design/tokens.json": "d11548a8df178530bc121e5d1e94cf8a17e2d06fac0236e272564f0736a8c82f",
+    "package-lock.json": "09448d84b3d224357f442852886ec3ca8a4dadc8d56ef004d08617ef6e37a42a",
+    "package.json": "e0b4cc51ed8dbcbb49cf05fbe0b515c5577caf628a7da4613ce649473447c4df",
+    "src/agent/context.ts": "fd2a5b88c8c4ab4719a408ae779e18b404d1b65e3e8570433cb89bc13040f736",
+    "src/agent/provider.ts": "618459724dcc91f23b23bb6cef9d880af9425951f0ef0d91916e1206881e0039",
+    "src/contracts/model.ts": "63ce6214f6552471abb6c10b05678bc78d861df7c93124f16b184c033b7cbd5a",
+    "src/desktop/main.ts": "ae523f6514953f2896cba0f459a9d3c7bfe5203a96c3baae67b9ee2a91a036ac",
+    "src/desktop/platform.ts": "88e8dd4c25fb8d9a0484d3ec28178c72868b0c98c19e12046b2d1c7e5a55f933",
+    "src/desktop/preflight.ts": "a86f3903de70f38e6f21ec412cfb786c7ad1f3fc3cdd57c7126739b8c7bb8411",
+    "src/desktop/preload.ts": "f207401f068059d06cb0371f9ea6b09b91d762777ad6a936d445a2af9d17ddf3",
+    "src/domain/artifacts.ts": "0ed7e009f6e242fdf848610c89854d09ae2ac5357071ad5f86c467982748d9a5",
+    "src/domain/calculator.ts": "e4b527a90926a30d4012e9f7a901cb42690f795a8975b2b87c8590de1ae4e46d",
+    "src/domain/commands.ts": "62217db0fabca9652fa6beddff2511792c270136f0f37fbc29b577c72661cd47",
+    "src/domain/evidence.ts": "a420acae9d723ff6d77021c57e42159d9b3957074ec2812132a9a9f38a85e832",
+    "src/domain/preferences.ts": "c60d91f6841e3df5a354beed05ce28d1c6da76f87604f9faee835b22c9c56231",
+    "src/integrations/audio-leases.ts": "2813176cb44cbbf4c1daecf0f8618d6ac826abf449ecb1474c2967b7b726cda2",
+    "src/integrations/capture.ts": "71093fcde1b34f21fd59a61004f9f8148ea795c2b99ff1b22f381d48838b2ec1",
+    "src/integrations/transcription-queue.ts": "b9898389548913f27460b46afbc88f3d21355fd759bac32d725a63ef9245888b",
+    "src/renderers/ArtifactView.tsx": "5ed33e0899ed59812add0be98473a4423581521f2ceb369d33eca5a2c7f733e8",
+    "src/renderers/RelationshipGraph.tsx": "36f68cefa24d9fd592320e7c350eac5c2f4abed291d01be49c6465a154988790",
+    "src/renderers/graph-layout.ts": "9b276e0f9772d371310a296b6e5ab6cdde9ac22266597e63039138e29d314581",
+    "src/renderers/preflight.tsx": "4f4e338726a0af1878a94f302a03e325641d557f87f6ca569553e45088bd933b",
+    "src/renderers/validate.ts": "945f7aebf739a620d9ce5999e7eb7faa2d3ebb714417c9f2a9709ae2e50a563a",
+    "src/service/session.ts": "e80cfec6f755cc75574e8bade705b73e4f9b4d5ab7f793b3dd78c5ac1f47a84f",
+    "src/service/store.ts": "0ec7c9c8b0bfd12ca93c26e60569add7c01ca11d31c5b19fe445b270377ffab8",
+    "src/service/worker.ts": "2b742db245c4e95e07f2d3c5d26d7205875f7637394f5ebdff8c5cd4c0cdfb8d",
+    "src/ui/bridge.ts": "3b4afaf270c4309d19403a8502ac246494683a29eb861bbbf23d708b354f5887",
+    "src/ui/components.tsx": "a834b2ebd193cb556f8fc58b480b054a3b7516f3a3d1085b15aecc3b3688703f",
+    "src/ui/env.d.ts": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
+    "src/ui/i18n.ts": "2a1ea3ad1ded9cafe88b8705b75ccf2b4ac7300d855c9a3159c061a78158fa4f",
+    "src/ui/live.tsx": "b416439550bb2b80ec22576dfe6bf2b32ce3f20c26db774e47934dbcbef85c80",
+    "src/ui/main.tsx": "9c1a54161b6df1f489635810174f6cb3980cef359a95022408ef41e452eedd3d",
+    "src/ui/style.css": "e2f73ad7c154998ee091f7c1d1d29c051ac2af323ebdd7bb1cfdbc48ed5b9b94",
+    "src/ui/theme.ts": "0869cf916be67fdc8ecade2f60d6de427fc6f425abbe67cc0f1fb4b6383772af"
+  },
+  "limitations": [
+    "No real model or speech evaluation",
+    "No Windows runtime validation"
+  ],
+  "finalSmallEdits": "After the full run: clarified settings footer copy, made audio error text match audio retry priority, and changed token status metadata. Final build and targeted error/setup tests cover these follow-up edits.",
+  "followupStats": {
+    "expected": 2,
+    "unexpected": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "duration": 15135.296
+  },
+  "delivery": {
+    "codeCommit": "a587a92",
+    "remote": "origin/main",
+    "push": "succeeded",
+    "packagedAppUpdated": true,
+    "packagedAppBaseline": "38c70b1",
+    "packagedAppUpdatedDate": "2026-09-12",
+    "packageEvidence": [
+      "package-content-frontend.json",
+      "package-smoke-frontend.json"
+    ]
+  }
+}

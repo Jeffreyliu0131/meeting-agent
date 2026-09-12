@@ -293,7 +293,10 @@ app.whenReady().then(async () => {
   worker = utilityProcess.fork(join(__dirname, 'worker.cjs'), [], {
     env: {
       ...process.env,
-      MEETING_SYSTEM_LOCALE: process.env.MEETING_SYSTEM_LOCALE ?? app.getLocale(),
+      MEETING_SYSTEM_LOCALE:
+        process.env.MEETING_SYSTEM_LOCALE ??
+        app.getPreferredSystemLanguages()[0] ??
+        app.getLocale(),
       MEETING_DB: join(app.getPath('userData'), 'meetings.sqlite'),
     },
     serviceName: 'Meeting session service',
@@ -317,8 +320,18 @@ app.whenReady().then(async () => {
         .then(() =>
           worker.postMessage({ id: message.id, method: 'previewResult', args: { ok: true } }),
         )
-        .catch(() =>
-          worker.postMessage({ id: message.id, method: 'previewResult', args: { ok: false } }),
+        .catch((error) =>
+          worker.postMessage({
+            id: message.id,
+            method: 'previewResult',
+            args: {
+              ok: false,
+              report: error.report ?? {
+                ok: false,
+                issues: [{ blockId: null, errorCode: 'RENDER_FAILED' }],
+              },
+            },
+          }),
         );
       return;
     }
@@ -415,8 +428,9 @@ app.whenReady().then(async () => {
       height: 44,
       resizable: false,
       frame: false,
-      transparent: false,
-      backgroundColor: '#1D2430',
+      transparent: true,
+      backgroundColor: '#00000000',
+      hasShadow: false,
       alwaysOnTop: true,
       skipTaskbar: true,
       show: true,
@@ -548,6 +562,9 @@ app.whenReady().then(async () => {
               'correct',
               'language',
               'ask',
+              'cancelRequest',
+              'answerClarification',
+              'cancelClarification',
               'retry',
               'scenario',
               'decision',

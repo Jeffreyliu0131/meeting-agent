@@ -1,9 +1,11 @@
+import { unitDimension, combineUnits, sameUnit } from './units';
 import Decimal from 'decimal.js';
 import type { Formula } from '../contracts/model';
 export function calculate(
   formula: Formula,
   overrides: Record<string, number | null> = {},
 ): string | null {
+  const units = new Map<string, Record<string, number>>();
   const vars = new Map<string, Decimal | null>();
   for (const p of formula.parameters) {
     const value = Object.hasOwn(overrides, p.id) ? overrides[p.id] : p.value;
@@ -13,6 +15,7 @@ export function calculate(
     )
       throw new Error('INVALID_PARAMETER');
     if (vars.has(p.id)) throw new Error('DUPLICATE_ID');
+    units.set(p.id, unitDimension(p.unit));
     vars.set(p.id, value === null ? null : new Decimal(value));
   }
   for (const key of Object.keys(overrides))
@@ -22,6 +25,16 @@ export function calculate(
       throw new Error('INVALID_FORMULA');
     const left = vars.get(s.left),
       right = vars.get(s.right);
+    const leftUnit = units.get(s.left)!,
+      rightUnit = units.get(s.right)!;
+    if ((s.op === 'add' || s.op === 'subtract') && !sameUnit(leftUnit, rightUnit))
+      throw new Error('UNIT_MISMATCH');
+    units.set(
+      s.id,
+      s.op === 'multiply' || s.op === 'divide'
+        ? combineUnits(leftUnit, rightUnit, s.op === 'divide')
+        : leftUnit,
+    );
     if (left === null || right === null) {
       vars.set(s.id, null);
       continue;
@@ -40,5 +53,7 @@ export function calculate(
     vars.set(s.id, result);
   }
   if (!vars.has(formula.result)) throw new Error('INVALID_FORMULA');
+  if (!sameUnit(units.get(formula.result)!, unitDimension(formula.unit)))
+    throw new Error('UNIT_MISMATCH');
   return vars.get(formula.result)?.toDecimalPlaces(6).toString() ?? null;
 }

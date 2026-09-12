@@ -18,3 +18,20 @@
 当前本地迭代结果：[连续 Agent 与会议入口](live-agent-validation.md)，合成连续负载：[stream-evaluation.json](stream-evaluation.json)。不覆盖首版探针的版本范围。
 
 本轮独立包证据：[macOS启动](package-smoke-live.json)、[两端包内容](package-content-live.json)、[源码与测试汇总](live-agent-summary.json)。旧package-smoke.json／package-content.json保持首版证据。
+
+当前前端独立结果：[StyledMD 与飞书布局细化](frontend-refresh-validation.md)／[源码与测试汇总](frontend-refresh-summary.json)。此轮为 `3f6279a` 后的前端改造，之后以 `a587a92` 提交并推送，不覆盖旧包与真实供应商验收。
+
+2026-09-12 本地前端包更新：[包内容一致性](package-content-frontend.json)／[隔离启动检查](package-smoke-frontend.json)。实际原路径应用已重开，新界面与两条历史记录已核对；本次未采音。
+
+后续桌面小图标与状态：[独立验证](launcher-validation.md)，仅覆盖其记录的新版入口与回归范围。
+
+
+Agent三项可靠性迭代：[验证结果](agent-reliability-validation.md)／[源码与测试汇总](agent-reliability-summary.json)。58项单元和10项桌面通过，真实模型与语音仍未验收。
+
+- [Agent工作流验证与交付表](agent-workflow-validation.md)：W1–W6、AC01–25、合成测试／真实效果边界；[离线语义评分清单](workflow-semantic-rubric.json)不包含真实模型结果。
+
+- [Agent工作流独立验收与GitHub交付](agent-workflow-acceptance-review.md)：独立反例、修正、最终检查与提交边界；优先于实现阶段81项记录。
+
+- [Mac／Windows本地包同步](cross-platform-sync-validation.md)：当前release双端包统一、11项桌面回归、Mac日常启动与事件库核对；Windows真机仍未验收。
+
+- [界面语言与交互打磨](interface-polish-validation.md)：实际Mac包系统语言前后对照、即时切换／失败恢复、86项单元与14项桌面回归、双端包同源；Windows运行待验。

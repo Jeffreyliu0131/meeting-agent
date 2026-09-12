@@ -50,7 +50,7 @@
 - 不出现文字溢出、节点遮挡、含义不明连线、无单位坐标轴。日期图不混淆持续时间与截止日。
 - 不为“让用户看到AI在工作”添加循环动画、每句话新图或重复说明。
 
-外观统一使用[editorial-light-v1](design/tokens.json)，原话与产物语言遵守[语言规范](language-spec.md)。Agent自由组织内容，不自由更换应用视觉系统；正文和图形不使用玻璃材质。中英切换不得通过缩小字号容纳更长内容。
+外观统一使用[collaborative-light-v2](design/tokens.json)，原话与产物语言遵守[语言规范](language-spec.md)。Agent自由组织内容，不自由更换应用视觉系统；正文和图形不使用玻璃材质。中英切换不得通过缩小字号容纳更长内容。
 
 ## 5. 何时生成，何时保持安静
 
@@ -87,3 +87,12 @@ Agent输出`ExpressionPlan`应包含：主要用户问题、关联对象、选�
 [三个样例](../tests/fixtures/README.md)分别覆盖观点分歧、执行安排和条件推演：开发前用于核对契约，开发后用于测试Agent生成与修订。它们不是只能支持的三种业务，也不是把三段话映射到三份预写图。
 
 验收允许不同有效图形；必须检查实际语义、来源和更新结果。变换措辞、顺序和条件，防止只对固定脚本有效。泛化和真实效果仍须额外测试。
+
+
+## 事实与表达的可靠性约束
+
+按[可靠性规范](agent-reliability.md)，表达读取当前范围内的对象与证据。conditional／committed 是原话含义，不授予会议确认。已改变的依赖需核对；无法确定新结论时保留待核对。正文之外的条件依据由可信 UI 呈现，不能因模型省略一个条件就解除它。结束核对汇总已有状态，不取消 Agent 自主生成表达的职责。
+
+## 当前工作流实现
+
+[ADR-005](adr/005-bounded-agent-workflows.md)已接入scope／branch／purpose／有序对象角色身份、候选持久化、RenderReport与一次修复。修复保守限制为布局／几何，不改内容、来源、公式和块ID。Decimal新增单位维度检查，chart可绑定可信计算resultId；普通数字有来源仍不等于工具证明。完整边界见[运行时说明](agent-workflow-runtime.md)，实际结果见[验证](../tests/results/agent-workflow-validation.md)。

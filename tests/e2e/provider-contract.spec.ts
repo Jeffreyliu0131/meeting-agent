@@ -2,7 +2,7 @@
  * These tests do not assess real model semantics or real microphone quality. */
 import { test, expect, _electron as electron, type ElectronApplication } from '@playwright/test';
 import { createServer, type Server } from 'node:http';
-import { mkdtempSync } from 'node:fs';
+import { mkdtempSync, writeFileSync } from 'node:fs';
 import { cleanupElectron } from './cleanup';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -117,7 +117,7 @@ function reply(context: any) {
             { id: 'total', op: 'add', left: 'venue', right: 'catering' },
           ],
           result: 'total',
-          basis: 'Synthetic test formula: venue + people × catering per person',
+          basis: s.text, // Exact quote binding only; this fixture does not test semantic entailment.
           sources,
         },
       ],
@@ -181,7 +181,17 @@ function reply(context: any) {
           '<section><h2>Open condition</h2><p>Confirm support before inviting customers.</p><ul><li>Timing remains unknown.</li></ul></section>',
       },
     ];
-  return answer;
+  const ids: Record<string, string> = {
+    'option-a':
+      context.objects.find((o: any) => o.title === 'Invited participants')?.id ?? 'option-a',
+    capacity: context.objects.find((o: any) => o.title === 'Support capacity')?.id ?? 'capacity',
+    condition: context.relations.find((r: any) => r.kind === 'conditions')?.id ?? 'condition',
+  };
+  return JSON.parse(
+    JSON.stringify(answer, (_key, value) =>
+      typeof value === 'string' ? (ids[value] ?? value) : value,
+    ),
+  );
 }
 test.beforeEach(async () => {
   ((calls = 0), (sttDelay = 0));
@@ -284,10 +294,39 @@ test('provider transport, isolated preflight, generated structure, source bindin
     'Draft kept while a new version arrives',
   );
   await expect(page.getByLabel('People (people)', { exact: true })).toHaveValue('40');
+  await page.getByRole('button', { name: 'Remove context', exact: true }).click();
+  await expect(page.locator('.context-chip')).toHaveCount(0);
+  await expect(page.getByRole('textbox', { name: 'Ask about this meeting…' })).toHaveValue(
+    'Draft kept while a new version arrives',
+  );
+  await page.getByRole('button', { name: 'Contents', exact: true }).click();
+  await page
+    .getByRole('navigation', { name: 'Contents' })
+    .getByRole('button', { name: 'Key condition' })
+    .click();
+  await expect(page.locator('[data-block-id="dependency"]')).toBeFocused();
+
   await expect(
     page.getByText('Synthetic provider output. Batch 2 — transport only.', { exact: true }),
   ).toBeVisible();
-  await expect(page.getByText('Following meeting', { exact: false }).first()).toBeVisible();
+  await expect(page.getByText('Current focus', { exact: false }).first()).toBeVisible();
+  await page
+    .getByRole('button', {
+      name: 'View sources: Two routes, one unresolved condition',
+      exact: true,
+    })
+    .click();
+  await expect(
+    page
+      .getByRole('dialog', { name: 'View sources' })
+      .getByText('Two routes, one unresolved condition', { exact: true }),
+  ).toBeVisible();
+  await page.screenshot({ path: test.info().outputPath('refresh-sources.png') });
+  await page
+    .getByRole('dialog', { name: 'View sources' })
+    .getByRole('button', { name: 'Close', exact: true })
+    .click();
+
   for (const size of [
     { width: 1440, height: 1024 },
     { width: 1024, height: 768 },
@@ -304,7 +343,7 @@ test('provider transport, isolated preflight, generated structure, source bindin
       .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
       .toBe(true);
     await page.screenshot({
-      path: `tests/results/e2e-artifacts/contract-workspace-${size.width}.png`,
+      path: test.info().outputPath(`contract-workspace-${size.width}.png`),
       fullPage: true,
     });
   }
@@ -313,6 +352,29 @@ test('provider transport, isolated preflight, generated structure, source bindin
   expect(state.value.meetings[0].artifacts[0].id).toBe(state.value.meetings[0].artifacts[1].id);
   expect(state.value.meetings[0].scenarios[0].result).toBe('630');
   expect(state.value.meetings[0].decisions).toHaveLength(0);
+  await app.evaluate(({ BrowserWindow }) =>
+    BrowserWindow.getAllWindows()
+      .find((w) => w.webContents.getURL().includes('role=workspace'))
+      ?.webContents.setZoomFactor(2),
+  );
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+  await expect(page.locator('.relationship-list')).toBeVisible();
+  // Electron zoom affects CDP screenshot cropping; use the native surface at 200%.
+  const zoomCapture = await app.evaluate(async ({ BrowserWindow }) =>
+    (
+      await BrowserWindow.getAllWindows()
+        .find((w) => w.webContents.getURL().includes('role=workspace'))!
+        .webContents.capturePage()
+    )
+      .toPNG()
+      .toString('base64'),
+  );
+  writeFileSync(
+    test.info().outputPath('refresh-workspace-200.png'),
+    Buffer.from(zoomCapture, 'base64'),
+  );
 });
 test('synthetic oscillator keeps capturing through a slow STT response and stops cleanly', async () => {
   sttDelay = 6500;
@@ -430,7 +492,7 @@ test('text, timeline, chart, SVG and passive HTML render without a privileged br
     'undefined',
   );
   await page.screenshot({
-    path: 'tests/results/e2e-artifacts/passive-carriers.png',
+    path: test.info().outputPath('passive-carriers.png'),
     fullPage: true,
   });
 });
@@ -470,8 +532,9 @@ test('normal meeting entry saves setup once, starts audio in one intent and reve
   await expect(page.getByText('Development tools', { exact: true })).toHaveCount(0);
   await expect(page.getByRole('textbox', { name: 'Ask about this meeting…' })).toHaveCount(0);
   await page.getByRole('button', { name: 'Start meeting' }).first().click();
-  await expect(page.getByRole('dialog', { name: 'Settings' })).toBeVisible();
-  await page.screenshot({ path: 'tests/results/e2e-artifacts/audio-settings.png', fullPage: true });
+  await expect(page.getByRole('dialog', { name: 'Meeting audio' })).toBeVisible();
+  await expect(page.getByLabel('Interface language', { exact: true })).toHaveCount(0);
+  await page.screenshot({ path: test.info().outputPath('audio-settings.png'), fullPage: true });
   await expect(page.getByLabel('Meeting title', { exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: 'Save settings', exact: true }).click();
   let state = await page.evaluate(() => window.meeting.call('snapshot'));
@@ -505,7 +568,7 @@ test('normal meeting entry saves setup once, starts audio in one intent and reve
   );
   expect(repeated.every((r: any) => r.value.meetingId === first)).toBe(true);
   await page.getByRole('button', { name: 'End meeting', exact: true }).click();
-  await page.getByRole('button', { name: '← Meetings', exact: true }).click();
+  await page.getByRole('button', { name: 'Meetings', exact: true }).click();
   await page.getByRole('button', { name: 'Start meeting' }).first().click();
   await expect
     .poll(async () => {
@@ -558,7 +621,7 @@ test('normal meeting entry saves setup once, starts audio in one intent and reve
     })
     .toBe('capturing');
   await page.getByRole('button', { name: 'End meeting', exact: true }).click();
-  await page.screenshot({ path: 'tests/results/e2e-artifacts/normal-entry.png', fullPage: true });
+  await page.screenshot({ path: test.info().outputPath('normal-entry.png'), fullPage: true });
   await capture.evaluate(async () => {
     for (const ctx of (window as any).testContexts ?? []) await ctx.close();
   });

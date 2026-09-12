@@ -1,0 +1,30 @@
+{
+  "ranAt": "2026-09-12T02:53:29.684Z",
+  "isolatedData": true,
+  "rawAudioCaptured": false,
+  "realModelCalled": false,
+  "results": [
+    {
+      "version": "before",
+      "application": "en-US",
+      "preferred": [
+        "zh-Hans-US",
+        "en-US"
+      ],
+      "uiLanguage": "system",
+      "uiLocale": "en",
+      "events": 0
+    },
+    {
+      "version": "after",
+      "application": "en-US",
+      "preferred": [
+        "zh-Hans-US",
+        "en-US"
+      ],
+      "uiLanguage": "system",
+      "uiLocale": "zh-CN",
+      "events": 0
+    }
+  ]
+}

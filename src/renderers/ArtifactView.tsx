@@ -1,3 +1,5 @@
+import { ArrowUpRight } from 'lucide-react';
+import { themeVariables } from '../ui/theme';
 import React, { useEffect, useState } from 'react';
 import { RelationshipGraph } from './RelationshipGraph';
 import type { ArtifactRevision, Block, Ref, Locale } from '../contracts/model';
@@ -5,7 +7,7 @@ import { translator } from '../ui/i18n';
 const csp =
   "default-src 'none'; script-src 'none'; style-src 'unsafe-inline'; img-src 'none'; connect-src 'none'; form-action 'none'; base-uri 'none'";
 export function Markup({ block }: { block: Extract<Block, { markup: string }> }) {
-  const css = `*{box-sizing:border-box}body{margin:16px;font:15px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1D2430;background:white;overflow-wrap:anywhere}h2{font-size:22px}h3{font-size:18px}table{border-collapse:collapse;width:100%}td,th{padding:12px;text-align:left;border-bottom:1px solid #E2E6EC}svg{max-width:100%;height:auto}section{margin-bottom:20px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}.stack{display:grid;gap:12px}.muted{color:#596575}.emphasis{font-weight:600}.callout{padding:12px;background:#F3F5F8;border-left:3px solid #607F9C}`;
+  const css = `:root{${themeVariables}}*{box-sizing:border-box}body{margin:20px;font:15px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;color:var(--textPrimary);background:var(--contentSurface);overflow-wrap:anywhere}h2{font-size:22px;font-weight:600}h3{font-size:18px;font-weight:600}table{border-collapse:collapse;width:100%;font-size:14px}td,th{padding:14px;text-align:left;border-bottom:1px solid var(--divider)}th{background:var(--subtleSurface)}svg{max-width:100%;height:auto}section{margin-bottom:24px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:20px}.stack{display:grid;gap:16px}.muted{color:var(--textSecondary)}.emphasis{font-weight:600}.callout{padding:16px;background:var(--accentSubtle);border-left:3px solid var(--accent);border-radius:0 8px 8px 0}`;
   return (
     <iframe
       title={block.title}
@@ -20,11 +22,15 @@ export function ArtifactView({
   artifact,
   locale,
   onSources,
+  selectedSources,
+  selectedTarget,
   onAction,
 }: {
   artifact: ArtifactRevision;
   locale: Locale;
-  onSources: (refs: Ref[]) => void;
+  onSources: (refs: Ref[], target?: string) => void;
+  selectedSources?: Ref[] | null;
+  selectedTarget?: string;
   onAction?: (prompt: string) => void;
 }) {
   const t = translator(locale);
@@ -38,6 +44,19 @@ export function ArtifactView({
     <div className={`artifact-blocks ${artifact.layout}`}>
       {artifact.blocks.map((block) => (
         <section
+          id={'block-' + block.id}
+          tabIndex={-1}
+          data-source-selected={
+            selectedSources?.length &&
+            (!selectedTarget || selectedTarget.startsWith(block.title)) &&
+            block.sources.some((ref) =>
+              selectedSources.some(
+                (selected) => selected.id === ref.id && selected.rev === ref.rev,
+              ),
+            )
+              ? true
+              : undefined
+          }
           data-block-id={block.id}
           className={`expression ${highlight.includes(block.id) ? 'expression-changed' : ''}`}
           key={block.id}
@@ -46,15 +65,16 @@ export function ArtifactView({
             <h2>{block.title}</h2>
             <button
               className="source-link"
-              onClick={() => onSources(block.sources)}
+              onClick={() => onSources(block.sources, block.title)}
               aria-label={`${t('sources.open')}: ${block.title}`}
             >
-              ↗ {t('sources.open')}
+              <ArrowUpRight size={14} />
+              {t('sources.open')}
             </button>
           </div>
           <div className="provenance">
             <span>{t(block.origin)}</span>
-            <span>{t(block.status)}</span>
+            <span className={`semantic-state state-${block.status}`}>{t(block.status)}</span>
           </div>
           {block.type === 'actions' && (
             <div className="button-row">
@@ -91,10 +111,12 @@ export function ArtifactView({
                           {i === row.cells.length - 1 && (
                             <button
                               className="cite"
-                              onClick={() => onSources(row.sources)}
+                              onClick={() =>
+                                onSources(row.sources, block.title + ' · ' + row.cells[0])
+                              }
                               aria-label={t('sources.open')}
                             >
-                              ↗
+                              <ArrowUpRight size={14} />
                             </button>
                           )}
                         </td>
@@ -106,7 +128,11 @@ export function ArtifactView({
             </div>
           )}
           {block.type === 'diagram' && (
-            <RelationshipGraph block={block} artifact={artifact} onSources={onSources} />
+            <RelationshipGraph
+              block={block}
+              artifact={artifact}
+              onSources={(refs) => onSources(refs, block.title)}
+            />
           )}
           {block.type === 'timeline' && (
             <ol className="timeline">
@@ -116,7 +142,10 @@ export function ArtifactView({
                   <div>
                     <strong>{item.label}</strong>
                     <p>{item.detail}</p>
-                    <button className="source-link" onClick={() => onSources(item.sources)}>
+                    <button
+                      className="source-link"
+                      onClick={() => onSources(item.sources, item.label)}
+                    >
                       {t('sources.open')}
                     </button>
                   </div>
@@ -139,7 +168,7 @@ export function ArtifactView({
                       }}
                     />
                   </div>
-                  <button className="source-link" onClick={() => onSources(v.sources)}>
+                  <button className="source-link" onClick={() => onSources(v.sources, v.label)}>
                     {v.value} {block.unit}
                   </button>
                 </div>

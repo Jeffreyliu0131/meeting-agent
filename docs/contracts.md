@@ -3,7 +3,27 @@
 > 文件职责：产品／工程设计要求，不是完成清单。当前进度与最新修订见[状态页](status.md)；已交付首版取舍见[ADR-003](adr/003-cross-platform-first-version.md)，实际结果见[验证记录](../tests/results/README.md)。具体实现以代码核对，未实现的要求仍是目标。
 版本0.1｜业务设计契约。下面的TypeScript是设计示意；实际运行时 schema 与类型见 `src/contracts/model.ts`，需按当前状态核对差异。本文件定义业务职责，不将具体库写成不可替换前提。
 
-启动意图、持久化设备／语言偏好、自动标题版本与渐进提问上下文的最新增补见[会议入口规范](meeting-entry-spec.md)。这些是待接入契约，不因旧运行时仍要求创建表单字段而撤回新交互要求。
+启动意图、持久化设备／语言偏好、自动标题版本与渐进提问上下文的最新增补见[会议入口规范](meeting-entry-spec.md)。上述入口契约已接入；前端实现与本地应用更新见[前端交接](sessions/2026-09-11-frontend-refresh.md)。下文的抽象类型示意仍须与实际schema区分，不能把示意字段全部当作已落库。
+
+
+## 当前实现与验证边界（2026-09-12工作树）
+
+当前工作流采用[ADR-005](adr/005-bounded-agent-workflows.md)，详细实际契约见[运行时说明](agent-workflow-runtime.md)。本文后面的抽象类型仍是设计示意，不能当作全部已实现字段。
+
+| 能力 | 当前实际实现／边界 |
+|---|---|
+| 理解与生成 | 实时／个人LangGraph图，互斥artifact／patch／plan，复杂表达独立处理 |
+| 服务分配ID | 新对象／关系批内引用映射为服务UUID；旧对象ID保持；不等于语义自动去重 |
+| 可信提交与任务 | 持久job／proposal／success表、可信read set、请求hash、fence和有界恢复；领域与结果同事务 |
+| 检索与记忆 | 真实本会议工具分支、版本读取、独立轻量索引和覆盖标记；非外部RAG，不承诺无限长会 |
+| 个人推演 | 发送时冻结基线、独立锁／取消／预算、对象版本标签与基线变化提示 |
+| 表达修复 | RenderReport反馈、一次受预算约束的定向修复、内容／公式／来源保持、候选持久化 |
+| 数值 | Decimal及符号单位校验、引文basis、可选可信计算绑定；语义依据仍需人工验收 |
+| 平台与真实效果 | 合成程序结果见[验证](../tests/results/agent-workflow-validation.md)；真实模型／音源、Windows实机未验收 |
+
+## 当前可靠性契约
+
+运行时新增 meaning／changeSources、对象 dependencyRefs／reviewRequired／objectHistory 和 Meeting.closeout；旧格式保守兼容，含义和迁移边界见[可靠性规范](agent-reliability.md)。会议理解投影不含个人假设；个人产物和 request 来源不能用于直接记录会议决定。
 
 ## 1. 核心对象
 
@@ -79,7 +99,7 @@ type RefVersion = { id: string; rev: number };
 type ExpressionPlan = {
   planId: string; meetingId: string;
   outputLocale: 'en' | 'zh-CN'; languageRevision: number;
-  visualProfileId: 'editorial-light-v1';
+  visualProfileId: 'collaborative-light-v2';
   action: 'no_change' | 'patch_artifact' | 'create_artifact' |
           'propose_restructure' | 'request_clarification';
   targetArtifactId: string | null;
@@ -98,7 +118,7 @@ type ArtifactAction =
 type ArtifactRevision = {
   artifactId: string; meetingId: string; revision: number; generation: number;
   locale: 'en' | 'zh-CN'; languageRevision: number;
-  visualProfileId: 'editorial-light-v1';
+  visualProfileId: 'collaborative-light-v2';
   carrier: Carrier; payload: unknown; schemaVersion: number;
   objectRefs: RefVersion[]; relationRefs: RefVersion[]; sourceRefs: SourceRef[];
   bindings: Array<{ elementId: string; objectId: string; actionIds: string[] }>;
@@ -130,7 +150,7 @@ Agent可以设计新组合，应用不提供“特定会议模板ID”要求它�
 
 固定模板版本与产物身份分离；同用途内容变化通常生成同一artifact的新revision。已保存revision不原地覆盖，供恢复和对比。
 
-同一artifact可保留不同locale的表示，均链接相同业务对象与来源。语言切换递增会议languageRevision，不增加虚假的语义变化；提交检查语言配置与对象版本。UI语言单独保存在UserPreferences，不触发整场理解。字段与并发规则详见[语言契约](language-spec.md)。
+同一artifact可保留不同locale的表示，均链接相同业务对象与来源。语言切换递增会议languageRevision，不增加虚假的语义变化；提交检查语言配置与对象版本。UI语言单独保存在UserPreferences，设置选择后通过既有preferences命令立即提交；合并已保存偏好，不带入其他设置草稿，不触发整场理解。字段与并发规则详见[语言契约](language-spec.md)。
 
 ## 5. 操作契约与事务
 

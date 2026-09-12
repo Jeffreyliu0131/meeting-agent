@@ -1,0 +1,11 @@
+{
+  "platform": "darwin",
+  "arch": "arm64",
+  "packaged": true,
+  "serviceReady": true,
+  "events": 0,
+  "modelConfigured": false,
+  "realAudio": false,
+  "realModel": false,
+  "ranAt": "2026-09-11T17:32:38.256Z"
+}
