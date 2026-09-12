@@ -101,7 +101,7 @@ npm run pack:win     # 在 Windows 构建应用目录
 
 当前本地实现采用LangGraph JS 1.4.14，支持本会议主动检索、独立个人推演、持久提案／任务恢复、澄清与表达修复。运行方式不变；完整实现与限制见[运行时说明](docs/agent-workflow-runtime.md)，逐项结果见[工作流验证](tests/results/agent-workflow-validation.md)。离线人工评分清单：`node --import tsx scripts/workflow-eval.ts`（零模型调用）。不要将`test:model`误作免费离线检查。
 
-最新本地包：两端release已按[会议候选提醒](docs/sessions/2026-09-12-meeting-reminder.md)更新到2661764＋本轮未提交提醒代码；14个构建文件和app.asar一致。99单元／19桌面与Mac包隔离检查通过，Windows真机及两端真实系统通知投递待验；真实检测器尚未接入。此前91962b9界面源码已推送，本轮未提交／推送。
+最新本地包：两端release已按[会议候选提醒](docs/sessions/2026-09-12-meeting-reminder.md)更新到提醒源码5c7c0a5；14个构建文件和app.asar一致。99单元／19桌面与Mac包隔离检查通过，Windows真机及两端真实系统通知投递待验；真实检测器尚未接入。此前91962b9界面源码已推送，本轮交付见[PR #1](https://github.com/Jeffreyliu0131/meeting-agent/pull/1)。
 
 ## 会议候选提醒
 

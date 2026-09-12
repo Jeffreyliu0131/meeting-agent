@@ -20,7 +20,7 @@
 
 | 工作 | 核实到的状态 | 接手记录 |
 |---|---|---|
-| 会议候选提醒 | 提醒代码／双端本地包已同步，99单元／19桌面及Mac包检查通过；真实检测待接入、双端原生投递待验；未提交 | [本轮记录](sessions/2026-09-12-meeting-reminder.md) |
+| 会议候选提醒 | 提醒代码／双端本地包已同步，99单元／19桌面及Mac包检查通过；真实检测待接入、双端原生投递待验；[PR #1](https://github.com/Jeffreyliu0131/meeting-agent/pull/1) | [本轮记录](sessions/2026-09-12-meeting-reminder.md) |
 | 界面语言与交互打磨 | 代码／两端本地包已同步：跟随系统及即时切换、文字与焦点打磨；86单元／14桌面、Mac包检查通过；Windows运行待验；91962b9已推送origin/main | [本轮记录](sessions/2026-09-12-interface-polish.md) |
 | Mac／Windows本地包同步 | 本地release均已更新至9b6886d产品源码，14文件及app.asar一致；11项桌面通过，Mac新包已打开；同步证据06f57d2已推送，当前日常库0会议，Windows真机待验 | [本轮记录](sessions/2026-09-12-cross-platform-sync.md) |
 | Agent工作流验收与推送 | 独立验收通过：86项单元／11项Electron、双端包及macOS烟测；9b6886d已推送origin/main并核对远端SHA | [本轮记录](sessions/2026-09-12-agent-workflow-acceptance-push.md) |
@@ -51,7 +51,7 @@
 ## 建议接续顺序
 
 1. 核对相关 session、`git status --short` 和代码，确认仍在执行的任务与文件范围，不覆盖现有改动。
-2. 当前源码基线为9b6886d，见[独立验收](../tests/results/agent-workflow-acceptance-review.md)；3f6279a／a587a92是历史阶段。日常release两端包最新已在[会议提醒](sessions/2026-09-12-meeting-reminder.md)更新到2661764＋本轮未提交提醒代码并核验一致；此前界面源码91962b9已推送，提醒尚未提交；不代表其他Windows机器的安装已更新。真实模型与音源接入须单独授权和验收。
+2. 当前源码基线为9b6886d，见[独立验收](../tests/results/agent-workflow-acceptance-review.md)；3f6279a／a587a92是历史阶段。日常release两端包最新已在[会议提醒](sessions/2026-09-12-meeting-reminder.md)更新到提醒源码5c7c0a5并核验一致，交付见[PR #1](https://github.com/Jeffreyliu0131/meeting-agent/pull/1)；此前界面源码91962b9已推送；不代表其他Windows机器的安装已更新。真实模型与音源接入须单独授权和验收。
 3. 按用户反馈继续细化已实现的前端；本地release现含9b6886d工作流及此前图标／状态代码，新入口已核对；当前Mac日常库为0场会议，旧交接两条历史不代表当前机器数据。真实音频、系统设备路由和Windows真机另行验收。
 4. 凭证与设备具备后执行真实模型、真实音频和双端验收；将结果链接到对应 session 和本页。
 
