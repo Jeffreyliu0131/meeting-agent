@@ -6,7 +6,7 @@
 
 | 记录 | 类型／状态 | 主要内容 |
 |---|---|---|
-| [Mac／Windows本地包同步](2026-09-12-cross-platform-sync.md) | 本地同步完成，Windows真机待验 | 两端14个文件及app.asar一致；11项桌面通过，Mac已打开；日常库0事件 |
+| [Mac／Windows本地包同步](2026-09-12-cross-platform-sync.md) | 本地同步及推送完成，Windows真机待验 | 两端14个文件及app.asar一致；11项桌面通过；同步证据06f57d2已推送，日常库0事件 |
 | [Agent工作流验收与推送](2026-09-12-agent-workflow-acceptance-push.md) | 完成，9b6886d已推送 | 修复审查问题；86项单元／11项Electron、双端包与macOS烟测 |
 | [Agent工作流实施](2026-09-12-agent-workflow-implementation.md) | 已随9b6886d交付 | W1–W6；实现阶段81项，最新验收86项／11项Electron，真实效果待验 |
 | [业务复核与实现交接](2026-09-12-business-aligned-handoff.md) | 完成，已核对接手 | 业务映射、W1–W6任务书、25项验收；实现由新任务继续 |

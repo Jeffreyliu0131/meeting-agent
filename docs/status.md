@@ -20,7 +20,7 @@
 
 | 工作 | 核实到的状态 | 接手记录 |
 |---|---|---|
-| Mac／Windows本地包同步 | 本地release均已更新至9b6886d产品源码，14文件及app.asar一致；11项桌面通过，Mac新包已打开；当前日常库0会议，Windows真机待验 | [本轮记录](sessions/2026-09-12-cross-platform-sync.md) |
+| Mac／Windows本地包同步 | 本地release均已更新至9b6886d产品源码，14文件及app.asar一致；11项桌面通过，Mac新包已打开；同步证据06f57d2已推送，当前日常库0会议，Windows真机待验 | [本轮记录](sessions/2026-09-12-cross-platform-sync.md) |
 | Agent工作流验收与推送 | 独立验收通过：86项单元／11项Electron、双端包及macOS烟测；9b6886d已推送origin/main并核对远端SHA | [本轮记录](sessions/2026-09-12-agent-workflow-acceptance-push.md) |
 | Agent工作流实施 | W1–W6已随9b6886d交付；最新验收含边界修正，86项单元／11项Electron通过；日常包随后已在两端同步任务中更新，真实效果待验 | [实施记录](sessions/2026-09-12-agent-workflow-implementation.md)／[证据表](../tests/results/agent-workflow-validation.md) |
 | Agent业务对齐与实现交接 | 任务书与25项验收完成，已派发并核对接手；代码／验证状态由实现任务维护 | [交接](sessions/2026-09-12-business-aligned-handoff.md)／[任务书](agent-workflow-implementation.md) |
