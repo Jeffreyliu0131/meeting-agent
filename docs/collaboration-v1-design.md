@@ -1,6 +1,7 @@
 # 首版会议协作：意图、动态组件与工作流设计
 
 版本：`collaboration-v1 / design-1`。日期：2026-09-12。
+现行体验约束以[COL03](decisions.md)为准：从参会者之间的自然讨论静默识别需求，Agent直接准备完整默认组件；host审核后一键分发。下文涉及编辑／配置的操作均为可选纠错，不作为首次使用前提；指令表达只作兼容与边界场景。
 状态：已获执行授权并完成首版核心接入；本文保留完整目标，实际实现和差距见[运行说明](collaboration-v1-runtime.md)及[验收结果](../tests/results/collaboration-v1-validation.md)。
 
 阅读顺序：本文 → [数据与交互契约](collaboration-v1-contracts.md) → [验收场景](collaboration-v1-acceptance.md)。接手依据：[当前实际运行时](agent-workflow-runtime.md)、[本轮记录](sessions/2026-09-12-collaboration-components-design.md)。

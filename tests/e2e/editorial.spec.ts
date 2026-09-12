@@ -49,7 +49,39 @@ test.beforeEach(async () => {
     for await (const chunk of req) raw += chunk;
     const c = JSON.parse(JSON.parse(raw).messages.at(-1).content);
     const sources = c.segments.map((s: any) => ({ id: s.id, rev: s.rev }));
-    const support = sources[Math.min(1, sources.length - 1)];
+    // Match the named evidence, never the second item of a trimmed context.
+    // If that original source is outside this batch, retain the existing artifact.
+    const supportSegment = c.segments.find(
+      (s: any) => s.text === quotes[1] || s.text === quotes[1] + '（合成纠错）',
+    );
+    if (!supportSegment && c.currentArtifact) {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(
+        JSON.stringify({
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({
+                  focus: '首批试点应该邀请谁？',
+                  changes: [],
+                  objects: [],
+                  relations: [],
+                  action: 'no_change',
+                  artifact: null,
+                  rationale:
+                    'Keep the established synthetic citation when its source is outside the context.',
+                }),
+              },
+            },
+          ],
+          usage: { prompt_tokens: 10, completion_tokens: 10 },
+        }),
+      );
+      return;
+    }
+    const support = supportSegment
+      ? { id: supportSegment.id, rev: supportSegment.rev }
+      : sources[0];
     const common = { sources, objectIds: [], origin: 'stated', status: 'unverified' };
     const reply = {
       focus: '首批试点应该邀请谁？',

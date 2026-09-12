@@ -16,6 +16,8 @@
 
 | 对象 | 已有记录／证据 | 不能推导的结论 |
 |---|---|---|
+| PR #4与当前main整合 | 验证完成，待Git合并：236单元／40桌面、Mac包通过，双端同源；其他任务本地文档保留 | [本轮记录](sessions/2026-09-12-pr4-integration.md) |
+| 自动组件缩略区 | 进行中：按用户要求自动出现已填充缩略卡，悬停／点击进入完整审核 | [记录](sessions/2026-09-12-component-dock.md) |
 | 首版本地实现 | 本地 Git 提交 `5fcd90f`；[首版验证](../tests/results/validation.md) 记录构建、19 项领域测试、6 项桌面测试、macOS 打包启动和 Windows x64 构建 | 不表示后续工作树改动也通过；本页未重新核验远端 |
 | 真实输入／模型 | 首版有 3 秒麦克风探针；PR #3 保留 Windows 的 DeepSeek／STT 单次合成实调及启动记录，见[证据范围](pr3-doc-alignment.md) | 不证明此 Mac 已配置、真实多人／线上双方效果或最终整合包的 Windows 运行通过 |
 | Agent与会议入口交付 | 本地提交 `3f6279a` 的源码指纹与[38项／7项验证记录](../tests/results/live-agent-summary.json)完全一致；后续前端提交基于此版本 | 这些旧结果仅覆盖该基线；后续前端有独立验证与交付记录 |
@@ -24,6 +26,10 @@
 
 | 工作 | 核实到的状态 | 接手记录 |
 |---|---|---|
+| Agent组件审核体验修正 | 本地修正与自然TTS完成：静默识别、完整预览、一键分发；构建／145单元通过，26桌面功能断言通过但worker退出超时未解决；未提交、未重启日常应用 | [本轮记录](sessions/2026-09-12-agent-component-review.md) |
+| 首批组件测试材料 | 指令式v1已被自然讨论v2替代；14段AI语音＋5分17秒主线＋播放器已生成，真实模型摘录检查见审核修正记录，真实采音全链路未验 | [台词与操作](../tests/fixtures/collaboration-manual-test.md)／[记录](sessions/2026-09-12-collaboration-test-script.md) |
+| Windows同步与重启 | 完成：main=origin/main 5878c20，YH=a91dcce已推送；141单元／3桌面与构建通过。新应用PID42244工作页响应正常，8场记录保留、0活动会议；第二阶段规划仍为本地未提交文档 | [本轮记录](sessions/2026-09-12-main-sync-restart.md) |
+| 第二阶段协作组件规划 | 规划完成、未开始实现。按用户确认先补修订／复核／等待恢复／会后核对，再依次新增议程、信息收集、方案对比、风险与问题清单；当前源码仍仅四类组件 | [设计](collaboration-phase2-design.md)／[九项计划](collaboration-phase2-plan.md)／[规划记录](sessions/2026-09-12-collaboration-phase2-plan.md) |
 | 代码实现与现行文字对齐 | 进行中：核对合入状态、接口、运行说明和缺口；仅修改文档，保留并行源码与交付状态 | [本轮记录](sessions/2026-09-12-code-doc-alignment.md) |
 | 并行任务收尾后推送main | 完成：悬浮与Demo任务已结束，108源码指纹一致；产品提交e1fba24已推送main并回读一致；独立Mac安装保持14:45快照 | [本轮记录](sessions/2026-09-12-main-push-after-sessions.md) |
 | 悬浮球实时画板速览 | 代码／双端包已同步：实时画板、原生悬停与拖动抑制；231单元、5专项＋10回归、Mac包5项通过；Windows真机待验，日常实例未重启 | [本轮记录](sessions/2026-09-12-hover-canvas.md) |

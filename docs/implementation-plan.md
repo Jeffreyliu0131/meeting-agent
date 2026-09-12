@@ -2,6 +2,8 @@
 
 首版协作按[专项实施计划](collaboration-v1-implementation.md)推进，四组件、悬浮窗、M/C/R及本地三人闭环已接入；[验收记录](../tests/results/collaboration-v1-validation.md)逐项区分程序覆盖和未验证项。完整目标设计保留，不以已实现子集替代目标。
 
+第二阶段按用户确认的顺序：先补关键闭环，再新增议程、信息收集、方案对比、风险与问题清单。见[第二阶段设计](collaboration-phase2-design.md)和[九项实施任务](collaboration-phase2-plan.md)。目前仅完成规划，第二批组件尚未实现。
+
 本文定义阶段出口和后续工作顺序，不维护实时完成状态。当前进度见[状态页](status.md)，每轮执行与交接见[session 索引](sessions/README.md)，实际验证见[结果索引](../tests/results/README.md)。已有首版实现，接手时不得从空仓库重新执行原设计计划。
 
 ## 阶段与出口

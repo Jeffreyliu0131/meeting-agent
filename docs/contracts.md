@@ -1,5 +1,7 @@
 # 数据与操作契约
 
+PR #4协作扩展：C提案可携带`audienceIds`，服务校验后保存为不可变草稿修订的`suggestedAudienceIds`；仅受众改变也形成新审核版本。`ComponentDockView`只暴露当前会议待审核卡片及选择状态，dock IPC绑定当前发起者／选中组件，不提供全局snapshot。详见[实际运行时](collaboration-v1-runtime.md)。
+
 [Demo实时表达](demo-live-visuals.md)新增可选diagram.layout、节点icon及受校验的edge.kind；Snapshot.liveDrafts为按会议／调用隔离的临时模型文字，不持久化、不作为来源。完整输出仍通过原校验提交，旧产物缺少这些可选字段仍可读取。
 
 协作组件新增严格Zod契约与规范化存储已实现，运行时见[实际契约](collaboration-v1-runtime.md)，目标及示意类型见[设计契约](collaboration-v1-contracts.md)。两者的字段差异须按运行说明读取，不能用设计示意调用IPC。

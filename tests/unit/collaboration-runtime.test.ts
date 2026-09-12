@@ -71,6 +71,17 @@ test('intent runtime preserves a prospective collector across batches and never 
   await new CollaborationRuntime(x.ports).drain();
   assert.equal(x.meeting.collaboration!.components.length, 1);
   assert.equal(x.meeting.collaboration!.components[0].id, c.id);
+  enqueueCollaborationIntents(
+    x.meeting,
+    [{ ...intent, operation: 'update', targetId: c.id, collectionMode: 'retrospective' }],
+    [],
+    'root3',
+  );
+  await new CollaborationRuntime(x.ports).drain();
+  const reviewed = x.meeting.collaboration!.components[0];
+  assert.equal(reviewed.draftState, 'ready');
+  assert.equal(reviewed.collection!.status, 'stopped');
+  assert.equal(reviewed.rounds.length, 0);
 });
 test('negated and quoted intents create no jobs or components', () => {
   const x = setup();
@@ -94,6 +105,88 @@ test('negated and quoted intents create no jobs or components', () => {
       expression,
     );
   assert.equal(x.meeting.collaboration!.jobs.length, 0);
+});
+
+test('C receives earlier discussion and defaults; voice start freezes a collector for review without publishing', async () => {
+  const x = setup();
+  x.meeting.segments = [
+    { id: 'earlier', rev: 1, kind: 'manual', text: '方案一内部，方案二客户，方案三先内部再客户' },
+    { id: 'request', rev: 1, kind: 'manual', text: '这三个方向大家各选一个，今天定下来' },
+    { id: 'private', rev: 1, kind: 'request', text: 'PRIVATE_DO_NOT_SHARE' },
+  ].map((s, order) => ({ ...s, order, channel: 'manual', receivedAt: x.meeting.createdAt })) as any;
+  let context: any;
+  const intent = {
+    family: 'poll',
+    operation: 'prepare',
+    expression: 'explicit',
+    resolution: 'actionable_draft',
+    targetId: null,
+    scopeText: '范围',
+    collectionMode: 'prospective',
+    sourceRefs: [{ id: 'request', rev: 1 }],
+    objectRefs: [],
+  } as any;
+  enqueueCollaborationIntents(x.meeting, [intent], intent.sourceRefs, 'prepare');
+  await new CollaborationRuntime({
+    ...x.ports,
+    generate: async (input) => {
+      context = input;
+      return { content: payload, clarification: null };
+    },
+  }).drain();
+  assert.ok(context.sources.some((s: any) => s.id === 'earlier'));
+  assert.ok(!JSON.stringify(context).includes('PRIVATE_DO_NOT_SHARE'));
+  assert.equal(context.defaults.poll.closePolicy.kind, 'host');
+  const c = x.meeting.collaboration!.components[0];
+  enqueueCollaborationIntents(
+    x.meeting,
+    [{ ...intent, operation: 'publish', targetId: c.id, collectionMode: 'none' }],
+    [],
+    'start',
+  );
+  await new CollaborationRuntime(x.ports).drain();
+  const updated = x.meeting.collaboration!.components[0];
+  assert.equal(updated.collection!.status, 'stopped');
+  assert.equal(updated.draftState, 'ready');
+  assert.equal(updated.rounds.length, 0);
+});
+
+test('incomplete retrospective generated content is repaired instead of handing the host a blank form', async () => {
+  const x = setup();
+  let calls = 0;
+  enqueueCollaborationIntents(
+    x.meeting,
+    [
+      {
+        family: 'poll',
+        operation: 'prepare',
+        expression: 'explicit',
+        resolution: 'actionable_draft',
+        targetId: null,
+        scopeText: '范围',
+        collectionMode: 'retrospective',
+        sourceRefs: [],
+        objectRefs: [],
+      } as any,
+    ],
+    [],
+    'prepare',
+  );
+  await new CollaborationRuntime({
+    ...x.ports,
+    generate: async (_input, repair) => {
+      calls++;
+      if (calls === 1)
+        return {
+          content: { ...payload, payload: { ...payload.payload, options: [] } },
+          clarification: null,
+        };
+      assert.match(repair!, /MISSING_REQUIRED_FIELDS/);
+      return { content: payload, clarification: null };
+    },
+  }).drain();
+  assert.equal(calls, 2);
+  assert.equal(x.meeting.collaboration!.components[0].draftState, 'ready');
 });
 test('late component model output cannot overwrite manual editing', async () => {
   const x = setup(),
@@ -158,4 +251,43 @@ test('late component model output cannot overwrite manual editing', async () => 
     '手工问题',
   );
   assert.equal(updated.jobs.at(-1)!.status, 'superseded');
+});
+
+test('audience-only model updates create a new review revision and preserve the old audience', async () => {
+  const x = setup();
+  const ids = x.meeting
+    .collaboration!.participants.filter((p) => p.role === 'participant')
+    .map((p) => p.id);
+  const intent = {
+    family: 'poll',
+    operation: 'prepare',
+    expression: 'suggested',
+    resolution: 'actionable_draft',
+    targetId: null,
+    scopeText: '范围',
+    collectionMode: 'retrospective',
+    sourceRefs: [],
+    objectRefs: [],
+  } as any;
+  enqueueCollaborationIntents(x.meeting, [intent], [], 'audience-first');
+  await new CollaborationRuntime({
+    ...x.ports,
+    generate: async () => ({ content: payload, clarification: null, audienceIds: ids }),
+  }).drain();
+  const before = structuredClone(x.meeting.collaboration!.components[0]);
+  enqueueCollaborationIntents(
+    x.meeting,
+    [{ ...intent, operation: 'update', targetId: before.id }],
+    [],
+    'audience-correction',
+  );
+  await new CollaborationRuntime({
+    ...x.ports,
+    generate: async () => ({ content: payload, clarification: null, audienceIds: [ids[0]] }),
+  }).drain();
+  const after = x.meeting.collaboration!.components[0];
+  assert.equal(after.draftRevision, before.draftRevision + 1);
+  assert.deepEqual(after.revisions[0].suggestedAudienceIds, ids);
+  assert.deepEqual(after.revisions.at(-1)!.suggestedAudienceIds, [ids[0]]);
+  assert.equal(after.rounds.length, 0);
 });

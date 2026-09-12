@@ -93,6 +93,16 @@ export function contentEvidence(content: ComponentContent): EvidenceRef[] {
     ];
   return [];
 }
+export function defaultAudience(
+  s: CollaborationState,
+  content: ComponentContent,
+  suggested?: string[],
+) {
+  if (suggested?.length) return suggested;
+  if (content.kind === 'decision_confirmation' && content.payload.requiredParticipantIds.length)
+    return content.payload.requiredParticipantIds;
+  return s.participants.filter((p) => p.active && p.role !== 'host').map((p) => p.id);
+}
 export function pollResult(round: PublishedRound, records: ResponseRecord[]) {
   if (round.content.kind !== 'poll') return null;
   const votes = records.filter((r) => r.response.kind === 'vote');
@@ -278,18 +288,14 @@ export function saveDraft(
     ],
     createdAt: now(),
     createdBy: actorId,
+    ...(old?.suggestedAudienceIds ? { suggestedAudienceIds: old.suggestedAudienceIds } : {}),
   };
   c.revisions.push(next);
   c.draftRevision = next.revision;
   c.draftState = c.collection?.status === 'collecting' ? 'collecting' : 'draft';
   if (
     c.draftState !== 'collecting' &&
-    !publicationIssues(
-      s,
-      c,
-      parsed,
-      s.participants.filter((p) => p.role !== 'host').map((p) => p.id),
-    ).length
+    !publicationIssues(s, c, parsed, defaultAudience(s, parsed, next.suggestedAudienceIds)).length
   )
     c.draftState = 'ready';
   c.aggregateVersion++;
@@ -614,7 +620,7 @@ export function applyCollaborationCommand(
       s,
       c,
       c.revisions.at(-1)!.content,
-      s.participants.filter((p) => p.role !== 'host').map((p) => p.id),
+      defaultAudience(s, c.revisions.at(-1)!.content, c.revisions.at(-1)!.suggestedAudienceIds),
     ).length
       ? 'draft'
       : 'ready';

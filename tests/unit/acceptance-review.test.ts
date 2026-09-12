@@ -180,6 +180,39 @@ test('review: production context capacity accounts for schema overhead before a 
   }
 });
 
+test('JSON-object component and impact requests explicitly ask for JSON for compatible providers', async () => {
+  const { OpenAIProvider } = await import('../../src/agent/provider');
+  const provider = new OpenAIProvider({
+    key: 'synthetic',
+    base: 'http://127.0.0.1',
+    model: 'synthetic',
+    sttKey: '',
+    sttBase: 'http://127.0.0.1',
+    sttModel: 'synthetic',
+    format: 'json_object',
+  });
+  const previous = globalThis.fetch;
+  let requests = 0;
+  try {
+    globalThis.fetch = async (_url, init) => {
+      const body = JSON.parse(String(init?.body));
+      assert.match(body.messages[0].content, /json/i);
+      const content =
+        requests++ === 0
+          ? { content: null, clarification: '需要确定选项', audienceIds: [] }
+          : { conflicts: [] };
+      return new Response(
+        JSON.stringify({ choices: [{ message: { content: JSON.stringify(content) } }] }),
+      );
+    };
+    await provider.prepareComponent({});
+    await provider.analyzeImpact({});
+    assert.equal(requests, 2);
+  } finally {
+    globalThis.fetch = previous;
+  }
+});
+
 test('review: legacy IDs beginning new_ stay stable and cannot switch entity kind', async () => {
   const { resolveNewRefs } = await import('../../src/service/workflow-state');
   const x = setup({ interpret: async () => result(empty()) });

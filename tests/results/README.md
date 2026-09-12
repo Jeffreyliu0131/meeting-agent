@@ -1,5 +1,9 @@
 # 执行记录
 
+[PR #4与当前main整合验证](pr4-integration-validation.md)：236单元、40桌面、Mac包专项与启动通过；双端14文件及app.asar一致，Windows真机待验。
+
+本轮[静默组件审核与自然音频验证](agent-component-review-validation.md)：区分传输替身桌面检查、合成文本真实模型调用、TTS文件生成；不代表真实麦克风全链路已验收。
+
 [悬浮球实时画板验证](hover-canvas-validation.md)：最终源码5专项、231单元、10桌面回归、Mac包5专项及双端日常包核对；Windows真机待验，日常实例未重启。
 
 [Demo可视化与实时编辑](demo-live-visuals-validation.md)：主动图形规则、语义图标、真实SSE草稿、连续语音与局部更新；227领域／34桌面、双端包与Mac包专项，真实模型及Windows运行待验。

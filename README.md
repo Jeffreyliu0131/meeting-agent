@@ -8,7 +8,7 @@
 
 **进度入口：[当前状态](docs/status.md)；跨任务接手：[AGENTS.md](AGENTS.md) → [session 索引](docs/sessions/README.md)。** 已有 0.1.0 首版本地实现；首版结果见[验证记录](tests/results/validation.md)，后续工作树改动和新规范的接入程度以状态及对应 session 为准，不把旧测试视为当前全部通过。
 
-首版协作已合入主线：在会议内点击“开启本地协作模拟”，可准备投票、分工、冲突和决定确认。组件在独立悬浮窗预览／发放，准备好后悬浮球显示数量，点击提示打开；参与者A／B／C用独立窗口回应。自动准备衔接LangGraph，正式发放仍由发起者点击。见[设计](docs/collaboration-v1-design.md)、[实际运行与边界](docs/collaboration-v1-runtime.md)、[本轮验证](tests/results/collaboration-v1-validation.md)。
+首版协作已合入主线；PR #4整合后，正常音频会议自动初始化本地模拟目录，Agent从自然讨论准备投票、分工、冲突和决定确认。右侧缩略区自动展示，悬停预览、点击固定审核并一键分发；开发手工／回放会议仍显式开启本地协作模拟。参与者A／B／C用独立窗口回应。自动准备衔接LangGraph，正式发放仍由发起者点击。见[设计](docs/collaboration-v1-design.md)、[实际运行与边界](docs/collaboration-v1-runtime.md)、[本轮验证](tests/results/collaboration-v1-validation.md)。
 
 连续 Agent 与新会议入口已纳入基线 `3f6279a`；前端改造已完成独立本地验证，见[前端记录](docs/sessions/2026-09-11-frontend-refresh.md)。架构见 [ADR-004](docs/adr/004-live-agent-pipeline.md)，本轮证据见 [连续 Agent 验证](tests/results/live-agent-validation.md)。首版当时缺少真实模型和转写凭证；PR #3 保留对方 Windows 的单次合成供应商调用记录，不能推导此 Mac 已配置或真实会议达标，见[证据与整合边界](docs/pr3-doc-alignment.md)。
 

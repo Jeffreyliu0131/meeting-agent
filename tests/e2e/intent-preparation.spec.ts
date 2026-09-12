@@ -183,7 +183,9 @@ test('four intent drafts: real IPC, protected edits, sources and restart', async
       .getByRole('button', { name: 'Create local collaboration component', exact: true })
       .click();
     await expect
-      .poll(async () => (await app.windows()).some((p) => p.url().includes('role=component')))
+      .poll(async () =>
+        (await app.windows()).some((p) => /[?&]role=component(?:&|$)/.test(p.url())),
+      )
       .toBe(true);
     const promoted = await page.evaluate(() => window.meeting.call('snapshot'));
     expect(promoted.value.meetings[0].collaboration.components[0].rounds).toHaveLength(0);

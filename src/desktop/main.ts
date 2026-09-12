@@ -1,5 +1,6 @@
 import { previewBounds } from './preview-bounds';
 import { PreferencesPatchSchema } from '../domain/preferences';
+import { ComponentDock } from './component-dock';
 import { EventEmitter } from 'node:events';
 import { MeetingReminder } from './meeting-reminder';
 import { SystemReminder } from './system-reminder';
@@ -56,6 +57,7 @@ const pending = new Map<
   { resolve: (v: any) => void; reject: (e: Error) => void; timer: ReturnType<typeof setTimeout> }
 >();
 let worker: Electron.UtilityProcess;
+let componentDock: ComponentDock;
 const participantWindows = new Map<
   number,
   { window: BrowserWindow; meetingId: string; actorId: string }
@@ -581,6 +583,7 @@ app.whenReady().then(async () => {
       state = message.value;
       serviceAvailable = true;
       syncDesktop();
+      componentDock?.sync();
       broadcast();
       for (const binding of participantWindows.values())
         void request('collaborationSnapshot', {
@@ -615,6 +618,7 @@ app.whenReady().then(async () => {
   });
   worker.on('exit', () => {
     serviceAvailable = false;
+    componentDock?.window.hide();
     reminders?.clear();
     for (const call of pending.values()) {
       clearTimeout(call.timer);
@@ -689,6 +693,7 @@ app.whenReady().then(async () => {
     }
   });
   const area = screen.getPrimaryDisplay().workArea;
+  componentDock = new ComponentDock({ state: () => state, create: secureWindow, request });
   launcher = secureWindow(
     {
       x: area.x + area.width - 64,
@@ -741,7 +746,10 @@ app.whenReady().then(async () => {
     if (mouse.type === 'mouseLeave') trackPreviewHover('preview', false);
     else if (['mouseEnter', 'mouseMove', 'mouseWheel'].includes(mouse.type)) {
       const [width, height] = preview.getContentSize();
-      trackPreviewHover('preview', mouse.x >= 0 && mouse.y >= 0 && mouse.x < width && mouse.y < height);
+      trackPreviewHover(
+        'preview',
+        mouse.x >= 0 && mouse.y >= 0 && mouse.x < width && mouse.y < height,
+      );
     }
   });
   workspace.on('focus', dismissPreview);
@@ -842,6 +850,10 @@ app.whenReady().then(async () => {
     );
   ipcMain.handle('meeting', async (event, method, args) => {
     try {
+      if (event.sender === componentDock?.window.webContents) {
+        if (event.senderFrame !== event.sender.mainFrame) throw new Error('PERMISSION_DENIED');
+        return { ok: true, value: await componentDock.handle(method, args) };
+      }
       const componentWindow = componentWindows.get(event.sender.id);
       if (componentWindow) {
         if (event.senderFrame !== event.sender.mainFrame) throw new Error('PERMISSION_DENIED');
@@ -1237,5 +1249,7 @@ app.whenReady().then(async () => {
     const work = screen.getPrimaryDisplay().workArea;
     launcher.setPosition(work.x + work.width - 64, work.y + 100);
     positionReminder();
+    componentDock?.sync();
   });
+  screen.on('display-metrics-changed', () => componentDock?.sync());
 });
