@@ -27,7 +27,10 @@ test('agent prepares four families; host reviews and distributes each without fi
         payload = {
           question: '先采用哪种试点？',
           contextSummary: '根据前文三种范围',
-          options: ['内部', '五位客户', '先内部再客户'].map((label, i) => ({
+          options: (c.sources.some((s: any) => s.text.includes('先内部再客户'))
+            ? ['内部', '五位客户', '先内部再客户']
+            : ['内部', '五位客户']
+          ).map((label, i) => ({
             id: 'o' + i,
             label,
             description: '',
@@ -118,12 +121,20 @@ test('agent prepares four families; host reviews and distributes each without fi
           ? [
               {
                 family,
-                operation: 'prepare',
+                operation:
+                  family === 'poll' &&
+                  context.collaboration.components.some((c: any) => c.family === 'poll')
+                    ? 'update'
+                    : 'prepare',
                 expression: 'suggested',
                 resolution: 'actionable_draft',
-                targetId: null,
+                targetId:
+                  family === 'poll'
+                    ? (context.collaboration.components.find((c: any) => c.family === 'poll')?.id ??
+                      null)
+                    : null,
                 scopeText: text,
-                collectionMode: 'retrospective',
+                collectionMode: text.includes('再听听补充') ? 'prospective' : 'retrospective',
                 sourceRefs: [{ id: segment.id, rev: segment.rev }],
                 objectRefs: [],
               },
@@ -281,8 +292,32 @@ test('agent prepares four families; host reviews and distributes each without fi
       await page.getByRole('button', { name: '收起审核', exact: true }).click();
       return { id: c.id, page };
     };
-    await speak(
-      '内部、五位客户、先内部再客户，我们意见还没统一。大家各自选一个方向，今天把范围定下来。',
+    await speak('内部、五位客户，我们意见还没统一。大家各自选一个方向，再听听补充。');
+    await expect.poll(async () => (await snapshot()).components[0]?.draftState).toBe('collecting');
+    const firstPoll = (await snapshot()).components[0];
+    const dock = (await app.windows()).find((p) => p.url().includes('role=component-dock'))!;
+    await expect(dock.locator(`[data-thumbnail-id="${firstPoll.id}"]`)).toContainText('五位客户');
+    await expect(dock.getByText('正在随讨论补充', { exact: true })).toBeVisible();
+    await expect(dock.getByRole('region', { name: '组件审核预览' })).toHaveCount(0);
+    expect(
+      await app.evaluate(({ BrowserWindow }) =>
+        BrowserWindow.getAllWindows()
+          .find((w) => w.webContents.getURL().includes('role=component-dock'))
+          ?.isFocused(),
+      ),
+    ).toBe(false);
+    await dock.locator(`[data-thumbnail-id="${firstPoll.id}"]`).hover();
+    await expect(dock.getByRole('region', { name: '组件审核预览' })).toBeVisible();
+    await dock.locator('.component-dock').dispatchEvent('mouseout', { relatedTarget: null });
+    await expect(dock.getByRole('region', { name: '组件审核预览' })).toHaveCount(0);
+    await speak('我再补充第三个方向：先内部再客户。三个方向齐了，大家各自选一个方向，今天定下来。');
+    await expect
+      .poll(async () => (await snapshot()).components[0]?.draft?.content.payload.options.length)
+      .toBe(3);
+    expect((await snapshot()).components).toHaveLength(1);
+    expect((await snapshot()).components[0].id).toBe(firstPoll.id);
+    await expect(dock.locator(`[data-thumbnail-id="${firstPoll.id}"]`)).toContainText(
+      '先内部再客户',
     );
     await review('poll');
     await speak('原型这块交给A，交付一份可交互原型，具体时间还没有定。');

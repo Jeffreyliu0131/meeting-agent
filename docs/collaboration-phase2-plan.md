@@ -1,5 +1,7 @@
 # 第二阶段协作组件 Implementation Plan
 
+COL04展示约束：已填充组件自动显示在固定缩略区，悬停展开、点击固定审核；持续讨论更新同一卡片。悬浮球数量只作辅助，不能成为发现组件的必经入口。
+
 统一体验约束（COL03）：全程静默识别自然讨论中的需求，无需对Agent说话。Agent用默认schema生成完整组件，host只审核后一键分发；编辑／配置仅为可选纠错。信息收集的填写对象是参与者，host不负责从空表设计问题。所有后续组件和验收均遵守此要求。
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. 按用户确认的顺序执行；不主动派发子Agent。当前请求是制定计划，不授权现在开始产品实现或延续上轮Git推送。任务使用`- [ ]`跟踪，不能以计划存在代替完成。

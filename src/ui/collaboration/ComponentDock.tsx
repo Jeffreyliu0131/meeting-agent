@@ -141,7 +141,7 @@ export function ComponentDock() {
                   {card.preparing
                     ? zh
                       ? '正在随讨论补充'
-                      : 'Preparing'
+                      : 'Updating from discussion'
                     : zh
                       ? '已准备好'
                       : 'Ready'}

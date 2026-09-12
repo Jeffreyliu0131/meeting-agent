@@ -1,6 +1,12 @@
 # 执行记录
 
+[PR #5合并验证](pr5-integration-validation.md)：238单元／40桌面、Mac包1项及启动通过；双端14文件／app.asar一致，Windows真机与真实音频待验。
+
+最新[完整自然音频实测](../../docs/sessions/2026-09-12-full-audio-simulation.md)：Windows真实系统采音与真实API，因转写积压／超时未完成全链路；不把生成卡片视为分发与回应通过。
+
 [PR #4与当前main整合验证](pr4-integration-validation.md)：236单元、40桌面、Mac包专项与启动通过；双端14文件及app.asar一致，Windows真机待验。
+
+原分支[自动缩略区与真实逐段填充](component-dock-validation.md)：147单元、8项相关桌面覆盖、真实模型两项到三项更新，以及已重启日常应用的证据。
 
 本轮[静默组件审核与自然音频验证](agent-component-review-validation.md)：区分传输替身桌面检查、合成文本真实模型调用、TTS文件生成；不代表真实麦克风全链路已验收。
 

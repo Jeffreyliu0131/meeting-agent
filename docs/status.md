@@ -1,6 +1,6 @@
 # 当前状态与接手入口
 
-更新：2026-09-12 15:08（Asia/Singapore）。维护规则见 [AGENTS.md](../AGENTS.md) 与 [session 流程](sessions/README.md)。本页是工作快照，开始任务时须核对工作树和相关交接；不是实时监控。
+更新：2026-09-12 15:54（Asia/Singapore）。维护规则见 [AGENTS.md](../AGENTS.md) 与 [session 流程](sessions/README.md)。本页是工作快照，开始任务时须核对工作树和相关交接；不是实时监控。
 
 首版协作的115单元／17桌面属于原分支阶段证据，见[实施记录](sessions/2026-09-12-collaboration-implementation.md)；后续主线整合、包和各端运行以对应交接为准，不用旧通过数代表当前版本。
 
@@ -16,13 +16,17 @@
 
 | 对象 | 已有记录／证据 | 不能推导的结论 |
 |---|---|---|
-| PR #4与当前main整合 | 验证完成，待Git合并：236单元／40桌面、Mac包通过，双端同源；其他任务本地文档保留 | [本轮记录](sessions/2026-09-12-pr4-integration.md) |
-| 自动组件缩略区 | 进行中：按用户要求自动出现已填充缩略卡，悬停／点击进入完整审核 | [记录](sessions/2026-09-12-component-dock.md) |
+| PR #5组件增量与实时请求 | 独立验证238单元／40桌面通过，双端包同源；待合并与本地同步 | [本轮交接](sessions/2026-09-12-pr5-integration.md)；Windows真机、真实音频仍待验 |
+| 自然音频全流程 | Windows旧运行包真实系统音频出现积压／超时；自动投票生成但第三项不完整；未分发，测试已停止 | [实测记录](sessions/2026-09-12-full-audio-simulation.md)，不能宣称完整闭环通过 |
+| PR #4与当前main整合 | PR #4已合入main；其整合阶段验证：236单元／40桌面、Mac包通过，双端同源；其他任务本地文档保留 | [本轮记录](sessions/2026-09-12-pr4-integration.md) |
+| 自动组件缩略区 | 原分支实现并已重启Windows：147单元、8相关桌面覆盖；真实DeepSeek同一卡片从两项补为三项。当时12场历史保留、未采音；后续音频实测见上行 | [记录](sessions/2026-09-12-component-dock.md) |
 | 首版本地实现 | 本地 Git 提交 `5fcd90f`；[首版验证](../tests/results/validation.md) 记录构建、19 项领域测试、6 项桌面测试、macOS 打包启动和 Windows x64 构建 | 不表示后续工作树改动也通过；本页未重新核验远端 |
 | 真实输入／模型 | 首版有 3 秒麦克风探针；PR #3 保留 Windows 的 DeepSeek／STT 单次合成实调及启动记录，见[证据范围](pr3-doc-alignment.md) | 不证明此 Mac 已配置、真实多人／线上双方效果或最终整合包的 Windows 运行通过 |
 | Agent与会议入口交付 | 本地提交 `3f6279a` 的源码指纹与[38项／7项验证记录](../tests/results/live-agent-summary.json)完全一致；后续前端提交基于此版本 | 这些旧结果仅覆盖该基线；后续前端有独立验证与交付记录 |
 
 ## 进行中与最近交接
+
+PR #5审查验证完成：238单元／40桌面、Mac包专项及启动通过，双端同源；待Git合并与原工作区release同步。见[本轮记录](sessions/2026-09-12-pr5-integration.md)。
 
 | 工作 | 核实到的状态 | 接手记录 |
 |---|---|---|

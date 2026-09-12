@@ -869,7 +869,11 @@ export class SessionService {
       return value;
     } catch (e) {
       code =
-        e instanceof Error && /^[A-Z0-9_]+$/.test(e.message) ? e.message : 'PROVIDER_UNAVAILABLE';
+        e instanceof z.ZodError || e instanceof SyntaxError
+          ? 'INVALID_PROPOSAL'
+          : e instanceof Error && /^[A-Z0-9_]+$/.test(e.message)
+            ? e.message
+            : 'PROVIDER_UNAVAILABLE';
       throw e;
     } finally {
       this.liveDrafts.delete(record.id);
