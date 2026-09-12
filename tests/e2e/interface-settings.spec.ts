@@ -5,7 +5,8 @@ import {
   type ElectronApplication,
   type Page,
 } from '@playwright/test';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { cleanupElectron } from './cleanup';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
@@ -43,12 +44,7 @@ test.beforeEach(() => {
   dataDir = mkdtempSync(join(tmpdir(), 'meeting-interface-'));
 });
 test.afterEach(async () => {
-  if (app && app.process().exitCode === null) {
-    const closed = app.waitForEvent('close', { timeout: 10000 });
-    await app.evaluate(({ app }) => app.exit(0)).catch(() => {});
-    await closed;
-  }
-  rmSync(dataDir, { recursive: true, force: true, maxRetries: 3 });
+  await cleanupElectron(app, dataDir);
 });
 
 test('settings save immediately, preserve independent changes and persist across restart', async () => {

@@ -1,5 +1,7 @@
 # 数据与操作契约
 
+协作组件新增严格Zod契约与规范化存储已实现，运行时见[实际契约](collaboration-v1-runtime.md)，目标及示意类型见[设计契约](collaboration-v1-contracts.md)。两者的字段差异须按运行说明读取，不能用设计示意调用IPC。
+
 > 文件职责：产品／工程设计要求，不是完成清单。当前进度与最新修订见[状态页](status.md)；已交付首版取舍见[ADR-003](adr/003-cross-platform-first-version.md)，实际结果见[验证记录](../tests/results/README.md)。具体实现以代码核对，未实现的要求仍是目标。
 版本0.1｜业务设计契约。下面的TypeScript是设计示意；实际运行时 schema 与类型见 `src/contracts/model.ts`，需按当前状态核对差异。本文件定义业务职责，不将具体库写成不可替换前提。
 
@@ -200,6 +202,8 @@ Decision保存`id, scope: personal|meeting, targetSnapshot, evidenceRefs, confir
 实际schema见 `src/contracts/model.ts`，工作流见 [ADR-004](adr/004-live-agent-pipeline.md)。Proposal增加互斥的patch／plan与有来源的titleProposal；来源增加输入version、采集起止时间、通道序号与可选requestContext。Meeting保存processedSources、独立expressionJobs、调用账目、标题来源／修订、音频偏好快照与实际设备。Preferences保存system语言选择与audio设置，旧数据保守迁移。
 
 桌面startMeeting意图由可信层解析设置、幂等创建与启动采集。个人请求保留绑定产物revision，生成个人对象不覆盖会议语义。历史产物仍为完整不可变快照，增量传输使用按块patch；来源／对象／关系依赖决定过期，普通新增发言不自动让无关内容过期。
+
+2026-09-12 流式 STT：`Snapshot.capabilities` 增加 `sttModel`／`sttStreaming`，`Snapshot.liveTranscripts` 携带会议ID、段落ID、音源和暂定文字，只在内存及可信 UI 中展示，不写入 Meeting 或 Agent 上下文。采音窗口仍走窄 `audio` IPC，但 Live 模式为24 kHz／约100ms PCM包装；服务端按会议、epoch、通道维护独立 WebSocket。`audioDrain` 仅由可信 main 发给 worker，用于提交尾音、等待已接受段落完成并关闭连接。最终转写沿用 `completeAudio` 与来源 lease，时间来自本机采集区间，身份保持未知。
 
 ## 会议候选与提醒
 

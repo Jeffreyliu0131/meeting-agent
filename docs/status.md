@@ -2,6 +2,8 @@
 
 更新：2026-09-12 11:41（Asia/Singapore）。维护规则见 [AGENTS.md](../AGENTS.md) 与 [session 流程](sessions/README.md)。本页是工作快照，开始任务时须核对工作树和相关交接；不是实时监控。
 
+2026-09-12（Asia/Shanghai）增补：首版协作核心实现及Windows程序验证完成（115单元／17桌面）；完整设计仍有差距，见独立条目。其他任务记录的核验时间与证据范围保持原样。
+
 ## 当前认知
 
 - 产品基线 `meeting-event-generative-v3`：线上＋线下、每场会议独立事件、桌面低打扰入口、持续理解、Agent 自主生成表达、来源／修订和主动推演。身份按可靠性提供，未知也可继续理解。详见 [产品定义](product-definition.md) 与 [决策](decisions.md)。
@@ -20,6 +22,12 @@
 
 | 工作 | 核实到的状态 | 接手记录 |
 |---|---|---|
+| PR #3修复与合并 | 修复与验证通过，待合并及日常包回写：PR141单元／25桌面；本地整合152／31，双端候选同源，Mac包通过 | [本轮记录](sessions/2026-09-12-pr3-fix-merge.md) |
+| 首版协作组件实施 | 已提交／推送，[PR #3](https://github.com/Jeffreyliu0131/meeting-agent/pull/3)，合入596c8b7并解决9份冲突（dde60ad），133单元／桌面25项覆盖通过。核心实现：四类悬浮窗、悬浮球提示、可信本地三人互动及M/C/R；115单元／17桌面通过；真实模型／macOS和完整设计差距待补验，未重启日常应用或替换包 | [实施计划](collaboration-v1-implementation.md)／[实施记录](sessions/2026-09-12-collaboration-implementation.md) |
+| 首版协作组件与 LangGraph | 目标设计已批准；首版核心已实施，62项按[结果矩阵](../tests/results/collaboration-v1-validation.md)区分覆盖／差距 | [完整设计](collaboration-v1-design.md)／[设计记录](sessions/2026-09-12-collaboration-components-design.md) |
+| GPT Live Transcribe 接入 | 已切换并重启：44项单元／8项桌面测试与合成语音实际流式转写通过，保留DeepSeek及暂停会议；真实会议未测 | [流式转写接入](sessions/2026-09-12-live-transcribe.md)／[验证](../tests/results/live-transcription-validation.md) |
+| Windows 本地启动与供应商配置 | 完成：本地配置 DeepSeek V4.1 Flash 与 Whisper；合成文本／语音的实际 Provider 调用通过，构建成功，主窗口正常响应；真实会议未测 | [Windows 本地启动](sessions/2026-09-12-windows-local-start.md) |
+
 | 设置即时生效 | 代码／双端包已同步；104单元、22桌面及收尾6项设置复核通过；Mac包与日常进程已更新，Windows代码／构建核对通过，真机按本轮范围未验；[PR #2](https://github.com/Jeffreyliu0131/meeting-agent/pull/2) | [本轮记录](sessions/2026-09-12-settings-autosave.md) |
 | 会议候选提醒 | 提醒代码／双端本地包已同步，99单元／19桌面及Mac包检查通过；真实检测待接入、双端原生投递待验；[PR #1](https://github.com/Jeffreyliu0131/meeting-agent/pull/1) | [本轮记录](sessions/2026-09-12-meeting-reminder.md) |
 | 界面语言与交互打磨 | 代码／两端本地包已同步：跟随系统及即时切换、文字与焦点打磨；86单元／14桌面、Mac包检查通过；Windows运行待验；91962b9已推送origin/main | [本轮记录](sessions/2026-09-12-interface-polish.md) |
@@ -42,9 +50,10 @@
 
 ## 阻塞与未确认事项
 
+- 2026-09-12 Windows本地先完成DeepSeek V4.1 Flash／Whisper实调，随后已按用户要求切换为 `gpt-live-transcribe` 并通过实际流式调用；凭证仅在本地忽略配置中。连续会议语义、真实麦克风、双音轨及整体质量仍未验收，见流式转写记录。
+
 - 会议候选提醒仅交付信号后的双语气泡／系统通知逻辑；生产检测器未接入，正常运行不会自动提示。macOS缺有效签名身份，Windows通知注册／真机及两端实际投递未验。详见[提醒规范](meeting-reminder-spec.md)。
 
-- 真实模型／转写凭证在首版交付时缺失。当前配置是否变化需在获授权的实现任务中核对可用性，不读取或展示密钥值；没有新的真实结果前保持未验收。
 - 线上本机＋远端声音、多人重叠发言与归属、中英质量、真实时延／成本、Windows 真机体验仍需专门证据。
 - 首次仅音频设置、采集恢复入口与新视觉已接入；剩余目标包括独立麦克风测试、独立理解反馈与通用重排确认机制，见[实现边界](frontend-spec.md#11-当前实现与目标差距)。真实设备与完整审美／无障碍验收不由合成检查代替。
 - 官方比赛赛程、评分、提交方式与团队分工没有在本页发现新的核验记录；需要时回到官方材料或用户确认。

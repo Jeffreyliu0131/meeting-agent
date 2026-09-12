@@ -98,6 +98,8 @@ export function resolveNewRefs(
   }
   if (p.artifact) p.artifact.objectIds = p.artifact.objectIds.map(objectRef);
   if (p.plan) p.plan.objectIds = p.plan.objectIds.map(objectRef);
+  for (const intent of p.collaborationIntents ?? [])
+    intent.objectRefs = intent.objectRefs.map((ref) => ({ ...ref, id: objectRef(ref.id) }));
   if (p.clarification) {
     p.clarification.candidates = p.clarification.candidates.map((r) => ({
       ...r,

@@ -1,4 +1,5 @@
-type Lane = 'understand' | 'personal' | 'generate' | 'transcribe' | 'translate';
+type Lane =
+  'understand' | 'personal' | 'generate' | 'transcribe' | 'translate' | 'component' | 'impact';
 /** Four total calls; background lanes cannot consume understanding's reserved slot. */
 export class CallPool {
   private active = new Map<Lane, number>();
@@ -37,7 +38,7 @@ export class CallPool {
         background = total - (this.active.get('understand') ?? 0);
       if (
         total >= 4 ||
-        (this.active.get(q.lane) ?? 0) >= 1 ||
+        (this.active.get(q.lane) ?? 0) >= (q.lane === 'transcribe' ? 2 : 1) ||
         (q.lane !== 'understand' && background >= 3)
       ) {
         i++;

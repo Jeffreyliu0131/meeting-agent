@@ -1,7 +1,8 @@
 /** Synthetic transport answers; tests state boundaries and UI, not model semantics. */
 import { test, expect, _electron as electron } from '@playwright/test';
 import { createServer } from 'node:http';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync } from 'node:fs';
+import { cleanupElectron } from './cleanup';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -173,8 +174,7 @@ test('conditional meeting record survives personal exploration, end, sources and
     );
     await page.screenshot({ path: test.info().outputPath('closeout-restored.png') });
   } finally {
-    await app.evaluate(({ app }) => app.exit(0)).catch(() => {});
+    await cleanupElectron(app, dir);
     await new Promise<void>((r) => server.close(() => r()));
-    rmSync(dir, { recursive: true, force: true });
   }
 });

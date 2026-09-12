@@ -32,6 +32,6 @@ S13、S14的网页入口需要JavaScript，本轮通过Apple官方同源[Materia
 ## 实施时核对（2026-09-11）
 
 - [OpenAI Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs)：结构化响应接口；本地 schema 校验独立保留。
-- [OpenAI Speech to text](https://developers.openai.com/api/docs/guides/speech-to-text)：音频文件转写接口；本版为 PCM 切片上传，不宣称 Realtime API。
+- [OpenAI Speech to text](https://developers.openai.com/api/docs/guides/speech-to-text)：显式文件转写模型保留 PCM 切片上传；当前默认的 `gpt-live-transcribe` 已按 [Realtime transcription](https://developers.openai.com/api/docs/guides/realtime-transcription) 接入 WebSocket，程序与实际调用证据见 [接入记录](sessions/2026-09-12-live-transcribe.md)。
 - [Electron desktopCapturer](https://www.electronjs.org/docs/latest/api/desktop-capturer)：系统音频／平台权限差异；代码存在不代表两端音轨已实测。
 - 实际依赖精确版本在 package-lock.json。官方 Electron macOS arm64 与 Windows x64 压缩包 SHA-256 已与 npm electron 包内 checksums.json 比对。

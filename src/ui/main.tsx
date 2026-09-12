@@ -1,7 +1,8 @@
 import { MeetingReminderBubble } from './MeetingReminderBubble';
 import { WorkflowPanel } from './WorkflowPanel';
+import { CollaborationPanel } from './collaboration/Panel';
 import launcherArtwork from './assets/launcher-dialogue-v1.png';
-import { launcherIndicator } from './launcher-status';
+import { launcherIndicator, readyComponents } from './launcher-status';
 import {
   AudioLines,
   ArrowLeft,
@@ -185,8 +186,15 @@ function App() {
   const active = snapshot?.meetings.find((m) => m.status === 'active');
   const indicator = launcherIndicator(active, serviceError);
   const captureLabel = t(indicator.labelKey);
+  const componentNotices = readyComponents(active?.collaboration);
+  const componentNoticeLabel = componentNotices.length
+    ? locale === 'zh-CN'
+      ? `${componentNotices.length}个组件已准备好`
+      : `${componentNotices.length} components ready`
+    : '';
   const launcherLabel = [
     captureLabel,
+    componentNoticeLabel,
     active?.error
       ? errorText(locale, active.error)
       : active?.processing === 'working'
@@ -242,10 +250,16 @@ function App() {
           if (drag.current?.dragged) void api('snap');
         }}
         onClick={() => {
-          if (!drag.current?.dragged) void api('open');
+          if (!drag.current?.dragged)
+            void api(componentNotices.length ? 'openReadyComponents' : 'open');
           drag.current = null;
         }}
       >
+        {!!componentNotices.length && (
+          <span className="launcher-component-badge" aria-hidden="true">
+            {componentNotices.length}
+          </span>
+        )}
         <span className="launcher-artwork" aria-hidden="true">
           <img src={launcherArtwork} alt="" draggable={false} />
         </span>
@@ -269,6 +283,21 @@ function App() {
           Agents, Everywhere{' '}
           <span className={`status launcher-status-${indicator.state}`}>{captureLabel}</span>
         </div>
+        {!!componentNotices.length && (
+          <div className="launcher-component-notices">
+            <strong>{componentNoticeLabel}</strong>
+            {componentNotices.slice(0, 2).map((c) => (
+              <button
+                key={c.id}
+                onClick={() =>
+                  void api('openComponent', { meetingId: active!.id, componentId: c.id })
+                }
+              >
+                {c.title || c.family} ↗
+              </button>
+            ))}
+          </div>
+        )}
         <h2>{active?.focus || active?.title || t('emptyLibrary')}</h2>
         {active?.changes.slice(0, 3).map((s, i) => (
           <p key={i}>{s}</p>
@@ -699,6 +728,13 @@ function App() {
                 ))}
               </nav>
             )}
+            {(snapshot.liveTranscripts ?? [])
+              .filter((p) => p.meetingId === current.id)
+              .map((p) => (
+                <p className="muted" key={p.segmentId} role="status">
+                  {t('live.transcribing')} · {t('sourceKind.' + p.channel)}: {p.text}
+                </p>
+              ))}
             {(current.audioPending ?? 0) > 1 && (
               <p className="muted" role="status">
                 {t('live.audioPending')}: {current.audioPending}
@@ -821,6 +857,13 @@ function App() {
                 if (artifact) setAskContext({ artifactId: artifact.id, artifactRev: artifact.rev });
               }}
             />
+            {(current.status === 'active' || current.collaboration) && (
+              <CollaborationPanel
+                meetingId={current.id}
+                enabled={!!current.collaboration}
+                locale={locale}
+              />
+            )}
             {current.status === 'active' && artifact && (
               <div className="explore-entry">
                 <button
@@ -1126,4 +1169,6 @@ function App() {
     </div>
   );
 }
-createRoot(document.getElementById('root')!).render(<App />);
+createRoot(document.getElementById('root')!).render(
+  role === 'participant' || role === 'component' ? <CollaborationPanel floating /> : <App />,
+);

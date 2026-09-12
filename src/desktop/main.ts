@@ -51,6 +51,56 @@ const pending = new Map<
   { resolve: (v: any) => void; reject: (e: Error) => void; timer: ReturnType<typeof setTimeout> }
 >();
 let worker: Electron.UtilityProcess;
+const participantWindows = new Map<
+  number,
+  { window: BrowserWindow; meetingId: string; actorId: string }
+>();
+const componentWindows = new Map<
+  number,
+  { window: BrowserWindow; meetingId: string; componentId: string | null; actorId: string }
+>();
+function componentProjection(value: any, componentId: string | null) {
+  return {
+    ...value,
+    assignmentDirectory: value.components.flatMap((c: any) =>
+      c.draft?.content.kind === 'assignment' ? c.draft.content.payload.items : [],
+    ),
+    components: componentId
+      ? value.components.filter((c: any) => c.id === componentId)
+      : value.components,
+  };
+}
+async function openComponent(meetingId: string, componentId: string | null) {
+  const latest = (await request('snapshot')) as Snapshot;
+  const s = latest.meetings.find((m) => m.id === meetingId)?.collaboration;
+  const host = s?.participants.find((p) => p.role === 'host');
+  if (!host || (componentId && !s!.components.some((c) => c.id === componentId)))
+    throw new Error('COMPONENT_NOT_FOUND');
+  const existing = [...componentWindows.values()].find(
+    (b) => b.meetingId === meetingId && b.componentId === componentId,
+  );
+  if (existing) {
+    existing.window.show();
+    existing.window.focus();
+    return true;
+  }
+  const w = secureWindow(
+    {
+      width: 660,
+      height: 780,
+      minWidth: 360,
+      minHeight: 420,
+      title: '会议协作组件',
+      alwaysOnTop: true,
+      show: true,
+    },
+    'component',
+  );
+  const webId = w.webContents.id;
+  componentWindows.set(webId, { window: w, meetingId, componentId, actorId: host.id });
+  w.on('closed', () => componentWindows.delete(webId));
+  return true;
+}
 let reminders: MeetingReminder;
 let nativeReminder: SystemReminder;
 let serviceAvailable = false,
@@ -186,19 +236,26 @@ function writePreferences(command: Command) {
 }
 let stopResolve: (() => void) | null = null;
 async function drainCapture() {
+  const draining = active();
   if (!active() || active()!.capture !== 'capturing') {
     sendStop();
     return;
   }
   await new Promise<void>((resolve) => {
-    stopResolve = resolve;
+    let timer: ReturnType<typeof setTimeout>;
+    stopResolve = () => {
+      clearTimeout(timer);
+      resolve();
+    };
     capture.webContents.send('capture', { action: 'drain' });
-    setTimeout(() => {
+    timer = setTimeout(() => {
       sendStop();
       resolve();
-    }, 750);
+    }, 2000);
   });
   stopResolve = null;
+  if (state?.capabilities.sttStreaming && draining)
+    await request('audioDrain', { meetingId: draining.id, epoch: draining.epoch });
 }
 function sendStop() {
   capture?.webContents.send('capture', { action: 'stop' });
@@ -307,6 +364,7 @@ async function captureAction(action: string, meetingId: string) {
     epoch: fresh.epoch,
     mode: fresh.mode,
     deviceId: fresh.audioSettings?.deviceId ?? 'default',
+    streaming: state?.capabilities.sttStreaming === true,
   });
 }
 const startingMeetings = new Map<
@@ -435,6 +493,19 @@ app.whenReady().then(async () => {
     serviceName: 'Meeting session service',
   });
   worker.on('message', (message: any) => {
+    if (message.type === 'sttError') {
+      const m = active();
+      if (
+        m &&
+        m.id === message.meetingId &&
+        m.epoch === message.epoch &&
+        ['starting', 'capturing'].includes(m.capture)
+      ) {
+        sendStop();
+        void dispatch('captureError', { epoch: m.epoch, code: message.code }, m.id).catch(() => {});
+      }
+      return;
+    }
     if (message.type === 'preview') {
       void renderPreflight(message.artifact, __dirname)
         .then(() =>
@@ -460,6 +531,28 @@ app.whenReady().then(async () => {
       serviceAvailable = true;
       syncDesktop();
       broadcast();
+      for (const binding of participantWindows.values())
+        void request('collaborationSnapshot', {
+          meetingId: binding.meetingId,
+          actorId: binding.actorId,
+        })
+          .then((value) => {
+            if (!binding.window.isDestroyed()) binding.window.webContents.send('snapshot', value);
+          })
+          .catch(() => {});
+      for (const binding of componentWindows.values())
+        void request('collaborationSnapshot', {
+          meetingId: binding.meetingId,
+          actorId: binding.actorId,
+        })
+          .then((value) => {
+            if (!binding.window.isDestroyed())
+              binding.window.webContents.send(
+                'snapshot',
+                componentProjection(value, binding.componentId),
+              );
+          })
+          .catch(() => {});
       return;
     }
     const call = pending.get(message.id);
@@ -524,6 +617,8 @@ app.whenReady().then(async () => {
     },
     { useSystemPicker: true },
   );
+  // Finish async initialization before renderers can invoke the IPC bridge.
+  state = await request('snapshot');
   workspace = secureWindow(
     {
       width: 1180,
@@ -674,7 +769,6 @@ app.whenReady().then(async () => {
   tray.setToolTip('Meeting Agent');
   tray.on('click', openWorkspace);
   tray.on('right-click', () => void contextMenu());
-  state = await request('snapshot');
   serviceAvailable = true;
   syncDesktop();
   broadcast();
@@ -684,6 +778,61 @@ app.whenReady().then(async () => {
     );
   ipcMain.handle('meeting', async (event, method, args) => {
     try {
+      const componentWindow = componentWindows.get(event.sender.id);
+      if (componentWindow) {
+        if (event.senderFrame !== event.sender.mainFrame) throw new Error('PERMISSION_DENIED');
+        if (method === 'collaborationSnapshot')
+          return {
+            ok: true,
+            value: componentProjection(
+              await request(method, {
+                meetingId: componentWindow.meetingId,
+                actorId: componentWindow.actorId,
+              }),
+              componentWindow.componentId,
+            ),
+          };
+        if (
+          method === 'collaborationCommand' &&
+          args?.meetingId === componentWindow.meetingId &&
+          (!componentWindow.componentId ||
+            args?.payload?.componentId === componentWindow.componentId)
+        )
+          return {
+            ok: true,
+            value: await request(method, { command: args, actorId: componentWindow.actorId }),
+          };
+        throw new Error('PERMISSION_DENIED');
+      }
+      const participant = participantWindows.get(event.sender.id);
+      if (participant) {
+        if (event.senderFrame !== event.sender.mainFrame) throw new Error('PERMISSION_DENIED');
+        if (method === 'collaborationSnapshot')
+          return {
+            ok: true,
+            value: await request(method, {
+              meetingId: participant.meetingId,
+              actorId: participant.actorId,
+            }),
+          };
+        if (method === 'collaborationCommand') {
+          if (
+            args?.meetingId !== participant.meetingId ||
+            ![
+              'component.respond',
+              'component.resolve_report',
+              'component.delivery_ack',
+              'component.report_new_issue',
+            ].includes(args?.type)
+          )
+            throw new Error('PERMISSION_DENIED');
+          return {
+            ok: true,
+            value: await request(method, { command: args, actorId: participant.actorId }),
+          };
+        }
+        throw new Error('PERMISSION_DENIED');
+      }
       const role =
         event.sender === capture.webContents
           ? 'capture'
@@ -738,6 +887,73 @@ app.whenReady().then(async () => {
       }
       let value: unknown;
       switch (method) {
+        case 'openReadyComponents': {
+          const m = active();
+          if (!m?.collaboration) throw new Error('COLLABORATION_NOT_ENABLED');
+          value = await openComponent(m.id, null);
+          preview.hide();
+          break;
+        }
+        case 'openComponent':
+          value = await openComponent(args.meetingId, args.componentId);
+          preview.hide();
+          break;
+        case 'enableCollaboration':
+          if (event.sender !== workspace.webContents) throw new Error('PERMISSION_DENIED');
+          value = await request(method, args);
+          break;
+        case 'collaborationSnapshot':
+        case 'collaborationCommand':
+        case 'openParticipant': {
+          if (event.sender !== workspace.webContents) throw new Error('PERMISSION_DENIED');
+          const latestState = (await request('snapshot')) as Snapshot;
+          const collaboration = latestState.meetings.find(
+            (m) => m.id === args?.meetingId,
+          )?.collaboration;
+          const host = collaboration?.participants.find((p) => p.role === 'host');
+          if (!host) throw new Error('COLLABORATION_NOT_ENABLED');
+          if (method === 'openParticipant') {
+            const person = collaboration!.participants.find(
+              (p) => p.id === args.participantId && p.role === 'participant',
+            );
+            if (!person) throw new Error('PARTICIPANT_NOT_FOUND');
+            const existing = [...participantWindows.values()].find(
+              (b) => b.meetingId === args.meetingId && b.actorId === person.id,
+            );
+            if (existing) {
+              existing.window.show();
+              existing.window.focus();
+            } else {
+              const w = secureWindow(
+                {
+                  width: 620,
+                  height: 780,
+                  minWidth: 360,
+                  minHeight: 400,
+                  title: `本地模拟 · ${person.displayName}`,
+                  alwaysOnTop: true,
+                  show: true,
+                },
+                'participant',
+              );
+              const webId = w.webContents.id;
+              participantWindows.set(webId, {
+                window: w,
+                meetingId: args.meetingId,
+                actorId: person.id,
+              });
+              w.on('closed', () => participantWindows.delete(webId));
+            }
+            value = true;
+          } else
+            value = await request(
+              method,
+              method === 'collaborationCommand'
+                ? { command: args, actorId: host.id }
+                : { meetingId: args.meetingId, actorId: host.id },
+            );
+          break;
+        }
         case 'reminderTest': {
           if (!reminderTestMode || event.sender !== workspace.webContents)
             throw new Error('PERMISSION_DENIED');

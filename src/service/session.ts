@@ -1,4 +1,18 @@
 import { CallPool } from './call-pool';
+import {
+  CollaborationRuntime,
+  enqueueCollaborationIntents,
+  enqueueCollaborationImpact,
+} from './collaboration-runtime';
+import { refreshCollaborationIntegrity } from '../domain/collaboration-integrity';
+import { CollaborationCommand } from '../contracts/collaboration';
+import {
+  createCollaboration,
+  applyCollaborationCommand,
+  projectCollaboration,
+  endCollaboration,
+  expireRounds,
+} from '../domain/collaboration';
 import { validatePresentationRepair } from '../domain/expression-repair';
 import { RenderFailure } from '../contracts/render-report';
 import { runWorkflow } from '../agent/workflow';
@@ -57,8 +71,14 @@ export class SessionService {
   private expressing = new Map<string, Promise<void>>();
   private controllers = new Set<AbortController>();
   private closed = false;
+  private collaborationRuntimes = new Map<string, CollaborationRuntime>();
+  private liveTranscripts = new Map<string, NonNullable<Snapshot['liveTranscripts']>[number]>();
   private dirty = new Set<string>();
   private timers = new Map<string, ReturnType<typeof setTimeout>>();
+  private collaborationDeadlineTimer = setInterval(
+    () => this.expireCollaborationDeadlines(),
+    1000,
+  ).unref();
   constructor(
     readonly store: StorePort,
     readonly model: ModelPort,
@@ -76,6 +96,15 @@ export class SessionService {
     this.preferences = state.preferences;
     // Reopening a process restores saved content, never devices.
     for (const m of this.meetings) {
+      if (m.collaboration) {
+        for (const job of m.collaboration.jobs)
+          if (job.status === 'running') {
+            job.status = 'pending';
+            job.fence++;
+          }
+        expireRounds(m.collaboration);
+        if (m.status === 'ended') endCollaboration(m.collaboration);
+      }
       m.titleMeta ??= { origin: 'user', revision: 0, sources: [] };
       m.translations ??= [];
       m.inputGaps ??= [];
@@ -125,16 +154,44 @@ export class SessionService {
         if (pendingSegments(m).length) this.schedule(m.id);
         if (m.expressionJobs?.length) void this.drainExpressions(m.id);
       }
+    for (const m of this.meetings)
+      if (m.collaboration?.jobs.some((j) => j.status === 'pending'))
+        void this.drainCollaboration(m.id);
+  }
+  private expireCollaborationDeadlines() {
+    if (
+      this.closed ||
+      !this.meetings.some((m) =>
+        m.collaboration?.components.some((c) =>
+          c.rounds.some(
+            (r) => r.status === 'open' && r.closesAt && Date.parse(r.closesAt) <= Date.now(),
+          ),
+        ),
+      )
+    )
+      return;
+    const meetings = structuredClone(this.meetings);
+    for (const m of meetings) if (m.collaboration) expireRounds(m.collaboration);
+    try {
+      this.saveState(meetings, this.preferences);
+      this.meetings = meetings;
+      this.changed();
+    } catch {
+      /* saveState exposes the storage failure; retry on the next tick. */
+    }
   }
   snapshot(): Snapshot {
     return structuredClone({
       meetings: this.meetings,
+      liveTranscripts: [...this.liveTranscripts.values()],
       preferences: this.preferences,
       storageError: this.storageError,
       capabilities: {
         developerInputs: process.env.MEETING_DEV_INPUTS === '1',
         modelConfigured: !!this.config.key,
         sttConfigured: !!this.config.sttKey,
+        sttStreaming: this.config.sttModel === 'gpt-live-transcribe',
+        sttModel: this.config.sttModel,
         model: this.config.model,
         modelHost: new URL(this.config.base).host,
         sttHost: new URL(this.config.sttBase).host,
@@ -151,6 +208,7 @@ export class SessionService {
         )
           c.status = 'stale';
       refreshIntegrity(m);
+      refreshCollaborationIntegrity(m);
       m.closeout = reconcileCloseout(m);
     }
     try {
@@ -219,6 +277,7 @@ export class SessionService {
       const m = meetings.find((m) => m.id === c.meetingId);
       if (!m) throw new Error('MEETING_NOT_FOUND');
       ({ result, schedule } = reduceMeeting(m, c));
+      if (c.type === 'end' && m.collaboration) endCollaboration(m.collaboration);
     }
     if ((c.type === 'ask' || c.type === 'answerClarification') && result) {
       const m = meetings.find((m) => m.id === c.meetingId)!;
@@ -265,6 +324,208 @@ export class SessionService {
     if (schedule && c.meetingId) this.schedule(c.meetingId);
     return result;
   }
+  enableCollaboration(meetingId: string, names: string[]) {
+    const meetings = structuredClone(this.meetings);
+    const m = meetings.find((m) => m.id === meetingId);
+    if (!m || m.status !== 'active') throw new Error('MEETING_NOT_ACTIVE');
+    m.collaboration ??= createCollaboration(meetingId, names);
+    this.saveState(meetings, this.preferences);
+    this.meetings = meetings;
+    this.changed();
+    return m.collaboration.participants;
+  }
+  private async drainCollaboration(meetingId: string) {
+    if (this.closed) return;
+    let runtime = this.collaborationRuntimes.get(meetingId);
+    if (!runtime) {
+      runtime = new CollaborationRuntime({
+        read: () => this.meetings.find((m) => m.id === meetingId)!,
+        save: (next) => {
+          if (this.closed) throw new Error('SERVICE_CLOSED');
+          const all = structuredClone(this.meetings);
+          all[all.findIndex((m) => m.id === meetingId)] = next;
+          this.saveState(all, this.preferences);
+          this.meetings = all;
+          this.changed();
+        },
+        generate: (input, repair) => {
+          if (!this.model.prepareComponent) throw new Error('COMPONENT_MODEL_NOT_CONFIGURED');
+          return this.runCall(meetingId, 'component', (options) =>
+            this.model.prepareComponent!(input, repair, options),
+          );
+        },
+        analyze: (input, repair) => {
+          if (!this.model.analyzeImpact) throw new Error('IMPACT_MODEL_NOT_CONFIGURED');
+          return this.runCall(meetingId, 'impact', (options) =>
+            this.model.analyzeImpact!(input, repair, options),
+          );
+        },
+        semanticAvailable: !!this.config.key && !!this.model.analyzeImpact,
+      });
+      this.collaborationRuntimes.set(meetingId, runtime);
+    }
+    try {
+      await runtime.drain();
+    } catch {
+      /* Persisted jobs retain failure/recovery information. */
+    }
+  }
+  collaborationSnapshot(meetingId: string, actorId: string) {
+    const m = this.meetings.find((m) => m.id === meetingId);
+    const s = m?.collaboration;
+    if (!s) throw new Error('COLLABORATION_NOT_ENABLED');
+    const snapshot = projectCollaboration(s, actorId);
+    if (snapshot.actor.role === 'host')
+      snapshot.evidenceCatalog = [
+        ...m!.segments
+          .filter((segment) => segment.kind !== 'request')
+          .map((segment) => ({
+            sourceRef: { kind: 'segment' as const, ref: { id: segment.id, rev: segment.rev } },
+            excerpt: segment.text.slice(0, 1000),
+          })),
+        ...s.responses.flatMap((response) => {
+          const value = response.response;
+          const excerpt = 'reason' in value ? value.reason : 'text' in value ? value.text : '';
+          return excerpt
+            ? [
+                {
+                  sourceRef: {
+                    kind: 'response' as const,
+                    responseId: response.id,
+                    responseVersion: response.version,
+                  },
+                  excerpt,
+                },
+              ]
+            : [];
+        }),
+      ];
+    return snapshot;
+  }
+  collaborate(raw: unknown, actorId: string) {
+    const command = CollaborationCommand.parse(raw);
+    const hash = digest({ actorId, command });
+    const original = this.meetings.find((m) => m.id === command.meetingId);
+    if (!original?.collaboration?.participants.some((p) => p.id === actorId && p.active))
+      throw new Error('UNAUTHORIZED');
+    const old = this.store.command(command.id);
+    if (old) {
+      if (old.hash !== hash) throw new Error('IDEMPOTENCY_CONFLICT');
+      return old.result;
+    }
+    const meetings = structuredClone(this.meetings);
+    const m = meetings.find((m) => m.id === command.meetingId)!;
+    if (m.collaboration) expireRounds(m.collaboration);
+    if (
+      ['component.publish', 'component.record_decision', 'component.freeze_collection'].includes(
+        command.type,
+      )
+    ) {
+      const s = m.collaboration!;
+      if (s.participants.find((p) => p.id === actorId)?.role !== 'host')
+        throw new Error('UNAUTHORIZED');
+      s.evaluationFrontiers ??= [];
+      let frontier = s.evaluationFrontiers.find((f) => f.commandId === command.id);
+      if (frontier && frontier.hash !== hash) throw new Error('IDEMPOTENCY_CONFLICT');
+      if (!frontier) {
+        if (s.evaluationFrontiers.length >= 100) s.evaluationFrontiers.shift();
+        frontier = {
+          commandId: command.id,
+          hash,
+          sourceRefs: latestSegments(m)
+            .filter((source) => source.kind !== 'request')
+            .map((source) => ({ id: source.id, rev: source.rev })),
+        };
+        s.evaluationFrontiers.push(frontier);
+      }
+      if (
+        frontier.sourceRefs.some((ref) => (m.processedSources?.[ref.id] ?? 0) < ref.rev) ||
+        s.jobs.some(
+          (j) =>
+            j.kind === 'component' &&
+            j.componentId === command.payload.componentId &&
+            ['pending', 'running'].includes(j.status),
+        )
+      ) {
+        this.saveState(meetings, this.preferences);
+        this.meetings = meetings;
+        this.changed();
+        throw new Error('ANALYSIS_INCOMPLETE');
+      }
+      if (command.type === 'component.freeze_collection') {
+        const c = s.components.find((c) => c.id === command.payload.componentId);
+        if (c?.collection) c.collection.freezeWatermark = frontier.sourceRefs;
+      }
+    }
+    if (command.type === 'component.publish') {
+      const disclosed = command.payload.sourceDisclosure;
+      if (Array.isArray(disclosed))
+        for (const item of disclosed) {
+          const e = item as { sourceRef: any; excerpt: string };
+          if (e.sourceRef?.kind === 'segment') {
+            const source = m.segments.find(
+              (s) =>
+                s.id === e.sourceRef.ref?.id &&
+                s.rev === e.sourceRef.ref?.rev &&
+                s.kind !== 'request',
+            );
+            if (!source || !e.excerpt || !source.text.includes(e.excerpt))
+              throw new Error('SOURCE_NOT_SHAREABLE');
+          } else if (e.sourceRef?.kind === 'response') {
+            const response = m.collaboration!.responses.find(
+              (r) => r.id === e.sourceRef.responseId && r.version === e.sourceRef.responseVersion,
+            );
+            const value = response?.response;
+            const text =
+              value && ('reason' in value ? value.reason : 'text' in value ? value.text : '');
+            if (!text || !e.excerpt || !text.includes(e.excerpt))
+              throw new Error('SOURCE_NOT_SHAREABLE');
+          } else throw new Error('SOURCE_NOT_SHAREABLE');
+        }
+    }
+    // Gap records have no proven component-level scope or resolution yet: fail closed.
+    if (command.type === 'component.record_decision' && m.inputGaps.length)
+      throw new Error('INPUT_GAP_UNRESOLVED');
+    const result = applyCollaborationCommand(m.collaboration!, actorId, command);
+    const response = command.type === 'component.respond' ? (result as any)?.response?.kind : null;
+    const resolvesObjection = response === 'accept' || response === 'agree';
+    if (
+      [
+        'component.edit_draft',
+        'component.publish',
+        'component.resolve_report',
+        'component.apply_resolution',
+      ].includes(command.type) ||
+      [
+        'object',
+        'report_issue',
+        'reserve',
+        'disagree',
+        'suggest_change',
+        'provide_context',
+        'suggest_resolution',
+      ].includes(response) ||
+      resolvesObjection
+    ) {
+      enqueueCollaborationImpact(
+        m,
+        command.id,
+        !!response && !resolvesObjection,
+        String(command.payload.componentId),
+      );
+    }
+    if (
+      command.type === 'component.prepare' &&
+      m.collaboration!.components.find((c) => c.id === result)?.family !== 'poll'
+    )
+      enqueueCollaborationImpact(m, command.id, false, String(result));
+    m.revision++;
+    this.saveState(meetings, this.preferences, { id: command.id, hash, result });
+    this.meetings = meetings;
+    this.changed();
+    void this.drainCollaboration(m.id);
+    return result;
+  }
   saveTranslation(meetingId: string, translation: import('../contracts/model').Translation) {
     const meetings = structuredClone(this.meetings);
     const m = meetings.find((m) => m.id === meetingId);
@@ -287,6 +548,19 @@ export class SessionService {
       this.persist();
       this.changed();
     }
+  }
+  partialAudio(lease: AudioLease, text: string) {
+    if (this.closed) return;
+    const key = lease.meetingId + ':' + lease.segmentId;
+    if (text)
+      this.liveTranscripts.set(key, {
+        meetingId: lease.meetingId,
+        segmentId: lease.segmentId,
+        channel: lease.channel,
+        text,
+      });
+    else this.liveTranscripts.delete(key);
+    this.changed();
   }
   recordInputGap(lease: AudioLease, code: string) {
     const meetings = structuredClone(this.meetings),
@@ -367,8 +641,9 @@ export class SessionService {
     id: string,
     kind: CallRecord['kind'],
     run: (options: CallOptions) => Promise<T>,
-    audioSeconds?: number,
+    audioSeconds?: number | (() => number),
     requestId?: string,
+    externalSignal?: AbortSignal,
   ): Promise<T> {
     if (this.closed) throw new Error('SERVICE_CLOSED');
     const m = this.meetings.find((m) => m.id === id);
@@ -399,7 +674,7 @@ export class SessionService {
       inputTokens: null,
       outputTokens: null,
       reservedTokens: reserve,
-      audioSeconds,
+      audioSeconds: typeof audioSeconds === 'number' ? audioSeconds : 0,
     };
     m.calls.push(record);
     m.calls = m.calls.filter((c) => Date.parse(c.startedAt) > now - 3600000).slice(-7200);
@@ -413,9 +688,12 @@ export class SessionService {
     };
     m.usageTotals.calls++;
     m.usageTotals.reservedTokens += reserve;
-    m.usageTotals.audioSeconds += audioSeconds ?? 0;
+    m.usageTotals.audioSeconds += typeof audioSeconds === 'number' ? audioSeconds : 0;
     this.persist();
     const controller = new AbortController();
+    const abort = () => controller.abort();
+    if (externalSignal?.aborted) abort();
+    else externalSignal?.addEventListener('abort', abort, { once: true });
     this.controllers.add(controller);
     if (requestId) this.requestControllers.set(requestId, controller);
     let release: (() => void) | undefined;
@@ -438,6 +716,7 @@ export class SessionService {
       throw e;
     } finally {
       release?.();
+      externalSignal?.removeEventListener('abort', abort);
       if (requestId) this.requestControllers.delete(requestId);
       this.controllers.delete(controller);
       if (!this.closed) {
@@ -452,6 +731,10 @@ export class SessionService {
             outputTokens: usage?.output ?? null,
           });
           const total = current.usageTotals!;
+          if (typeof audioSeconds === 'function') {
+            r.audioSeconds = audioSeconds();
+            total.audioSeconds += r.audioSeconds;
+          }
           if (usage) {
             total.inputTokens += usage.input;
             total.outputTokens += usage.output;
@@ -609,7 +892,18 @@ export class SessionService {
               assertLease(currentJob(), fence);
               return result.proposal;
             },
-            validate: (p) => validateDelta(p, snapshot),
+            validate: (p) => {
+              validateDelta(p, snapshot);
+              if (!personal && snapshot.collaboration)
+                for (const intent of p.collaborationIntents ?? []) {
+                  validateRefs(intent.sourceRefs, snapshot, true);
+                  if (
+                    intent.targetId &&
+                    !snapshot.collaboration.components.some((c) => c.id === intent.targetId)
+                  )
+                    throw new Error('INVALID_INTENT_TARGET');
+                }
+            },
             evidence: async (request) => {
               const j = currentJob();
               assertLease(j, fence);
@@ -878,6 +1172,16 @@ export class SessionService {
           ? 'queued'
           : 'failed';
       completed.leaseUntil = 0;
+      if (!personal && next.collaboration) {
+        enqueueCollaborationIntents(
+          next,
+          proposal.collaborationIntents ?? [],
+          batch.accepted,
+          jobId,
+        );
+        if (proposal.objects.length || proposal.relations.length)
+          enqueueCollaborationImpact(next, jobId, false);
+      }
       this.saveState(all, this.preferences, {
         id: 'workflow_' + jobId,
         hash: completed.proposalHash!,
@@ -885,6 +1189,7 @@ export class SessionService {
       });
       this.meetings = all;
       this.changed();
+      if (!personal && next.collaboration) void this.drainCollaboration(id);
       if (pendingSegments(next).length) this.dirty.add(id);
       expression = this.drainExpressions(id);
     } catch (error) {
@@ -1254,13 +1559,20 @@ export class SessionService {
     return work;
   }
   async flush() {
-    while (!this.closed && (this.running.size || this.timers.size || this.expressing.size)) {
+    while (
+      !this.closed &&
+      (this.running.size ||
+        this.timers.size ||
+        this.expressing.size ||
+        [...this.collaborationRuntimes.values()].some((r) => r.active))
+    ) {
       await new Promise((r) => setTimeout(r, 10));
     }
   }
   close() {
     if (this.closed) return;
     this.closed = true;
+    clearInterval(this.collaborationDeadlineTimer);
     for (const c of this.controllers) c.abort();
     for (const t of this.timers.values()) clearTimeout(t);
     this.timers.clear();

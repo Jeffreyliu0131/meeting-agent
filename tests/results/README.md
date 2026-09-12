@@ -9,6 +9,8 @@
 
 ## 新一轮结果归属
 
+2026-09-12：[GPT Live Transcribe Windows验证](live-transcription-validation.md)记录本轮44项单元、8项桌面测试与合成语音的真实流式调用，不替代真实会议验收。
+
 每轮结果注明执行日期、环境、命令、对应 Git 基线及未提交范围，链接到 [session](../../docs/sessions/README.md) 和 [状态页](../../docs/status.md)。同日多轮不得混成一个“本轮通过”。保留旧证据，新增结果标明替代范围；单独出现的 JSON／截图不自动成为全产品通过结论。
 
 本次文档治理仅运行静态文档检查，结果见[治理记录](../../docs/sessions/2026-09-11-project-continuity.md)，没有重跑首版产品测试。正在执行的 Agent 评估以对应任务最终结果为准。
@@ -34,6 +36,10 @@ Agent三项可靠性迭代：[验证结果](agent-reliability-validation.md)／[
 
 - [界面语言与交互打磨](interface-polish-validation.md)：实际Mac包系统语言前后对照、即时切换／失败恢复、86项单元与14项桌面回归、双端包同源；Windows运行待验。
 
+2026-09-12：[首版协作组件验证](collaboration-v1-validation.md)记录四类悬浮组件、本地三人互动、LangGraph与版本／权限的程序测试，以及62项场景的覆盖边界。
+
 - [会议候选提醒](meeting-reminder-validation.md)：99单元／19桌面通过，双端本地包同源、Mac包双语／隐藏验证；真实检测器与原生系统投递未验。
 
 - [设置即时保存](settings-autosave-validation.md)：104单元、22桌面全量及收尾6项设置复核；双端包一致、Mac包及日常刷新完成，Windows真机待验。
+
+- [PR #3修复与整合验证](pr3-fix-validation.md)：保留GPT Live Transcribe，首包／排队／收尾、异议重算及输入缺口门槛。

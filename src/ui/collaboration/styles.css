@@ -1,0 +1,204 @@
+.collaboration-panel {
+  margin-block: 24px;
+  padding: 20px;
+  border-top: 1px solid var(--divider, #dde4ee);
+  color: var(--text-primary, #101828);
+}
+.collaboration-index {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 12px 0;
+  border-bottom: 1px solid #dde4ee;
+}
+html[data-role='component'],
+html[data-role='component'] body {
+  overflow: auto;
+  background: #f6f8fb;
+}
+.launcher-component-badge {
+  position: absolute;
+  top: 1px;
+  right: 0;
+  z-index: 3;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: 9px;
+  background: #2463d8;
+  color: #fff;
+  font: bold 10px/16px system-ui;
+  text-align: center;
+  box-shadow: 0 0 0 2px #fff;
+  pointer-events: none;
+}
+.launcher-component-notices {
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  background: #eef5ff;
+  border-radius: 8px;
+}
+.launcher-component-notices button {
+  font-size: 13px;
+  padding: 3px 5px;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.collaboration-panel h2 {
+  font-size: 22px;
+  margin: 0 0 6px;
+}
+.collaboration-panel h3 {
+  font-size: 19px;
+  line-height: 1.45;
+  margin: 12px 0;
+}
+.collaboration-panel header,
+.collaboration-toolbar,
+.collaboration-card footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.collaboration-panel small {
+  color: #475467;
+  font-size: 13px;
+}
+.collaboration-toolbar {
+  margin: 16px 0;
+}
+.collaboration-card {
+  margin: 20px 0;
+  padding: 24px;
+  border: 1px solid #dde4ee;
+  border-radius: 12px;
+  background: #fff;
+  overflow-wrap: anywhere;
+}
+.collaboration-card header {
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e9eef5;
+}
+.collaboration-editor {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+.collaboration-panel label {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+}
+.collaboration-panel input:not([type='radio']):not([type='checkbox']),
+.collaboration-panel select,
+.collaboration-panel textarea {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 9px 12px;
+  border: 1px solid #7a8798;
+  border-radius: 8px;
+  background: white;
+  color: #101828;
+  font: inherit;
+}
+.collaboration-panel textarea {
+  min-height: 74px;
+  resize: vertical;
+}
+.collaboration-panel .inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+.collaboration-panel input[type='radio'],
+.collaboration-panel input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+.collaboration-panel fieldset {
+  min-width: 0;
+  border: 1px solid #dde4ee;
+  border-radius: 8px;
+  padding: 12px 16px;
+}
+.collaboration-panel button {
+  min-height: 36px;
+  margin: 4px 6px 4px 0;
+  white-space: normal;
+}
+.collaboration-publish {
+  margin-block: 16px;
+}
+.collaboration-result {
+  padding: 16px;
+  background: #eef5ff;
+  border-radius: 8px;
+  margin-top: 16px;
+}
+.collaboration-error {
+  color: #b42318;
+}
+.collaboration-warning {
+  padding: 10px 12px;
+  background: #fff4e6;
+  color: #92400e;
+  border-radius: 6px;
+}
+.assignment-list {
+  display: grid;
+  gap: 12px;
+}
+.assignment-list > section {
+  padding: 12px 0;
+  border-bottom: 1px solid #dde4ee;
+}
+.conflict-sides {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.conflict-sides > section {
+  padding: 16px;
+  background: #f8fafd;
+}
+.participant-page {
+  max-width: 800px;
+  margin: auto;
+  padding: 24px;
+}
+.collaboration-panel :focus-visible {
+  outline: 2px solid #2463d8;
+  outline-offset: 2px;
+}
+html[data-role='participant'],
+html[data-role='participant'] body {
+  overflow: auto;
+  background: #f6f8fb;
+}
+.collaboration-panel p,
+.collaboration-panel h3 {
+  user-select: text;
+}
+@media (max-width: 720px) {
+  .collaboration-card {
+    padding: 16px;
+  }
+  .participant-page {
+    padding: 12px;
+  }
+  .conflict-sides {
+    grid-template-columns: 1fr;
+  }
+  .collaboration-toolbar {
+    align-items: stretch;
+  }
+}

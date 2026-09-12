@@ -1,5 +1,6 @@
 import type { ReminderView } from './meeting-candidate';
 import { EvidenceRequest } from './workflow';
+import { CollaborationIntent } from './collaboration-workflow';
 import { z } from 'zod';
 export const Locale = z.enum(['en', 'zh-CN']);
 export type Locale = z.infer<typeof Locale>;
@@ -247,6 +248,7 @@ export const ExpressionPlan = z
 export type ExpressionPlan = z.infer<typeof ExpressionPlan>;
 export const Proposal = z
   .object({
+    collaborationIntents: z.array(CollaborationIntent).max(4).optional(),
     evidenceRequest: EvidenceRequest.nullable().optional(),
     clarification: z
       .object({
@@ -371,7 +373,8 @@ export type Translation = {
 };
 export type CallRecord = {
   id: string;
-  kind: 'understand' | 'personal' | 'generate' | 'translate' | 'transcribe';
+  kind:
+    'understand' | 'personal' | 'generate' | 'translate' | 'transcribe' | 'component' | 'impact';
   startedAt: string;
   durationMs: number;
   status: 'pending' | 'ok' | 'failed';
@@ -457,6 +460,7 @@ export type Meeting = {
   artifacts: ArtifactRevision[];
   scenarios: Scenario[];
   decisions: Decision[];
+  collaboration?: import('./collaboration').CollaborationState;
   processedSources?: Record<string, number>;
   calls?: CallRecord[];
   usageTotals?: {
@@ -506,6 +510,7 @@ export type Preferences = {
   meetingReminders?: boolean;
 };
 export type Snapshot = {
+  liveTranscripts?: Array<{ meetingId: string; segmentId: string; channel: string; text: string }>;
   reminder?: ReminderView | null;
   notificationUnavailable?: boolean;
   meetings: Meeting[];
@@ -514,6 +519,8 @@ export type Snapshot = {
     developerInputs?: boolean;
     modelConfigured: boolean;
     sttConfigured: boolean;
+    sttStreaming?: boolean;
+    sttModel?: string;
     model: string;
     modelHost: string;
     sttHost: string;

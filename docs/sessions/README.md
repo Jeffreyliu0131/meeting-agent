@@ -6,6 +6,12 @@
 
 | 记录 | 类型／状态 | 主要内容 |
 |---|---|---|
+| [PR #3修复与合并](2026-09-12-pr3-fix-merge.md) | 修复通过，交付中 | PR141单元／25桌面；本地整合152／31，两端候选同源，准备合并 |
+| [首版协作组件实施](2026-09-12-collaboration-implementation.md) | 已提交／推送，[PR #3](https://github.com/Jeffreyliu0131/meeting-agent/pull/3) | 四类悬浮窗、M/C/R、本地三人闭环；合入main并解冲突，133单元／25桌面覆盖通过；完整设计差距另记 |
+| [首版协作组件与 LangGraph 设计](2026-09-12-collaboration-components-design.md) | 设计完成，已授权实施 | 四组件、完整图与触发矩阵、schema、角色投影和62项验收目标；实际覆盖见后续实施记录 |
+| [GPT Live Transcribe 接入](2026-09-12-live-transcribe.md) | 本地切换完成 | 44项单元／8项桌面测试及真实合成音频转写通过；重启保留暂停会议 |
+| [Windows 本地启动与供应商配置](2026-09-12-windows-local-start.md) | 本地启动完成 | DeepSeek V4.1 Flash／Whisper 单次真实调用通过；构建成功、主窗口响应正常 |
+
 | [设置即时生效](2026-09-12-settings-autosave.md) | 代码／双端包已同步，[PR #2](https://github.com/Jeffreyliu0131/meeting-agent/pull/2) | 104单元、22桌面＋收尾6专项；Mac日常进程已更新，Windows运行待验 |
 | [会议候选提醒](2026-09-12-meeting-reminder.md) | 提醒代码／双端包已同步，[PR #1](https://github.com/Jeffreyliu0131/meeting-agent/pull/1) | 99单元／19桌面与Mac包通过；真实检测待接入、系统投递／Windows真机待验 |
 | [界面语言与交互打磨](2026-09-12-interface-polish.md) | 代码／两端本地包已同步，91962b9已推送；Windows运行待验 | 跟随系统、即时保存及交互细节；86单元／14桌面、Mac包验证通过 |
