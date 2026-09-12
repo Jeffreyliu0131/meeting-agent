@@ -1099,6 +1099,9 @@ function App() {
               return true;
             })
           }
+          changeInterface={(uiLanguage) =>
+            command('preferences', { ...snapshot.preferences, uiLanguage }, null)
+          }
           current={current}
           changeOutput={(output) => act(() => command('language', { locale: output }))}
         />

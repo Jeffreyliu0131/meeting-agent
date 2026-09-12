@@ -285,7 +285,10 @@ app.whenReady().then(async () => {
   worker = utilityProcess.fork(join(__dirname, 'worker.cjs'), [], {
     env: {
       ...process.env,
-      MEETING_SYSTEM_LOCALE: process.env.MEETING_SYSTEM_LOCALE ?? app.getLocale(),
+      MEETING_SYSTEM_LOCALE:
+        process.env.MEETING_SYSTEM_LOCALE ??
+        app.getPreferredSystemLanguages()[0] ??
+        app.getLocale(),
       MEETING_DB: join(app.getPath('userData'), 'meetings.sqlite'),
     },
     serviceName: 'Meeting session service',

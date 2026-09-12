@@ -1,0 +1,111 @@
+{
+  "ranAt": "2026-09-12 10:54 Asia/Singapore",
+  "baseline": "37a2249 + interface-polish working tree",
+  "unit": {
+    "passed": 86,
+    "failed": 0,
+    "command": "npm test"
+  },
+  "e2e": [
+    {
+      "title": "real Electron: event, manual original source, honest missing model, correction, UI locale, end and restore",
+      "ok": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "native launcher opens one workspace; hiding does not stop the event; hover uses real windows",
+      "ok": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "UI cannot impersonate audio adapter; no frame gets filesystem or arbitrary IPC; responsive shell",
+      "ok": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "meeting library filters, search recovery and settings keyboard loop",
+      "ok": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "launcher uses transparent chrome and distinct synthetic capture indicators with truthful labels",
+      "ok": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "interface language saves immediately, preserves unrelated drafts and persists across restart",
+      "ok": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "language persistence failure stays visible in settings and permits retry without losing drafts",
+      "ok": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "native preferred system language drives startup; chrome does not select and modal skips collapsed controls",
+      "ok": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "provider transport, isolated preflight, generated structure, source binding, updates and personal calculator",
+      "ok": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "synthetic oscillator keeps capturing through a slow STT response and stops cleanly",
+      "ok": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "text, timeline, chart, SVG and passive HTML render without a privileged bridge",
+      "ok": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "normal meeting entry saves setup once, starts audio in one intent and reveals exploration only after content",
+      "ok": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "conditional meeting record survives personal exploration, end, sources and restart",
+      "ok": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "title": "workflow: object-bound exploration, live progress, cancellation and persistent clarification",
+      "ok": true,
+      "results": [
+        "passed"
+      ]
+    }
+  ],
+  "realAudio": false,
+  "realModel": false
+}

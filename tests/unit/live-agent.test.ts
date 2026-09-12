@@ -567,6 +567,9 @@ test('a failed preview does not poison the next valid visual update', async () =
 test('system language and legacy preferences migrate without changing an active meeting language', async () => {
   const { resolvePreferences, systemLocale } = await import('../../src/domain/preferences');
   assert.equal(systemLocale('zh-TW'), 'zh-CN');
+  assert.equal(systemLocale('zh-Hans-US'), 'zh-CN');
+  assert.equal(systemLocale('zh-Hant-HK'), 'zh-CN');
+  assert.equal(systemLocale('en-CN'), 'en');
   assert.equal(systemLocale('ja-JP'), 'en');
   const fresh = resolvePreferences({ ...defaults }, 'zh-CN');
   assert.equal(fresh.uiLocale, 'zh-CN');

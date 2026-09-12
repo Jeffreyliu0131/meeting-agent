@@ -98,7 +98,7 @@ test('real Electron: event, manual original source, honest missing model, correc
     .click();
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByLabel('Interface language', { exact: true }).selectOption('zh-CN');
-  await page.getByRole('button', { name: 'Save settings', exact: true }).click();
+  await page.getByRole('button', { name: '保存设置', exact: true }).click();
   await expect(page.getByRole('button', { name: '结束会议' })).toBeVisible();
   await page.getByRole('button', { name: '结束会议' }).click();
   await expect(page.getByText('会议已结束', { exact: true }).first()).toBeVisible();

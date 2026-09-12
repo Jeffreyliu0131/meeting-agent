@@ -13,6 +13,45 @@
 }
 body {
   margin: 0;
+  /* Desktop chrome is not document content. Preserve copy/selection in work and evidence. */
+  user-select: none;
+  cursor: default;
+}
+.artifact-blocks,
+.source-card blockquote,
+.translated,
+.focus-title,
+.focus-summary,
+.calculation-result,
+.meeting-review ul,
+.selectable-text,
+[role='alert'],
+input,
+textarea,
+[contenteditable='true'] {
+  user-select: text;
+}
+button,
+summary,
+label,
+.provenance {
+  user-select: none;
+}
+button svg {
+  pointer-events: none;
+}
+select,
+summary,
+label.check {
+  cursor: pointer;
+}
+select[aria-disabled='true'] {
+  cursor: progress;
+}
+.settings-field-hint {
+  margin: -4px 0 18px;
+  color: var(--textSecondary);
+  font-size: 13px;
 }
 button,
 input,
@@ -41,7 +80,7 @@ button {
 button svg {
   flex-shrink: 0;
 }
-button:hover {
+button:hover:not(:disabled) {
   background: var(--subtleSurface);
   border-color: var(--textSecondary);
 }
@@ -67,7 +106,7 @@ summary:focus-visible,
   padding: 10px 20px;
   box-shadow: 0 1px 2px #1018280d;
 }
-.primary:hover {
+.primary:hover:not(:disabled) {
   background: #1d52b7;
   border-color: #1d52b7;
 }
@@ -79,7 +118,7 @@ summary:focus-visible,
   border-color: transparent;
   background: var(--errorSurface);
 }
-.danger:hover {
+.danger:hover:not(:disabled) {
   border-color: var(--error);
   background: var(--errorSurface);
 }
@@ -1585,7 +1624,7 @@ body[data-role='preview'] {
   background: var(--accent);
   border-radius: 2px;
 }
-.view-tabs button:hover {
+.view-tabs button:hover:not(:disabled) {
   color: var(--accent);
 }
 .search-field {

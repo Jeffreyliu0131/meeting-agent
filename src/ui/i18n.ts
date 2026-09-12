@@ -378,6 +378,8 @@ Object.assign(extra.en, {
   'design.settingsHint': 'Set up how you listen, read and work.',
   'design.language': 'Language',
   'design.experience': 'Display & experience',
+  'design.languageImmediate': 'Applies immediately and is saved automatically.',
+  'design.languageSaving': 'Changing language…',
   'design.saveHint': 'Audio and output defaults apply to your next meeting.',
   'design.sourcesHint':
     'Return to the original words. Check the source before drawing a conclusion.',
@@ -402,6 +404,8 @@ Object.assign(extra['zh-CN'], {
   'design.settingsHint': '按你的习惯，设置收听、语言和显示方式。',
   'design.language': '语言',
   'design.experience': '显示与体验',
+  'design.languageImmediate': '选择后立即生效并自动保存。',
+  'design.languageSaving': '正在切换语言…',
   'design.saveHint': '音频与默认输出设置用于下次会议。',
   'design.sourcesHint': '回到原话，核对理解。原始发言与推断保持分开。',
 });

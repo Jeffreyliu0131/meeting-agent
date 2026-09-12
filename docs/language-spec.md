@@ -17,7 +17,7 @@
 
 ## 2. 语言切换规则
 
-- 在完整设置中选择Interface language先修改草稿，点击“保存设置”后更新可信外壳，不停止会议、不触发全场模型重跑，也不把当前输出语言偷偷改掉。
+- 在完整设置中选择Interface language立即独立保存并更新可信外壳，无需点击“保存设置”；该写入只携带已保存偏好与新界面语言，不提交音频／显示／快捷键等未保存草稿。切换期间防止重复写入和整份保存竞争，失败在语言字段附近提示并保留原语言与其他草稿，不停止会议、不触发全场模型重跑，也不把当前输出语言偷偷改掉。
 - 新建会议不询问Output language；服务从默认输出偏好解析本场语言并保存。可在会中设置明确更改；当前“会议输出语言”选择会立即发送语言变更，不等待全局保存。界面和系统语言变化不自动改变本场输出。页面与右键菜单不常驻语言快捷切换。
 - 更改当前Output language后，新生成内容使用新语言；当前可见产物基于相同事实与来源生成对应语言版本。保留旧版直至新版本通过校验，并显示`Updating language…`。
 - 未打开的历史产物按需生成语言版本，不因为一个设置重算全部历史。新旧语言不同的过渡状态可见，不混排成用户无法识别的半翻译内容。
@@ -65,7 +65,7 @@ type ArtifactPresentation = {
 
 `languageRevision`属于会议表达配置，切换输出时递增；`uiLocale`改变不递增会议事实版本。产物提交校验表达配置与对象依赖，避免英文任务晚到后覆盖中文目标，或译文覆盖新事实。
 
-当前偏好字段与语言revision见 `src/contracts/model.ts`／`src/domain/preferences.ts`；visualProfileId由全局主题配置提供，未逐产物持久化。当前系统语言在启动和偏好解析时使用，运行中系统语言变化通知仍属目标能力，未据此宣称实测。
+当前偏好字段与语言revision见 `src/contracts/model.ts`／`src/domain/preferences.ts`；visualProfileId由全局主题配置提供，未逐产物持久化。桌面启动使用`app.getPreferredSystemLanguages()[0]`取得macOS／Windows首选系统语言，空列表才回退`app.getLocale()`；`MEETING_SYSTEM_LOCALE`保留测试覆盖。应用语言和地区格式不能替代系统首选语言（[Electron API](https://www.electronjs.org/docs/latest/api/app#appgetpreferredsystemlanguages)）。当前系统语言在启动和偏好解析时使用，运行中系统语言变化通知仍属目标能力，未据此宣称实测。
 
 `expectedInputLanguages`是产品候选集，不证明供应商会自动准确识别；实际STT配置与语言质量按提供商能力验证。当前官方实时转写支持传多个预期语言，仍需实测混说、口音、日期和数字。[S05](sources.md)
 

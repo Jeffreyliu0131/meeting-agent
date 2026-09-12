@@ -150,7 +150,7 @@ Agent可以设计新组合，应用不提供“特定会议模板ID”要求它�
 
 固定模板版本与产物身份分离；同用途内容变化通常生成同一artifact的新revision。已保存revision不原地覆盖，供恢复和对比。
 
-同一artifact可保留不同locale的表示，均链接相同业务对象与来源。语言切换递增会议languageRevision，不增加虚假的语义变化；提交检查语言配置与对象版本。UI语言单独保存在UserPreferences，不触发整场理解。字段与并发规则详见[语言契约](language-spec.md)。
+同一artifact可保留不同locale的表示，均链接相同业务对象与来源。语言切换递增会议languageRevision，不增加虚假的语义变化；提交检查语言配置与对象版本。UI语言单独保存在UserPreferences，设置选择后通过既有preferences命令立即提交；合并已保存偏好，不带入其他设置草稿，不触发整场理解。字段与并发规则详见[语言契约](language-spec.md)。
 
 ## 5. 操作契约与事务
 

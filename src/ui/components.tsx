@@ -42,8 +42,10 @@ export function Modal({
           if (e.key === 'Tab') {
             const items = Array.from(
               ref.current!.querySelectorAll<HTMLElement>(
-                'button:not(:disabled),input,textarea,select,[tabindex="0"]',
+                'button,input,textarea,select,[tabindex="0"]',
               ),
+            ).filter(
+              (el) => !el.matches(':disabled, [hidden], [inert]') && el.getClientRects().length > 0,
             );
             const first = items[0],
               last = items.at(-1);
@@ -158,6 +160,7 @@ export function Settings({
   save,
   current,
   changeOutput,
+  changeInterface,
 }: {
   preferences: Preferences;
   setupOnly?: boolean;
@@ -167,11 +170,37 @@ export function Settings({
   save: (p: Preferences, keepOpen?: boolean) => Promise<any>;
   current?: Meeting;
   changeOutput: (l: string) => Promise<any>;
+  changeInterface: (language: NonNullable<Preferences['uiLanguage']>) => Promise<any>;
 }) {
   const [draft, setDraft] = useState(preferences),
     [platform, setPlatform] = useState<any>(null),
     [devices, setDevices] = useState<Array<{ deviceId: string; label: string }>>([]),
     [audioError, setAudioError] = useState('');
+  const [languageBusy, setLanguageBusy] = useState(false),
+    [languageError, setLanguageError] = useState('');
+  const languagePending = useRef(false);
+  useEffect(() => {
+    // Refresh only committed language fields; audio/display/shortcut drafts belong to the user.
+    setDraft((previous) => ({
+      ...previous,
+      uiLanguage: preferences.uiLanguage,
+      uiLocale: preferences.uiLocale,
+    }));
+  }, [preferences.uiLanguage, preferences.uiLocale]);
+  const selectInterface = async (language: NonNullable<Preferences['uiLanguage']>) => {
+    if (languagePending.current) return;
+    languagePending.current = true;
+    setLanguageBusy(true);
+    setLanguageError('');
+    try {
+      await changeInterface(language);
+    } catch (error) {
+      setLanguageError((error as Error).message);
+    } finally {
+      languagePending.current = false;
+      setLanguageBusy(false);
+    }
+  };
   const [activeSection, setActiveSection] = useState('settings-audio');
   const sections = useRef<HTMLDivElement>(null);
   const jumpTo = (id: string) => {
@@ -295,6 +324,7 @@ export function Settings({
                   {t('entry.currentDevice')}: {current.actualDevice?.label || t('entry.defaultMic')}
                 </p>
                 <button
+                  disabled={languageBusy}
                   onClick={async () => {
                     try {
                       const saved = await save(
@@ -333,14 +363,27 @@ export function Settings({
                   {t('settings.interfaceLanguage')}
                   <select
                     aria-label={t('settings.interfaceLanguage')}
-                    value={draft.uiLanguage ?? draft.uiLocale}
-                    onChange={(e) => setDraft({ ...draft, uiLanguage: e.target.value as any })}
+                    value={preferences.uiLanguage ?? preferences.uiLocale}
+                    aria-describedby="interface-language-hint"
+                    aria-busy={languageBusy}
+                    aria-disabled={languageBusy}
+                    onChange={(e) =>
+                      void selectInterface(e.target.value as NonNullable<Preferences['uiLanguage']>)
+                    }
                   >
                     <option value="system">{t('entry.system')}</option>
                     <option value="en">English</option>
                     <option value="zh-CN">简体中文</option>
                   </select>
                 </label>
+                <p id="interface-language-hint" className="settings-field-hint" role="status">
+                  {t(languageBusy ? 'design.languageSaving' : 'design.languageImmediate')}
+                </p>
+                {languageError && (
+                  <p className="error-text selectable-text" role="alert">
+                    {errorText(preferences.uiLocale, languageError)}
+                  </p>
+                )}
                 <label>
                   {t('settings.defaultOutputLanguage')}
                   <select
@@ -398,7 +441,7 @@ export function Settings({
                 </label>
                 <small>{t('shortcutHelp')}</small>
               </section>
-              <details className="settings-diagnostics">
+              <details className="settings-diagnostics selectable-text">
                 <summary>{t('live.processingDetails')}</summary>
                 <section className="settings-section">
                   <h3>{t('provider')}</h3>
@@ -429,6 +472,7 @@ export function Settings({
         <span>{t(setupOnly ? 'design.setupSaveHint' : 'design.saveHint')}</span>
         <button
           className="primary"
+          disabled={languageBusy}
           onClick={() =>
             void save({
               ...draft,

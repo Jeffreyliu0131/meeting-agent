@@ -31,3 +31,5 @@ Agent三项可靠性迭代：[验证结果](agent-reliability-validation.md)／[
 - [Agent工作流独立验收与GitHub交付](agent-workflow-acceptance-review.md)：独立反例、修正、最终检查与提交边界；优先于实现阶段81项记录。
 
 - [Mac／Windows本地包同步](cross-platform-sync-validation.md)：当前release双端包统一、11项桌面回归、Mac日常启动与事件库核对；Windows真机仍未验收。
+
+- [界面语言与交互打磨](interface-polish-validation.md)：实际Mac包系统语言前后对照、即时切换／失败恢复、86项单元与14项桌面回归、双端包同源；Windows运行待验。

@@ -54,7 +54,7 @@ MEETING_STT_API_BASE=https://api.openai.com/v1
 5. 参数试算由确定性计算器执行；会议条件改变时保留草稿基线，用户明确选择才采用新条件。会议决定仍需填写依据和确认范围。
 6. 结束释放设备，已接受内容继续整理；重启只恢复内容，不自动录音。导出JSON保留原话和版本。
 
-新安装默认跟随系统语言，中文系统使用简体中文，其余英文；设置可覆盖。新会议输出语言保存快照，不随界面设置漂移。旧偏好保守保留已有语言。
+新安装默认读取macOS／Windows的首选系统语言，中文系统使用简体中文，其余英文；设置选择界面语言后立即生效并自动保存，其他未保存偏好保留草稿。新会议输出语言保存快照，不随界面设置漂移。旧偏好保守保留已有语言。
 
 开发测试可在可信进程设置 `MEETING_DEV_INPUTS=1` 后重启，首页的 Development tools 才显示文字／synthetic replay入口。普通用户流程不显示这些模式，无凭证也不会返回假模型结果。
 
@@ -100,3 +100,5 @@ npm run pack:win     # 在 Windows 构建应用目录
 ## 有界Agent工作流
 
 当前本地实现采用LangGraph JS 1.4.14，支持本会议主动检索、独立个人推演、持久提案／任务恢复、澄清与表达修复。运行方式不变；完整实现与限制见[运行时说明](docs/agent-workflow-runtime.md)，逐项结果见[工作流验证](tests/results/agent-workflow-validation.md)。离线人工评分清单：`node --import tsx scripts/workflow-eval.ts`（零模型调用）。不要将`test:model`误作免费离线检查。
+
+最新本地包：两端release已按[界面语言与交互打磨](docs/sessions/2026-09-12-interface-polish.md)更新到37a2249后的未提交工作树；14个构建文件和app.asar一致。Mac包启动／切换验证通过，Windows真机运行待验；历史包同步记录保留对应版本证据。
