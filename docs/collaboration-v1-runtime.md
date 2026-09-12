@@ -1,6 +1,6 @@
 # 协作组件：首版实际运行时
 
-日期：2026-09-12，`be0b244`之后的本轮工作树，尚未提交／打包替换日常应用。本文说明实际实现；[设计](collaboration-v1-design.md)保留完整目标，[验证](../tests/results/collaboration-v1-validation.md)说明证据范围。
+日期：2026-09-12，`be0b244`之后的本轮工作树，代码已提交并创建[PR #3](https://github.com/Jeffreyliu0131/meeting-agent/pull/3)，未打包替换日常应用。本文说明实际实现；[设计](collaboration-v1-design.md)保留完整目标，[验证](../tests/results/collaboration-v1-validation.md)说明证据范围。
 
 ## 使用路径
 

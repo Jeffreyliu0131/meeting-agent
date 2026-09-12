@@ -1,6 +1,6 @@
 # 首版协作组件 Implementation Plan
 
-> **For agentic workers:** Use superpowers:executing-plans to implement this plan task-by-task. 当前用户要求依次执行，沿用当前YH工作目录，不派发子任务，不提交／推送。复用已批准设计，不重复等待批准。
+> **For agentic workers:** Use superpowers:executing-plans to implement this plan task-by-task. 实施阶段用户要求依次执行，沿用YH工作目录，不派发子任务。后续用户已明确授权提交／推送、创建PR及解冲突，见[交付记录](sessions/2026-09-12-collaboration-implementation.md)。复用已批准设计，不重复等待批准。
 
 **Goal:** 在本地会议中完成四类组件的自动准备、发起者发放、独立模拟参与者互动及LangGraph分析回流。
 

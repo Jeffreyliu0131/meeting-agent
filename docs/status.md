@@ -22,7 +22,7 @@
 
 | 工作 | 核实到的状态 | 接手记录 |
 |---|---|---|
-| 首版协作组件实施 | PR交付进行中：用户已授权提交／推送、创建PR及解冲突。核心实现完成：四类悬浮窗、悬浮球提示、可信本地三人互动及M/C/R；115单元／17桌面通过；真实模型／macOS和完整设计差距待补验，未重启日常应用或替换包 | [实施计划](collaboration-v1-implementation.md)／[实施记录](sessions/2026-09-12-collaboration-implementation.md) |
+| 首版协作组件实施 | 已提交／推送，[PR #3](https://github.com/Jeffreyliu0131/meeting-agent/pull/3)，合入596c8b7并解决9份冲突（dde60ad），133单元／桌面25项覆盖通过。核心实现：四类悬浮窗、悬浮球提示、可信本地三人互动及M/C/R；115单元／17桌面通过；真实模型／macOS和完整设计差距待补验，未重启日常应用或替换包 | [实施计划](collaboration-v1-implementation.md)／[实施记录](sessions/2026-09-12-collaboration-implementation.md) |
 | 首版协作组件与 LangGraph | 目标设计已批准；首版核心已实施，62项按[结果矩阵](../tests/results/collaboration-v1-validation.md)区分覆盖／差距 | [完整设计](collaboration-v1-design.md)／[设计记录](sessions/2026-09-12-collaboration-components-design.md) |
 | GPT Live Transcribe 接入 | 已切换并重启：44项单元／8项桌面测试与合成语音实际流式转写通过，保留DeepSeek及暂停会议；真实会议未测 | [流式转写接入](sessions/2026-09-12-live-transcribe.md)／[验证](../tests/results/live-transcription-validation.md) |
 | Windows 本地启动与供应商配置 | 完成：本地配置 DeepSeek V4.1 Flash 与 Whisper；合成文本／语音的实际 Provider 调用通过，构建成功，主窗口正常响应；真实会议未测 | [Windows 本地启动](sessions/2026-09-12-windows-local-start.md) |
