@@ -47,7 +47,7 @@ function createWorkflow(ports: WorkflowPorts, personal: boolean) {
         p.artifact = null;
         p.plan = null;
         p.patch = null;
-        p.collaboration = null;
+        p.intentPreparation = null;
       }
       if (p.evidenceRequest) {
         if (
@@ -56,7 +56,7 @@ function createWorkflow(ports: WorkflowPorts, personal: boolean) {
           p.artifact ||
           p.plan ||
           p.patch ||
-          p.collaboration?.intents.length
+          p.intentPreparation?.intents.length
         )
           throw new Error('EVIDENCE_WITH_WRITES');
         if (ports.remaining() <= 0) throw new Error('WORKFLOW_BUDGET_LIMIT');

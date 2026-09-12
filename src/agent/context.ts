@@ -303,12 +303,12 @@ export function contextPayload(meeting: Meeting) {
   const m = scopedContext(meeting, meeting.contextScope ?? 'meeting');
   const current = m.artifacts.at(-1);
   return {
-    collaboration:
-      m.contextScope !== 'personal' && m.collaboration?.enabled
+    intentPreparation:
+      m.contextScope !== 'personal' && m.intentPreparation?.enabled
         ? {
-            ...m.collaboration,
+            ...m.intentPreparation,
             processedEvents: undefined,
-            drafts: m.collaboration.drafts.map(({ history, ...d }) => d),
+            drafts: m.intentPreparation.drafts.map(({ history, ...d }) => d),
           }
         : null,
     clarifications: m.clarifications?.filter((c) => c.status === 'pending') ?? [],

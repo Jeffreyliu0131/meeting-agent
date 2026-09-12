@@ -51,9 +51,9 @@ test('four intent drafts: real IPC, protected edits, sources and restart', async
         conditions: ['Approval required'],
       },
     ];
-    const intents = context.collaboration
+    const intents = context.intentPreparation
       ? contents.map((content) => {
-          const d = context.collaboration.drafts.find(
+          const d = context.intentPreparation.drafts.find(
             (d: any) => d.candidate.family === content.kind && d.status !== 'dismissed',
           );
           return {
@@ -82,14 +82,14 @@ test('four intent drafts: real IPC, protected edits, sources and restart', async
           {
             message: {
               content: JSON.stringify({
-                focus: 'Synthetic collaboration',
+                focus: 'Synthetic intentPreparation',
                 changes: [],
                 objects: [],
                 relations: [],
                 action: 'no_change',
                 artifact: null,
                 rationale: 'Test double',
-                collaboration: { intents, coverage: 'complete', unprocessedRefs: [] },
+                intentPreparation: { intents, coverage: 'complete', unprocessedRefs: [] },
               }),
             },
           },
@@ -99,7 +99,7 @@ test('four intent drafts: real IPC, protected edits, sources and restart', async
     );
   });
   await new Promise<void>((r) => server.listen(0, '127.0.0.1', r));
-  const dir = mkdtempSync(join(tmpdir(), 'collaboration-electron-'));
+  const dir = mkdtempSync(join(tmpdir(), 'intentPreparation-electron-'));
   const env = {
     ...process.env,
     MEETING_DATA_DIR: dir,

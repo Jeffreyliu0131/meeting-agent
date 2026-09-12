@@ -5,7 +5,7 @@ import {
   DraftContent,
   type IntentCandidate,
   type IntentDraft,
-} from '../contracts/collaboration';
+} from '../contracts/intent-preparation';
 import type { Meeting, Proposal, Ref } from '../contracts/model';
 
 const hash = (v: unknown) => createHash('sha256').update(JSON.stringify(v)).digest('hex');
@@ -35,9 +35,9 @@ function assertSources(refs: Ref[], m: Meeting) {
   }
 }
 export function validateCollaboration(p: Proposal, m: Meeting) {
-  if (!p.collaboration) return;
-  const batch = CollaborationProposal.parse(p.collaboration);
-  if (batch.intents.length && (!m.collaboration?.enabled || m.contextScope === 'personal'))
+  if (!p.intentPreparation) return;
+  const batch = CollaborationProposal.parse(p.intentPreparation);
+  if (batch.intents.length && (!m.intentPreparation?.enabled || m.contextScope === 'personal'))
     throw new Error('COLLABORATION_DISABLED');
   if (batch.coverage === 'partial' && !batch.unprocessedRefs.length)
     throw new Error('INTENT_COVERAGE_REQUIRED');
@@ -65,7 +65,7 @@ export function validateCollaboration(p: Proposal, m: Meeting) {
     if (i.content && i.content.kind !== i.family) throw new Error('INTENT_FAMILY_MISMATCH');
     if (
       i.target &&
-      !m.collaboration?.drafts.some(
+      !m.intentPreparation?.drafts.some(
         (d) =>
           d.id === i.target!.id &&
           d.rev === i.target!.rev &&
@@ -189,11 +189,11 @@ function mergedContent(d: IntentDraft, incoming: DraftContent): DraftContent {
   return parsed;
 }
 export function applyCollaboration(m: Meeting, p: Proposal, accepted: Ref[], eventId: string) {
-  const state = m.collaboration;
-  if (!state?.enabled || !p.collaboration || m.contextScope === 'personal') return;
+  const state = m.intentPreparation;
+  if (!state?.enabled || !p.intentPreparation || m.contextScope === 'personal') return;
   if (state.processedEvents.includes(eventId)) return;
   const mapped = new Map<string, IntentDraft>();
-  for (const original of p.collaboration.intents) {
+  for (const original of p.intentPreparation.intents) {
     if (inert(original) || original.dependsOnLocalIds.some((id) => !mapped.has(id))) continue;
     const i = structuredClone(original);
     if (i.targetLocalId) {
@@ -299,7 +299,7 @@ export function applyCollaboration(m: Meeting, p: Proposal, accepted: Ref[], eve
   state.processedEvents.push(eventId);
   state.unprocessedRefs = union(
     state.unprocessedRefs.filter((r) => !accepted.some((x) => sameRef(x, r))),
-    p.collaboration.unprocessedRefs,
+    p.intentPreparation.unprocessedRefs,
   );
   state.coverage = state.unprocessedRefs.length ? 'partial' : 'complete';
   state.revision++;
@@ -307,7 +307,7 @@ export function applyCollaboration(m: Meeting, p: Proposal, accepted: Ref[], eve
 }
 
 export function refreshCollaboration(m: Meeting) {
-  for (const d of m.collaboration?.drafts ?? []) {
+  for (const d of m.intentPreparation?.drafts ?? []) {
     if (
       d.sources.some((r) => m.segments.some((s) => s.id === r.id && s.rev > r.rev)) ||
       d.candidate.referencedObjects.some((r) =>
@@ -329,7 +329,7 @@ export function collaborationCommand(m: Meeting, type: string, payload: Record<s
   if (m.status !== 'active') throw new Error('MEETING_ENDED');
   if (type === 'collaborationEnable') {
     const p = z.object({ enabled: z.boolean() }).strict().parse(payload);
-    m.collaboration ??= {
+    m.intentPreparation ??= {
       enabled: false,
       revision: 0,
       drafts: [],
@@ -337,11 +337,11 @@ export function collaborationCommand(m: Meeting, type: string, payload: Record<s
       coverage: 'complete',
       unprocessedRefs: [],
     };
-    m.collaboration.enabled = p.enabled;
-    m.collaboration.revision++;
+    m.intentPreparation.enabled = p.enabled;
+    m.intentPreparation.revision++;
     return null;
   }
-  const state = m.collaboration;
+  const state = m.intentPreparation;
   if (!state?.enabled) throw new Error('COLLABORATION_DISABLED');
   const base = targetPayload.parse(payload);
   const d = state.drafts.find((x) => x.id === base.draftId);

@@ -1,6 +1,6 @@
 # 产品实现
 
-四类意图模块：[契约](contracts/collaboration.ts)、[可信草稿规则](domain/collaboration.ts)、[界面](ui/IntentPanel.tsx)。共用现有理解、版本与存储事务，实际边界见[意图说明](../docs/collaboration-intents.md)。
+四类意图模块：[契约](contracts/intent-preparation.ts)、[可信草稿规则](domain/intent-preparation.ts)、[界面](ui/IntentPanel.tsx)。共用现有理解、版本与存储事务，实际边界见[意图说明](../docs/collaboration-intents.md)。
 
 业务、输入和表达采用明确边界；当前连续 Agent 采用 [ADR-005](../docs/adr/005-bounded-agent-workflows.md)，采集基线保留 [ADR-004](../docs/adr/004-live-agent-pipeline.md)，首版历史见 [ADR-003](../docs/adr/003-cross-platform-first-version.md)，进度见[状态](../docs/status.md)与[Agent 迭代记录](../docs/sessions/2026-09-11-agent-iteration.md)。目录存在不表示功能已验收。
 

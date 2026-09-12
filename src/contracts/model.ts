@@ -1,6 +1,6 @@
 import { EvidenceRequest } from './workflow';
 import { z } from 'zod';
-import { CollaborationProposal } from './collaboration';
+import { CollaborationProposal } from './intentPreparation';
 export const Locale = z.enum(['en', 'zh-CN']);
 export type Locale = z.infer<typeof Locale>;
 const id = z
@@ -247,7 +247,7 @@ export const ExpressionPlan = z
 export type ExpressionPlan = z.infer<typeof ExpressionPlan>;
 export const Proposal = z
   .object({
-    collaboration: CollaborationProposal.nullable().optional(),
+    intentPreparation: CollaborationProposal.nullable().optional(),
     evidenceRequest: EvidenceRequest.nullable().optional(),
     clarification: z
       .object({
@@ -404,7 +404,7 @@ export type ExpressionJob = {
   updateKind: 'patch' | 'create' | 'restructure';
 };
 export type Meeting = {
-  collaboration?: import('./collaboration').CollaborationState;
+  intentPreparation?: import('./intentPreparation').IntentPreparationState;
   clarifications?: Array<{
     id: string;
     key: string;

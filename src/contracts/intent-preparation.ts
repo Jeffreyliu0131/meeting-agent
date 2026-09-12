@@ -128,7 +128,7 @@ export type IntentDraft = {
     sources: z.infer<typeof IntentRef>[];
   }>;
 };
-export type CollaborationState = {
+export type IntentPreparationState = {
   enabled: boolean;
   revision: number;
   drafts: IntentDraft[];

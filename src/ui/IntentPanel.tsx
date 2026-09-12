@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { Meeting, Ref } from '../contracts/model';
-import type { IntentDraft } from '../contracts/collaboration';
+import type { IntentDraft } from '../contracts/intent-preparation';
 
 type Command = (type: string, payload: Record<string, unknown>) => Promise<unknown>;
 function Field({
@@ -119,7 +119,7 @@ export function IntentPanel({
   onSources: (refs: Ref[]) => void;
 }) {
   const zh = locale === 'zh-CN',
-    state = meeting.collaboration,
+    state = meeting.intentPreparation,
     ended = meeting.status === 'ended';
   const [error, setError] = useState(''),
     [busy, setBusy] = useState(false);

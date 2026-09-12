@@ -9,12 +9,12 @@ import {
   applyCollaboration,
   validateCollaboration,
   collaborationCommand,
-} from '../../src/domain/collaboration';
+} from '../../src/domain/intent-preparation';
 import {
   CollaborationProposal,
   type IntentCandidate,
   type DraftContent,
-} from '../../src/contracts/collaboration';
+} from '../../src/contracts/intent-preparation';
 import { SessionService } from '../../src/service/session';
 import { readSet, readsValid, resolveNewRefs } from '../../src/service/workflow-state';
 import { pendingSegments, contextPayload, buildContextBatch } from '../../src/agent/context';
@@ -116,7 +116,7 @@ function proposal(intents: IntentCandidate[]): Proposal {
     action: 'no_change',
     artifact: null,
     rationale: 'Synthetic test',
-    collaboration: { intents, coverage: 'complete', unprocessedRefs: [] },
+    intentPreparation: { intents, coverage: 'complete', unprocessedRefs: [] },
   };
 }
 function apply(m: Meeting, intents: IntentCandidate[], event = crypto.randomUUID()) {
@@ -138,19 +138,19 @@ test('four families produce separate private drafts and never decisions or respo
       candidate(m, k as IntentCandidate['family']),
     ),
   );
-  assert.equal(m.collaboration!.drafts.length, 4);
+  assert.equal(m.intentPreparation!.drafts.length, 4);
   assert.deepEqual(
-    m.collaboration!.drafts.map((d) => d.content!.kind),
+    m.intentPreparation!.drafts.map((d) => d.content!.kind),
     ['poll', 'assignment', 'conflict', 'decision_confirmation'],
   );
   assert.equal(m.decisions.length, 0);
-  assert.ok(m.collaboration!.drafts.every((d) => d.status === 'draft'));
+  assert.ok(m.intentPreparation!.drafts.every((d) => d.status === 'draft'));
 });
 test('negated, hypothetical and quoted candidates are inert even with actionable resolution', () => {
   for (const expression of ['negated', 'hypothetical', 'quoted'] as const) {
     const m = setup();
     apply(m, [{ ...candidate(m), expression }]);
-    assert.equal(m.collaboration!.drafts.length, 0);
+    assert.equal(m.intentPreparation!.drafts.length, 0);
   }
 });
 test('suggestions and all side-effect operations cannot execute business actions', () => {
@@ -167,7 +167,7 @@ test('suggestions and all side-effect operations cannot execute business actions
   }
   assert.equal(m.decisions.length, 0);
   assert.ok(
-    m.collaboration!.drafts.every((d) => ['suggestion', 'needs_clarification'].includes(d.status)),
+    m.intentPreparation!.drafts.every((d) => ['suggestion', 'needs_clarification'].includes(d.status)),
   );
 });
 test('ordered multiple intents reject cycles, forward references and wrong family', () => {
@@ -219,7 +219,7 @@ test('collector updates same ID, preserves manual fields and tombstones, and ign
   const m = setup(),
     i = { ...candidate(m), collectionMode: 'prospective' as const };
   apply(m, [i]);
-  const d = m.collaboration!.drafts[0],
+  const d = m.intentPreparation!.drafts[0],
     id = d.id;
   collaborationCommand(m, 'collaborationEdit', {
     draftId: id,
@@ -235,7 +235,7 @@ test('collector updates same ID, preserves manual fields and tombstones, and ign
   });
   source(m, '无关午饭');
   apply(m, []);
-  assert.equal(m.collaboration!.drafts.length, 1);
+  assert.equal(m.intentPreparation!.drafts.length, 1);
   source(m, 'A方案、B方案、C方案');
   const update = { ...candidate(m), target: { id, rev: d.rev }, operation: 'update' as const };
   apply(m, [update]);
@@ -255,12 +255,12 @@ test('event replay and duplicate unchanged intent preserve identity and revision
     i = candidate(m),
     event = crypto.randomUUID();
   apply(m, [i], event);
-  const before = structuredClone(m.collaboration);
+  const before = structuredClone(m.intentPreparation);
   apply(m, [i], event);
-  assert.deepEqual(m.collaboration, before);
+  assert.deepEqual(m.intentPreparation, before);
   apply(m, [i]);
-  assert.equal(m.collaboration!.drafts.length, 1);
-  assert.equal(m.collaboration!.drafts[0].rev, 1);
+  assert.equal(m.intentPreparation!.drafts.length, 1);
+  assert.equal(m.intentPreparation!.drafts[0].rev, 1);
 });
 test('ambiguous target remains a question; selecting a version does not publish', () => {
   const m = setup();
@@ -269,7 +269,7 @@ test('ambiguous target remains a question; selecting a version does not publish'
   apply(m, [candidate(m)]);
   source(m, '开始吧');
   apply(m, [{ ...candidate(m), operation: 'publish', resolution: 'needs_clarification' }]);
-  const [a, , q] = m.collaboration!.drafts;
+  const [a, , q] = m.intentPreparation!.drafts;
   assert.equal(q.status, 'needs_clarification');
   collaborationCommand(m, 'collaborationResolve', {
     draftId: q.id,
@@ -283,7 +283,7 @@ test('ambiguous target remains a question; selecting a version does not publish'
 test('freeze refuses unprocessed sources and freezes preview against later updates', () => {
   const m = setup();
   apply(m, [{ ...candidate(m), collectionMode: 'prospective' }]);
-  const d = m.collaboration!.drafts[0],
+  const d = m.intentPreparation!.drafts[0],
     base = () => ({ draftId: d.id, expectedRevision: d.rev });
   assert.throws(
     () => collaborationCommand(m, 'collaborationFreeze', base()),
@@ -300,7 +300,7 @@ test('draft editing invalidates in-flight reads and rejects stale commands and p
   const m = setup();
   apply(m, [candidate(m)]);
   const read = readSet(m),
-    d = m.collaboration!.drafts[0],
+    d = m.intentPreparation!.drafts[0],
     old = d.rev;
   collaborationCommand(m, 'collaborationEdit', {
     draftId: d.id,
@@ -324,17 +324,17 @@ test('draft editing invalidates in-flight reads and rejects stale commands and p
     /INVALID/,
   );
 });
-test('dismissed suggestion is not revived by replay; personal context has no collaboration capability', () => {
+test('dismissed suggestion is not revived by replay; personal context has no intentPreparation capability', () => {
   const m = setup(),
     i = candidate(m);
   apply(m, [i]);
-  const d = m.collaboration!.drafts[0];
+  const d = m.intentPreparation!.drafts[0];
   collaborationCommand(m, 'collaborationDismiss', { draftId: d.id, expectedRevision: d.rev });
   apply(m, [i]);
-  assert.equal(m.collaboration!.drafts.length, 1);
+  assert.equal(m.intentPreparation!.drafts.length, 1);
   assert.equal(d.status, 'dismissed');
   m.contextScope = 'personal';
-  assert.equal(contextPayload(m).collaboration, null);
+  assert.equal(contextPayload(m).intentPreparation, null);
   assert.throws(() => validateCollaboration(proposal([i]), m), /DISABLED/);
 });
 test('source corrections flag review and meeting end stops collectors', () => {
@@ -346,15 +346,15 @@ test('source corrections flag review and meeting end stops collectors', () => {
     type: 'correct',
     payload: { segmentId: m.segments[0].id, baseRevision: 1, text: '先别投票' },
   });
-  assert.ok(m.collaboration!.drafts[0].needsReview);
+  assert.ok(m.intentPreparation!.drafts[0].needsReview);
   reduceMeeting(m, { id: crypto.randomUUID(), meetingId: m.id, type: 'end', payload: {} });
-  assert.equal(m.collaboration!.drafts[0].status, 'draft');
+  assert.equal(m.intentPreparation!.drafts[0].status, 'draft');
 });
 
 test('review: suggested updates do not overwrite an existing collector', () => {
   const m = setup();
   apply(m, [{ ...candidate(m), collectionMode: 'prospective' }]);
-  const d = m.collaboration!.drafts[0],
+  const d = m.intentPreparation!.drafts[0],
     before = structuredClone(d);
   source(m, '要不要改成其他方案？');
   const update = {
@@ -366,13 +366,13 @@ test('review: suggested updates do not overwrite an existing collector', () => {
   if (update.content?.kind === 'poll') update.content.question = '新的建议';
   apply(m, [update]);
   assert.deepEqual(d, before);
-  assert.equal(m.collaboration!.drafts[1].status, 'suggestion');
+  assert.equal(m.intentPreparation!.drafts[1].status, 'suggestion');
 });
 
 test('review: merging protected poll labels cannot introduce duplicate options', () => {
   const m = setup();
   apply(m, [candidate(m)]);
-  const d = m.collaboration!.drafts[0];
+  const d = m.intentPreparation!.drafts[0];
   collaborationCommand(m, 'collaborationEdit', {
     draftId: d.id,
     expectedRevision: d.rev,
@@ -395,7 +395,7 @@ test('review: merging protected poll labels cannot introduce duplicate options',
 test('operation suggestions never modify or stop their existing target collector', () => {
   const m = setup();
   apply(m, [{ ...candidate(m), collectionMode: 'prospective' }]);
-  const d = m.collaboration!.drafts[0],
+  const d = m.intentPreparation!.drafts[0],
     before = structuredClone(d);
   for (const operation of [
     'publish',
@@ -408,7 +408,7 @@ test('operation suggestions never modify or stop their existing target collector
     apply(m, [{ ...candidate(m), target: { id: d.id, rev: d.rev }, operation }]);
     assert.deepEqual(d, before);
   }
-  assert.equal(m.collaboration!.drafts.length, 7);
+  assert.equal(m.intentPreparation!.drafts.length, 7);
 });
 
 test('partial coverage persists, and the fifth collector is only a suggestion', () => {
@@ -417,15 +417,15 @@ test('partial coverage persists, and the fifth collector is only a suggestion', 
     source(m, `选题${index}`);
     apply(m, [{ ...candidate(m), collectionMode: 'prospective' }]);
   }
-  assert.equal(m.collaboration!.drafts.filter((d) => d.status === 'collecting').length, 4);
-  assert.equal(m.collaboration!.drafts.at(-1)!.status, 'suggestion');
+  assert.equal(m.intentPreparation!.drafts.filter((d) => d.status === 'collecting').length, 4);
+  assert.equal(m.intentPreparation!.drafts.at(-1)!.status, 'suggestion');
   const p = proposal([]);
-  p.collaboration!.coverage = 'partial';
-  p.collaboration!.unprocessedRefs = [{ id: m.segments[0].id, rev: 1 }];
+  p.intentPreparation!.coverage = 'partial';
+  p.intentPreparation!.unprocessedRefs = [{ id: m.segments[0].id, rev: 1 }];
   validateCollaboration(p, m);
   applyCollaboration(m, p, [], 'partial');
-  assert.equal(m.collaboration!.coverage, 'partial');
-  assert.equal(m.collaboration!.unprocessedRefs.length, 1);
+  assert.equal(m.intentPreparation!.coverage, 'partial');
+  assert.equal(m.intentPreparation!.unprocessedRefs.length, 1);
 });
 
 test('batch-local draft targets map to stable IDs and suppressed dependencies do not execute', () => {
@@ -439,11 +439,11 @@ test('batch-local draft targets map to stable IDs and suppressed dependencies do
       dependsOnLocalIds: [a.localId],
     };
   apply(m, [a, b]);
-  assert.equal(m.collaboration!.drafts[1].candidate.target!.id, m.collaboration!.drafts[0].id);
+  assert.equal(m.intentPreparation!.drafts[1].candidate.target!.id, m.intentPreparation!.drafts[0].id);
   const fresh = setup();
   const first = { ...candidate(fresh), expression: 'negated' as const };
   apply(fresh, [first, { ...candidate(fresh, 'assignment'), dependsOnLocalIds: [first.localId] }]);
-  assert.equal(fresh.collaboration!.drafts.length, 0);
+  assert.equal(fresh.intentPreparation!.drafts.length, 0);
 });
 
 test('draft edits are command-idempotent and storage failure cannot publish new memory state', () => {
@@ -463,7 +463,7 @@ test('draft edits are command-idempotent and storage failure cannot publish new 
     config,
   );
   try {
-    const d = service.meetings[0].collaboration!.drafts[0];
+    const d = service.meetings[0].intentPreparation!.drafts[0];
     const command = {
       id: crypto.randomUUID(),
       meetingId: m.id,
@@ -476,14 +476,14 @@ test('draft edits are command-idempotent and storage failure cannot publish new 
     };
     assert.throws(() => service.command(command), /STORAGE_FAILED/);
     assert.notEqual(
-      (service.meetings[0].collaboration!.drafts[0].content as any).question,
+      (service.meetings[0].intentPreparation!.drafts[0].content as any).question,
       'Host text',
     );
     store.save = originalSave;
     service.command(command);
-    const rev = service.meetings[0].collaboration!.drafts[0].rev;
+    const rev = service.meetings[0].intentPreparation!.drafts[0].rev;
     service.command(command);
-    assert.equal(service.meetings[0].collaboration!.drafts[0].rev, rev);
+    assert.equal(service.meetings[0].intentPreparation!.drafts[0].rev, rev);
   } finally {
     service.close();
   }
@@ -507,7 +507,7 @@ test('proposal temporary object refs map to server IDs', () => {
   ];
   const resolved = resolveNewRefs(p, m);
   assert.equal(
-    resolved.proposal.collaboration!.intents[0].referencedObjects[0].id,
+    resolved.proposal.intentPreparation!.intents[0].referencedObjects[0].id,
     resolved.idMap.new_option,
   );
   validateCollaboration(resolved.proposal, m);
@@ -551,16 +551,16 @@ test('service pipeline persists all four drafts atomically and restores without 
   });
   await service.process(id);
   assert.equal(
-    service.meetings[0].collaboration!.drafts.length,
+    service.meetings[0].intentPreparation!.drafts.length,
     4,
     service.meetings[0].error ?? 'missing drafts',
   );
-  const saved = structuredClone(service.meetings[0].collaboration);
+  const saved = structuredClone(service.meetings[0].intentPreparation);
   service.close();
   const restored = new SessionService(new SQLiteStore(path), model, config);
   try {
     await restored.process(id);
-    assert.deepEqual(restored.meetings[0].collaboration, saved);
+    assert.deepEqual(restored.meetings[0].intentPreparation, saved);
     assert.equal(calls, 1);
   } finally {
     restored.close();

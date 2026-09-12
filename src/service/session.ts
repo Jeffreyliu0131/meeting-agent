@@ -2,7 +2,7 @@ import {
   applyCollaboration,
   validateCollaboration,
   refreshCollaboration,
-} from '../domain/collaboration';
+} from '../domain/intent-preparation';
 import { CallPool } from './call-pool';
 import { validatePresentationRepair } from '../domain/expression-repair';
 import { RenderFailure } from '../contracts/render-report';

@@ -19,7 +19,7 @@
 
 ## 契约与运行流程
 
-运行时契约在[src/contracts/collaboration.ts](../src/contracts/collaboration.ts)。Proposal新增可选collaboration，旧提案仍可读；供应商严格schema要求返回该字段，关闭时null。候选包含family、operation、expression、resolution、目标版本／批内目标、议题／对象／来源、收集方式、缺项、有序依赖及判别联合content。
+运行时契约在[src/contracts/intent-preparation.ts](../src/contracts/intent-preparation.ts)。Proposal新增可选intentPreparation，旧提案仍可读；供应商严格schema要求返回该字段，关闭时null。候选包含family、operation、expression、resolution、目标版本／批内目标、议题／对象／来源、收集方式、缺项、有序依赖及判别联合content。
 
 理解与意图共用现有一次模型调用、补证据和最多两次实时调用预算。证据请求不得携带意图写入。源字段必须引用当前、非个人、非partial的会议来源；分工owner/time必须逐字出现在引用原话，否则拒绝。新对象引用随原有resolveNewRefs映射成服务ID。内容种类、条目key唯一性、投票选项规范化重复、有向批内依赖、版本和跨会议引用均校验。
 
@@ -39,7 +39,7 @@
 
 Segment新增可选finality，旧记录视为final；partial可读但不进入会议模型投影及pending输入。correct可保存新final版本。来源／对象修订标记草稿needsReview，首轮保守保留该标记，不提供一键绕过核对。
 
-草稿、版本历史、手工锁、删除项、来源与未处理范围保存在Meeting.collaboration，复用state schema_version=1的单事务保存和工作流恢复，不新增多人数据库表。大量历史仍随聚合保存；有界上下文省略草稿history和processedEvents，但草稿过多仍可能明确触发上下文容量错误，尚无协作目录分页检索。
+草稿、版本历史、手工锁、删除项、来源与未处理范围保存在Meeting.intentPreparation，复用state schema_version=1的单事务保存和工作流恢复，不新增多人数据库表。大量历史仍随聚合保存；有界上下文省略草稿history和processedEvents，但草稿过多仍可能明确触发上下文容量错误，尚无协作目录分页检索。
 
 ## 尚未实施与验收边界
 
