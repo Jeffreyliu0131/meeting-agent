@@ -19,6 +19,7 @@ import dotenv from 'dotenv';
 import type { Snapshot, Meeting, Command } from '../contracts/model';
 import { renderPreflight } from './preflight';
 import { platformInfo, supportedDesktop } from './platform';
+import { startLocalProxy, stopLocalProxy } from './local-proxy';
 import copy from '../../docs/design/ui-copy.json';
 dotenv.config({ quiet: true });
 app.setName('Meeting Agent');
@@ -249,9 +250,12 @@ async function quit() {
     return;
   }
   quitting = true;
+  stopLocalProxy();
   globalShortcut.unregisterAll();
   app.quit();
 }
+// A crash or a forced exit must not leave an orphaned proxy holding the port.
+process.on('exit', stopLocalProxy);
 function secureWindow(options: Electron.BrowserWindowConstructorOptions, role: string) {
   const win = new BrowserWindow({
     ...options,
@@ -282,6 +286,16 @@ app.on('before-quit', (e) => {
 app.on('window-all-closed', () => {});
 app.whenReady().then(async () => {
   mkdirSync(app.getPath('userData'), { recursive: true });
+  // Opt-in via MEETING_AUTOSTART_PROXY=1. Starting it before the worker means
+  // the session service comes up with a reachable provider. Failure is logged,
+  // never fatal: the app must still open and say honestly that it is not
+  // connected, rather than refusing to start.
+  const proxy = await startLocalProxy(
+    process.env.MEETING_API_BASE ?? '',
+    (message) => console.log(`[local-proxy] ${message}`),
+  );
+  if (!proxy.started && !['AUTOSTART_DISABLED', 'REMOTE_PROVIDER'].includes(proxy.reason))
+    console.warn(`[local-proxy] not started: ${proxy.reason}`);
   worker = utilityProcess.fork(join(__dirname, 'worker.cjs'), [], {
     env: {
       ...process.env,
