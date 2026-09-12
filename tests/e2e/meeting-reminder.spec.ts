@@ -23,7 +23,7 @@ async function launch(fixture = true) {
       OPENAI_API_KEY: '',
       MEETING_STT_API_KEY: 'synthetic-not-a-real-key',
       MEETING_STT_API_BASE: base,
-      // This fixture serves batch HTTP transcription, not the live WebSocket protocol.
+      // This fixture serves HTTP file transcription; live WebSocket transport is tested separately.
       MEETING_STT_MODEL: 'whisper-1',
     },
   });
@@ -135,6 +135,7 @@ test.afterEach(async () => {
 });
 
 test('bilingual bubble anchors beside launcher, does not steal focus, closes without recording and stays deduplicated', async () => {
+  await app.evaluate(({ app }) => app.focus({ steal: true }));
   await app.evaluate(({ BrowserWindow }) => {
     const w = BrowserWindow.getAllWindows().find((w) =>
       w.webContents.getURL().includes('role=workspace'),
@@ -142,6 +143,17 @@ test('bilingual bubble anchors beside launcher, does not steal focus, closes wit
     w.show();
     w.focus();
   });
+  await expect
+    .poll(() =>
+      app.evaluate(({ BrowserWindow }) => {
+        const w = BrowserWindow.getAllWindows().find((w) =>
+          w.webContents.getURL().includes('role=workspace'),
+        );
+        w?.focus();
+        return BrowserWindow.getFocusedWindow()?.webContents.getURL();
+      }),
+    )
+    .toContain('role=workspace');
   await signal();
   await expect(bubble.getByText('You might be in a meeting')).toBeVisible();
   await expect(bubble.getByText('Click to start recording')).toBeVisible();

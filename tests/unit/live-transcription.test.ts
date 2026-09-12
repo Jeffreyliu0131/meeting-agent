@@ -126,7 +126,11 @@ test('streams PCM before commit, keeps provisional text separate, and drains the
   const s = await setup();
   try {
     s.client.append(lease(), pcm());
-    await tick();
+    // Observe the actual WebSocket round-trip, not a machine-speed-dependent 30ms sleep.
+    // Keep an upper bound so a missing partial still fails, while commit/final remain absent.
+    const deadline = performance.now() + 1000;
+    while (!s.partials.some((p) => p.text === 'draft') && performance.now() < deadline)
+      await new Promise((resolve) => setTimeout(resolve, 5));
     assert.equal(
       s.messages.some((e) => e.type === 'input_audio_buffer.append'),
       true,
@@ -184,6 +188,22 @@ test('out-of-order completions keep their own source leases and duplicate events
       ],
     );
     assert.equal(s.finals.find((f) => f.text === 'first').lease.captureEndMs, 1700);
+  } finally {
+    await s.cleanup();
+  }
+});
+
+test('continuous speech commits by 2.4 seconds without waiting for a silence', async () => {
+  const s = await setup();
+  try {
+    for (let n = 0; n < 24; n++) s.client.append(lease(n), pcm());
+    const deadline = performance.now() + 1000;
+    while (!s.finals.length && performance.now() < deadline)
+      await new Promise((resolve) => setTimeout(resolve, 5));
+    assert.equal(s.finals.length, 1);
+    assert.equal(s.finals[0].lease.captureStartMs, 1000);
+    assert.equal(s.finals[0].lease.captureEndMs, 3400);
+    assert.equal(s.gaps.length, 0);
   } finally {
     await s.cleanup();
   }

@@ -1,0 +1,26 @@
+{
+  "ranAt": "2026-09-12T06:53:12.758684+00:00",
+  "pid": 84954,
+  "appPath": "/Users/jeff/Applications/Meeting Agent.app",
+  "stablePackages": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/\u9ed1\u5ba2\u677e/meeting-agent/release/deployed-20260912-1445",
+  "running": true,
+  "eventsBefore": 0,
+  "projectConfigurationCopiedToAppData": false,
+  "originalProjectEnvUnchanged": true,
+  "realAudioCaptured": false,
+  "gitCommittedOrPushed": false,
+  "verifiedAt": "2026-09-12T06:55:10.450321+00:00",
+  "eventsAfter": 0,
+  "activeCaptures": [],
+  "visibleWindowsVerified": {
+    "workspace": {
+      "width": 1180,
+      "height": 840
+    },
+    "launcher": {
+      "width": 44,
+      "height": 44
+    },
+    "method": "macOS CGWindowListCopyWindowInfo, filtered by installed application PID"
+  }
+}

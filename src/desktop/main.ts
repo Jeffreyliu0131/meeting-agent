@@ -1,3 +1,4 @@
+import { previewBounds } from './preview-bounds';
 import { PreferencesPatchSchema } from '../domain/preferences';
 import { ComponentDock } from './component-dock';
 import { EventEmitter } from 'node:events';
@@ -30,6 +31,7 @@ import dotenv from 'dotenv';
 import type { Snapshot, Meeting, Command } from '../contracts/model';
 import { renderPreflight } from './preflight';
 import { platformInfo, supportedDesktop } from './platform';
+import { startLocalProxy, stopLocalProxy } from './local-proxy';
 dotenv.config({ quiet: true });
 app.setName('Meeting Agent');
 if (process.platform === 'win32') app.setAppUserModelId('dev.meetingagent.desktop');
@@ -46,7 +48,10 @@ let workspace: BrowserWindow,
 let state: Snapshot | null = null,
   quitting = false,
   menuOpen = false,
-  hoverTimer: ReturnType<typeof setTimeout> | undefined;
+  hoverTimer: ReturnType<typeof setTimeout> | undefined,
+  previewCloseTimer: ReturnType<typeof setTimeout> | undefined,
+  launcherDragging = false;
+const previewRegions = new Set<'launcher' | 'preview'>();
 const pending = new Map<
   string,
   { resolve: (v: any) => void; reject: (e: Error) => void; timer: ReturnType<typeof setTimeout> }
@@ -142,7 +147,7 @@ function presentReminder(view: ReminderView | null) {
   if (view?.channel === 'bubble') {
     nativeReminder?.clear();
     clearTimeout(hoverTimer);
-    preview?.hide();
+    dismissPreview();
     positionReminder();
     if (!reminderWindow.isVisible()) reminderWindow.showInactive();
   } else {
@@ -158,9 +163,10 @@ function syncDesktop() {
   if (visible && !launcher.isVisible()) launcher.showInactive();
   if (!visible) {
     launcher.hide();
-    preview?.hide();
+    dismissPreview();
     clearTimeout(hoverTimer);
   }
+  if (preview?.isVisible()) positionPreview();
   reminders?.synchronize();
   tray?.setToolTip(`Meeting Agent · ${t(launcherIndicator(active(), !serviceAvailable).labelKey)}`);
 }
@@ -193,7 +199,7 @@ const t = (key: string) => {
   return translator(locale)(key);
 };
 function openWorkspace() {
-  preview?.hide();
+  dismissPreview();
   workspace.show();
   workspace.focus();
   if (state)
@@ -266,29 +272,58 @@ async function stopMeeting(m: Meeting) {
   await drainCapture();
   await dispatch('end', {}, m.id);
 }
+function positionPreview() {
+  if (!preview || !launcher) return;
+  const bounds = previewBounds(
+    launcher.getBounds(),
+    screen.getDisplayMatching(launcher.getBounds()).workArea,
+    !!active(),
+  );
+  if (JSON.stringify(preview.getBounds()) !== JSON.stringify(bounds)) preview.setBounds(bounds);
+}
+function dismissPreview() {
+  clearTimeout(hoverTimer);
+  clearTimeout(previewCloseTimer);
+  hoverTimer = undefined;
+  previewCloseTimer = undefined;
+  previewRegions.clear();
+  preview?.hide();
+}
 function showPreview() {
   if (
     menuOpen ||
+    launcherDragging ||
+    !previewRegions.size ||
     workspace.isFocused() ||
     !launcher.isVisible() ||
     reminders?.current?.channel === 'bubble'
   )
     return;
-  const b = launcher.getBounds(),
-    area = screen.getDisplayMatching(b).workArea;
-  preview.setPosition(
-    Math.max(area.x, Math.min(b.x - 330, area.x + area.width - 320)),
-    Math.max(area.y, Math.min(b.y, area.y + area.height - 230)),
-  );
+  positionPreview();
   preview.showInactive();
 }
-function hidePreview() {
-  clearTimeout(hoverTimer);
-  hoverTimer = setTimeout(() => preview.hide(), 300);
+function trackPreviewHover(region: 'launcher' | 'preview', inside: boolean) {
+  if (inside) {
+    if (menuOpen || launcherDragging || (region === 'preview' && !preview.isVisible())) return;
+    previewRegions.add(region);
+    clearTimeout(previewCloseTimer);
+    if (!preview.isVisible() && !hoverTimer)
+      hoverTimer = setTimeout(() => {
+        hoverTimer = undefined;
+        showPreview();
+      }, 250);
+  } else {
+    previewRegions.delete(region);
+    if (previewRegions.size) return;
+    clearTimeout(hoverTimer);
+    hoverTimer = undefined;
+    clearTimeout(previewCloseTimer);
+    previewCloseTimer = setTimeout(dismissPreview, 300);
+  }
 }
 async function contextMenu() {
   menuOpen = true;
-  preview.hide();
+  dismissPreview();
   const m = active();
   const items: Electron.MenuItemConstructorOptions[] = [
     {
@@ -450,9 +485,12 @@ async function quit() {
   }
   quitting = true;
   reminders?.clear();
+  stopLocalProxy();
   globalShortcut.unregisterAll();
   app.quit();
 }
+// A crash or a forced exit must not leave an orphaned proxy holding the port.
+process.on('exit', stopLocalProxy);
 function secureWindow(options: Electron.BrowserWindowConstructorOptions, role: string) {
   const win = new BrowserWindow({
     ...options,
@@ -483,6 +521,19 @@ app.on('before-quit', (e) => {
 app.on('window-all-closed', () => {});
 app.whenReady().then(async () => {
   mkdirSync(app.getPath('userData'), { recursive: true });
+  // Development convenience only. Installation/health checks must never delay the UI.
+  if (!app.isPackaged)
+    void startLocalProxy(process.env.MEETING_API_BASE ?? '', (message) =>
+      console.log(`[local-proxy] ${message}`),
+    )
+      .then((proxy) => {
+        if (
+          !proxy.started &&
+          !['AUTOSTART_DISABLED', 'REMOTE_PROVIDER', 'START_CANCELLED'].includes(proxy.reason)
+        )
+          console.warn(`[local-proxy] not started: ${proxy.reason}`);
+      })
+      .catch(() => console.warn('[local-proxy] startup failed'));
   worker = utilityProcess.fork(join(__dirname, 'worker.cjs'), [], {
     env: {
       ...process.env,
@@ -642,7 +693,7 @@ app.whenReady().then(async () => {
     }
   });
   const area = screen.getPrimaryDisplay().workArea;
-  componentDock = new ComponentDock({state: () => state, create: secureWindow, request});
+  componentDock = new ComponentDock({ state: () => state, create: secureWindow, request });
   launcher = secureWindow(
     {
       x: area.x + area.width - 64,
@@ -674,8 +725,8 @@ app.whenReady().then(async () => {
   } catch {}
   preview = secureWindow(
     {
-      width: 320,
-      height: 230,
+      width: 760,
+      height: 560,
       resizable: false,
       frame: false,
       show: false,
@@ -686,6 +737,22 @@ app.whenReady().then(async () => {
     },
     'preview',
   );
+  preview.on('hide', () =>
+    preview.webContents.send('snapshot', { ...desktopSnapshot(), previewVisible: false }),
+  );
+  // Native WebContents events also cover sandboxed HTML/SVG child frames.
+  // DOM mouseleave alone can mistake entering those frames for leaving the canvas.
+  preview.webContents.on('before-mouse-event', (_event, mouse) => {
+    if (mouse.type === 'mouseLeave') trackPreviewHover('preview', false);
+    else if (['mouseEnter', 'mouseMove', 'mouseWheel'].includes(mouse.type)) {
+      const [width, height] = preview.getContentSize();
+      trackPreviewHover(
+        'preview',
+        mouse.x >= 0 && mouse.y >= 0 && mouse.x < width && mouse.y < height,
+      );
+    }
+  });
+  workspace.on('focus', dismissPreview);
   capture = secureWindow({ width: 320, height: 160, show: false, skipTaskbar: true }, 'capture');
   reminderWindow = secureWindow(
     {
@@ -785,7 +852,7 @@ app.whenReady().then(async () => {
     try {
       if (event.sender === componentDock?.window.webContents) {
         if (event.senderFrame !== event.sender.mainFrame) throw new Error('PERMISSION_DENIED');
-        return {ok:true,value:await componentDock.handle(method,args)};
+        return { ok: true, value: await componentDock.handle(method, args) };
       }
       const componentWindow = componentWindows.get(event.sender.id);
       if (componentWindow) {
@@ -900,12 +967,12 @@ app.whenReady().then(async () => {
           const m = active();
           if (!m?.collaboration) throw new Error('COLLABORATION_NOT_ENABLED');
           value = await openComponent(m.id, null);
-          preview.hide();
+          dismissPreview();
           break;
         }
         case 'openComponent':
           value = await openComponent(args.meetingId, args.componentId);
-          preview.hide();
+          dismissPreview();
           break;
         case 'enableCollaboration':
           if (event.sender !== workspace.webContents) throw new Error('PERMISSION_DENIED');
@@ -1013,6 +1080,12 @@ app.whenReady().then(async () => {
               'language',
               'ask',
               'cancelRequest',
+              'collaborationPromote',
+              'collaborationEnable',
+              'collaborationEdit',
+              'collaborationDismiss',
+              'collaborationFreeze',
+              'collaborationResolve',
               'answerClarification',
               'cancelClarification',
               'retry',
@@ -1021,6 +1094,11 @@ app.whenReady().then(async () => {
               'preferences',
               'preferencesPatch',
               'end',
+              'collectionCreate',
+              'collectionUpdate',
+              'collectionMembers',
+              'collectionDelete',
+              'collectionReport',
             ].includes(args.type)
           )
             throw new Error('PERMISSION_DENIED');
@@ -1038,6 +1116,50 @@ app.whenReady().then(async () => {
         case 'capture':
           value = await captureAction(args.action, args.meetingId);
           break;
+        case 'openPreview': {
+          if (event.sender !== preview.webContents) throw new Error('PERMISSION_DENIED');
+          const meeting = active();
+          const artifact = meeting?.artifacts.find(
+            (a) =>
+              a.id === args?.artifactId &&
+              a.rev === args?.artifactRev &&
+              (a.scope ?? 'meeting') === 'meeting',
+          );
+          if (args?.meetingId && args.meetingId !== meeting?.id)
+            throw new Error('MEETING_NOT_FOUND');
+          if (args?.artifactId && !artifact) throw new Error('ARTIFACT_NOT_FOUND');
+          const refs = Array.isArray(args?.refs) ? args.refs : [];
+          if (
+            refs.some(
+              (ref: any) =>
+                !artifact?.sources.some(
+                  (source) => source.id === ref?.id && source.rev === ref?.rev,
+                ),
+            )
+          )
+            throw new Error('INVALID_REQUEST');
+          const prompt = typeof args?.prompt === 'string' ? args.prompt : undefined;
+          if (
+            prompt &&
+            !artifact?.blocks.some(
+              (block) =>
+                block.type === 'actions' && block.items.some((item) => item.prompt === prompt),
+            )
+          )
+            throw new Error('INVALID_REQUEST');
+          openWorkspace();
+          workspace.webContents.send('snapshot', {
+            ...desktopSnapshot(),
+            selectMeetingId: meeting?.id,
+            previewOpen: {
+              artifact: artifact ? { id: artifact.id, rev: artifact.rev } : null,
+              refs,
+              target: typeof args?.target === 'string' ? args.target.slice(0, 500) : '',
+              prompt,
+            },
+          });
+          break;
+        }
         case 'open':
           openWorkspace();
           break;
@@ -1047,23 +1169,31 @@ app.whenReady().then(async () => {
         case 'menu':
           void contextMenu();
           break;
-        case 'hover':
-          clearTimeout(hoverTimer);
-          if (args) hoverTimer = setTimeout(showPreview, 250);
-          else hidePreview();
+        case 'hover': {
+          if (
+            typeof args !== 'boolean' ||
+            ![launcher, preview].some((w) => w.webContents === event.sender)
+          )
+            throw new Error('PERMISSION_DENIED');
+          trackPreviewHover(event.sender === launcher.webContents ? 'launcher' : 'preview', args);
           break;
+        }
         case 'drag': {
           if (event.sender !== launcher.webContents) throw new Error('PERMISSION_DENIED');
+          launcherDragging = true;
+          dismissPreview();
           const point = screen.getCursorScreenPoint(),
             work = screen.getDisplayNearestPoint(point).workArea;
           launcher.setPosition(
             Math.max(work.x, Math.min(point.x - 22, work.x + work.width - 44)),
             Math.max(work.y, Math.min(point.y - 22, work.y + work.height - 44)),
           );
-          preview.hide();
           break;
         }
         case 'snap': {
+          if (event.sender !== launcher.webContents) throw new Error('PERMISSION_DENIED');
+          launcherDragging = false;
+          dismissPreview();
           const b = launcher.getBounds(),
             work = screen.getDisplayMatching(b).workArea;
           launcher.setPosition(
@@ -1111,7 +1241,11 @@ app.whenReady().then(async () => {
   });
   // Initial load may precede IPC registration; renderer retries its snapshot read.
   app.on('activate', openWorkspace);
+  screen.on('display-metrics-changed', () => {
+    if (preview.isVisible()) positionPreview();
+  });
   screen.on('display-removed', () => {
+    dismissPreview();
     const work = screen.getPrimaryDisplay().workArea;
     launcher.setPosition(work.x + work.width - 64, work.y + 100);
     positionReminder();

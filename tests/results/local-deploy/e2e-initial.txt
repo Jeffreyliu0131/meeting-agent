@@ -1,0 +1,141 @@
+(node:76862) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 33 tests using 1 worker
+
+(node:76871) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:76871) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/collaboration.spec.ts:7:1 › host publishes a poll to independent participants; participant cannot read the host snapshot (1.6s)
+  ✓   2 tests/e2e/collaboration.spec.ts:80:1 › assignment objections produce a floating conflict, resolution drafts and explicit three-person confirmation (2.2s)
+(node:76871) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+  ✓   3 tests/e2e/collections.spec.ts:11:1 › collections combine explicit collaboration decisions, preserve source meetings, and become stale after editing (1.0s)
+  ✓   4 tests/e2e/desktop.spec.ts:51:1 › real Electron: event, manual original source, honest missing model, correction, UI locale, end and restore (2.0s)
+  ✓   5 tests/e2e/desktop.spec.ts:141:1 › native launcher opens one workspace; hiding does not stop the event; hover uses real windows (1.2s)
+  ✓   6 tests/e2e/desktop.spec.ts:190:1 › UI cannot impersonate audio adapter; no frame gets filesystem or arbitrary IPC; responsive shell (854ms)
+  ✓   7 tests/e2e/desktop.spec.ts:229:1 › meeting library filters, search recovery and settings keyboard loop (1.0s)
+  ✓   8 tests/e2e/desktop.spec.ts:293:1 › launcher uses transparent chrome and distinct synthetic capture indicators with truthful labels (909ms)
+  ✘   9 tests/e2e/editorial.spec.ts:185:1 › editorial: stable split, exact numbered sources, preserved reading and contextual feedback draft (13.5s)
+(node:77101) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:77101) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 tests/e2e/editorial.spec.ts:245:1 › editorial: narrow overlay, focus, correction draft, readable zoom and English shell (1.5s)
+  ✓  11 tests/e2e/editorial.spec.ts:331:1 › editorial: long transcript preserves scroll and corrected source keeps its number and old revision (1.6s)
+  ✓  12 tests/e2e/editorial.spec.ts:381:1 › editorial: explicit history navigation releases reading hold and failed corrections stay actionable (1.8s)
+  ✘  13 tests/e2e/intent-preparation.spec.ts:9:1 › four intent drafts: real IPC, protected edits, sources and restart (11.1s)
+(node:77250) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:77250) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:77250) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+  ✓  14 tests/e2e/interface-settings.spec.ts:50:1 › settings save immediately, preserve independent changes and persist across restart (1.5s)
+  ✓  15 tests/e2e/interface-settings.spec.ts:83:1 › failed immediate settings roll back honestly and can be retried (779ms)
+  ✓  16 tests/e2e/interface-settings.spec.ts:107:1 › native preferred system language drives startup; chrome does not select and modal skips collapsed controls (1.5s)
+  ✓  17 tests/e2e/interface-settings.spec.ts:148:1 › launcher and display switches apply immediately without Done; rapid changes survive reopening (1.4s)
+  ✓  18 tests/e2e/interface-settings.spec.ts:186:1 › failed launcher save reverts its checkbox and native window; retry applies the intent (739ms)
+  ✓  19 tests/e2e/interface-settings.spec.ts:216:1 › shortcut auto-save rolls back native registration when persistence fails (3.2s)
+  ✓  20 tests/e2e/live-transcription.spec.ts:16:1 › live audio shows drafts, drains short tails on pause/end, and resumes with a new connection (3.7s)
+  ✓  21 tests/e2e/meeting-reminder.spec.ts:135:1 › bilingual bubble anchors beside launcher, does not steal focus, closes without recording and stays deduplicated (834ms)
+  ✓  22 tests/e2e/meeting-reminder.spec.ts:201:1 › bubble hover holds beyond eight seconds; moving away expires and stale click cannot start (17.9s)
+  ✓  23 tests/e2e/meeting-reminder.spec.ts:216:1 › click starts one synthetic recording quietly; hide launcher and disable reminders preserve capture; preferences persist (2.0s)
+  ✓  24 tests/e2e/meeting-reminder.spec.ts:242:1 › hidden launcher routes to native adapter: close/failure/expiry are inert; click records once without workspace (1.0s)
+  ✓  25 tests/e2e/meeting-reminder.spec.ts:271:1 › setup exception is explicit; reminder renderer has least privilege; production IPC cannot inject detections (1.9s)
+  ✘  26 tests/e2e/provider-contract.spec.ts:245:1 › provider transport, isolated preflight, generated structure, source binding, updates and personal calculator (13.3s)
+(node:77709) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:77709) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  27 tests/e2e/provider-contract.spec.ts:380:1 › synthetic oscillator keeps capturing through a slow STT response and stops cleanly (19.8s)
+  ✓  28 tests/e2e/provider-contract.spec.ts:461:1 › text, timeline, chart, SVG and passive HTML render without a privileged bridge (1.8s)
+  ✓  29 tests/e2e/provider-contract.spec.ts:501:1 › normal meeting entry saves setup once, starts audio in one intent and reveals exploration only after content (6.8s)
+  ✓  30 tests/e2e/reliability.spec.ts:9:1 › conditional meeting record survives personal exploration, end, sources and restart (3.2s)
+(node:77709) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+  ✓  31 tests/e2e/scenario-basis.spec.ts:16:3 › saved scenario basis: unrelated input, missing evidence and source correction · en (726ms)
+  ✓  32 tests/e2e/scenario-basis.spec.ts:16:3 › saved scenario basis: unrelated input, missing evidence and source correction · zh-CN (730ms)
+  ✓  33 tests/e2e/workflow.spec.ts:8:1 › workflow: object-bound exploration, live progress, cancellation and persistent clarification (3.0s)
+
+
+  1) tests/e2e/editorial.spec.ts:185:1 › editorial: stable split, exact numbered sources, preserved reading and contextual feedback draft 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  locator('.focus-summary')
+    Expected: "两种路径仍在比较，支持容量是关键条件。"
+    Received: "有新的原话，支持容量仍待确认。"
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveText" locator('.focus-summary') with timeout 10000ms
+      - waiting for locator('.focus-summary')
+        24 × locator resolved to <p class="lead focus-summary">有新的原话，支持容量仍待确认。</p>
+           - unexpected value "有新的原话，支持容量仍待确认。"
+
+
+      211 |   await ingest('新的补充：支持容量仍未确认。');
+      212 |   await expect(page.locator('.reading-update')).toBeVisible();
+    > 213 |   await expect(page.locator('.focus-summary')).toHaveText(originalSummary);
+          |                                                ^
+      214 |   await page.getByRole('button', { name: '查看新内容', exact: true }).click();
+      215 |   await expect(page.locator('.focus-summary')).toHaveText('有新的原话，支持容量仍待确认。');
+      216 |   await page.getByRole('button', { name: '进一步讨论', exact: true }).click();
+        at /private/tmp/meeting-local-deploy-u8rx3x8b/tests/e2e/editorial.spec.ts:213:48
+
+    Error Context: tests/results/local-deploy-run/editorial-editorial-stable-5d2f1-d-contextual-feedback-draft/error-context.md
+
+  2) tests/e2e/intent-preparation.spec.ts:9:1 › four intent drafts: real IPC, protected edits, sources and restart 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('intent-poll').getByText('Automatic suggestion differs from your protected edits')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('intent-poll').getByText('Automatic suggestion differs from your protected edits') with timeout 10000ms
+      - waiting for getByTestId('intent-poll').getByText('Automatic suggestion differs from your protected edits')
+
+
+      152 |     await expect(
+      153 |       poll.getByText('Automatic suggestion differs from your protected edits'),
+    > 154 |     ).toBeVisible();
+          |       ^
+      155 |     await expect(poll.getByRole('textbox', { name: 'Option 1', exact: true })).toHaveValue(
+      156 |       'Five invited customers',
+      157 |     );
+        at /private/tmp/meeting-local-deploy-u8rx3x8b/tests/e2e/intent-preparation.spec.ts:154:7
+
+    Error Context: tests/results/local-deploy-run/intent-preparation-four-in-dde19-d-edits-sources-and-restart/error-context.md
+
+  3) tests/e2e/provider-contract.spec.ts:245:1 › provider transport, isolated preflight, generated structure, source binding, updates and personal calculator 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.relationship-list')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.relationship-list') with timeout 10000ms
+      - waiting for locator('.relationship-list')
+
+
+      362 |     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+      363 |     .toBe(true);
+    > 364 |   await expect(page.locator('.relationship-list')).toBeVisible();
+          |                                                    ^
+      365 |   // Electron zoom affects CDP screenshot cropping; use the native surface at 200%.
+      366 |   const zoomCapture = await app.evaluate(async ({ BrowserWindow }) =>
+      367 |     (
+        at /private/tmp/meeting-local-deploy-u8rx3x8b/tests/e2e/provider-contract.spec.ts:364:52
+
+    Error Context: tests/results/local-deploy-run/provider-contract-provider-044bb-tes-and-personal-calculator/error-context.md
+
+  3 failed
+    tests/e2e/editorial.spec.ts:185:1 › editorial: stable split, exact numbered sources, preserved reading and contextual feedback draft 
+    tests/e2e/intent-preparation.spec.ts:9:1 › four intent drafts: real IPC, protected edits, sources and restart 
+    tests/e2e/provider-contract.spec.ts:245:1 › provider transport, isolated preflight, generated structure, source binding, updates and personal calculator 
+  30 passed (2.1m)

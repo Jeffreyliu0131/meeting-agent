@@ -46,9 +46,11 @@ test('host publishes a poll to independent participants; participant cannot read
     await host.getByText('高级：手工创建组件', { exact: true }).click();
     await host.getByRole('button', { name: '准备投票', exact: true }).click();
     await expect
-      .poll(async () => (await app.windows()).some((p) => p.url().includes('role=component')))
+      .poll(async () =>
+        (await app.windows()).some((p) => /[?&]role=component(?:&|$)/.test(p.url())),
+      )
       .toBe(true);
-    const component = (await app.windows()).find((p) => p.url().includes('role=component'))!;
+    const component = (await app.windows()).find((p) => /[?&]role=component(?:&|$)/.test(p.url()))!;
     await component.getByRole('button', { name: '修改内容（可选）', exact: true }).click();
     await component.getByLabel('投票题目').fill('先做哪个方案？');
     await component.getByLabel('选项 1', { exact: true }).fill('内部试点');
@@ -123,10 +125,13 @@ test('assignment objections produce a floating conflict, resolution drafts and e
     await host.getByRole('button', { name: '准备分工', exact: true }).click();
     await expect
       .poll(
-        async () => (await app.windows()).filter((p) => p.url().includes('role=component')).length,
+        async () =>
+          (await app.windows()).filter((p) => /[?&]role=component(?:&|$)/.test(p.url())).length,
       )
       .toBe(1);
-    const assignment = (await app.windows()).find((p) => p.url().includes('role=component'))!;
+    const assignment = (await app.windows()).find((p) =>
+      /[?&]role=component(?:&|$)/.test(p.url()),
+    )!;
     await assignment.getByRole('button', { name: '修改内容（可选）', exact: true }).click();
     await assignment.getByLabel('任务名称').fill('完成原型');
     await assignment.getByLabel('交付物', { exact: true }).fill('可交互原型');
@@ -153,11 +158,12 @@ test('assignment objections produce a floating conflict, resolution drafts and e
       .click();
     await expect
       .poll(
-        async () => (await app.windows()).filter((p) => p.url().includes('role=component')).length,
+        async () =>
+          (await app.windows()).filter((p) => /[?&]role=component(?:&|$)/.test(p.url())).length,
       )
       .toBe(2);
     const conflict = (await app.windows())
-      .filter((p) => p.url().includes('role=component'))
+      .filter((p) => /[?&]role=component(?:&|$)/.test(p.url()))
       .find((p) => p !== assignment)!;
     await conflict.getByRole('button', { name: '修改内容（可选）', exact: true }).click();
     await conflict.getByRole('button', { name: '添加讨论方案' }).click();
@@ -191,11 +197,12 @@ test('assignment objections produce a floating conflict, resolution drafts and e
     await host.getByRole('button', { name: '准备决定确认', exact: true }).click();
     await expect
       .poll(
-        async () => (await app.windows()).filter((p) => p.url().includes('role=component')).length,
+        async () =>
+          (await app.windows()).filter((p) => /[?&]role=component(?:&|$)/.test(p.url())).length,
       )
       .toBe(3);
     const confirmation = (await app.windows())
-      .filter((p) => p.url().includes('role=component'))
+      .filter((p) => /[?&]role=component(?:&|$)/.test(p.url()))
       .find((p) => p !== assignment && p !== conflict)!;
     await confirmation.getByRole('button', { name: '修改内容（可选）', exact: true }).click();
     await confirmation.getByLabel('拟定结论').fill('采用内部试点');
@@ -216,7 +223,7 @@ test('assignment objections produce a floating conflict, resolution drafts and e
     await expect(confirmation.getByText('已记录指定范围决定', { exact: true })).toBeVisible();
     await app.evaluate(({ BrowserWindow }) =>
       BrowserWindow.getAllWindows()
-        .filter((w) => w.webContents.getURL().includes('role=component'))
+        .filter((w) => /[?&]role=component(?:&|$)/.test(w.webContents.getURL()))
         .forEach((w) => w.webContents.setZoomFactor(2)),
     );
     await expect(confirmation.getByText('已记录指定范围决定', { exact: true })).toBeVisible();

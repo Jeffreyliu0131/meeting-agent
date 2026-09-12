@@ -163,6 +163,8 @@ export function validateArtifact(
           relation.to !== to.objectId
         )
           throw new Error('INVALID_EDGE');
+        if (edge.kind && edge.kind !== relation.kind) throw new Error('INVALID_EDGE_KIND');
+        edge.kind = relation.kind;
       }
     }
     if (block.type === 'html' || block.type === 'svg')

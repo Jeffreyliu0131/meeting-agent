@@ -1,0 +1,76 @@
+{
+  "name": "visual-expression",
+  "timezone": "Asia/Singapore",
+  "meetingDate": "2026-09-12",
+  "variants": [
+    {
+      "id": "mindmap-without-drawing-command",
+      "outputLocale": "zh-CN",
+      "turns": [
+        {
+          "id": "visual_m1",
+          "text": "这次展览要围绕城市记忆展开，内容分成老街声音、居民故事和历史影像三部分。"
+        },
+        {
+          "id": "visual_m2",
+          "text": "居民故事还要分成采访采集和文字整理，整理要等当事人核对原文。"
+        },
+        {
+          "id": "visual_m3",
+          "text": "历史影像有版权这个前提，现在许可还没拿到。这个条件会影响能不能公开播放。"
+        }
+      ],
+      "expected": [
+        "没有明确画图命令也表达组成或依赖关系，不能只持续追加通用摘要表。",
+        "新分支、核对依赖和版权条件有来源；未知许可不能变成已获批。",
+        "后续图形应包含新增内容，稳定对象可追溯；允许不同有效布局。"
+      ]
+    },
+    {
+      "id": "dependency-conditions-revision",
+      "outputLocale": "en",
+      "turns": [
+        {
+          "id": "visual_f1",
+          "text": "For the pilot, data access has to be approved before we can import examples. We need imported examples before the support team can rehearse."
+        },
+        {
+          "id": "visual_f2",
+          "text": "The product team can draft the invitation in parallel. Sending it depends on the support rehearsal, not only on the import."
+        },
+        {
+          "id": "visual_f3",
+          "text": "Correction: the rehearsal can use synthetic examples while approval is pending, but real customer examples still require approval."
+        }
+      ],
+      "expected": [
+        "Use a dependency or condition visualization without a user request to draw.",
+        "Show the invitation drafting as parallel where grounded; retain the sending dependency.",
+        "Revise the rehearsal condition without falsely removing approval for real customer examples; preserve negation and source revisions."
+      ]
+    },
+    {
+      "id": "comparison-to-time-and-quantity",
+      "outputLocale": "zh-CN",
+      "turns": [
+        {
+          "id": "visual_t1",
+          "text": "两个方案需要比较：A的预算是3000元，B是5000元。A只能邀请内部人员，B可以邀请客户。"
+        },
+        {
+          "id": "visual_t2",
+          "text": "先计划周三做内部预演，周五如果预演通过，再做客户展示。通过标准还要讨论。"
+        },
+        {
+          "id": "visual_t3",
+          "text": "刚才B的预算说错了，应该是4500元，不是5000元。"
+        }
+      ],
+      "expected": [
+        "比较可以使用表格或数值图；时间与条件出现后应有合适的时间或依赖表达。",
+        "不要为相对日期补不存在的参照，不把有条件的展示写成确定排程。",
+        "预算修订反映到依赖它的当前表达，原来源与旧版本仍可追溯。"
+      ]
+    }
+  ]
+}

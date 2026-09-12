@@ -1,0 +1,10 @@
+{
+  "input": "synthetic",
+  "provider": "SSE transport double",
+  "checks": {
+    "fits": true,
+    "labelsFit": true
+  },
+  "positionsPreserved": true,
+  "draftBeforeCommit": true
+}

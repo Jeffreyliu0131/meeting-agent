@@ -1372,6 +1372,9 @@ function PublishedContent({
               <p>{item.deliverable}</p>
               <p>
                 {nameOf(s, item.assigneeId ?? '')} · {item.schedule.rawText || '时间未约定'}
+                {item.unresolvedAssigneeText &&
+                  !item.assigneeId &&
+                  ` · 负责人原话（未绑定身份）：${item.unresolvedAssigneeText}`}
               </p>
               {item.discussionPoints.map((p) => (
                 <p className="collaboration-warning" key={p.id}>

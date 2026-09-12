@@ -13,6 +13,9 @@ coverage/
 .env.*
 !.env.example
 provider.env
+# Local model proxy: real provider keys and a machine-generated CA bundle.
+tools/litellm-proxy/provider.env
+tools/litellm-proxy/windows-cas.pem
 *.pem
 *.key
 credentials/

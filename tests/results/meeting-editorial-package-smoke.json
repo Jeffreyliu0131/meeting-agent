@@ -1,0 +1,17 @@
+{
+  "ranAt": "2026-09-12T05:47:42.236Z",
+  "packaged": true,
+  "platform": "macOS arm64",
+  "synthetic": true,
+  "realAudio": false,
+  "modelConfigured": false,
+  "developerInputs": false,
+  "capture": "paused",
+  "sourceCount": 3,
+  "sourcePanel": {
+    "x": 1116,
+    "y": 64,
+    "width": 372,
+    "height": 992
+  }
+}

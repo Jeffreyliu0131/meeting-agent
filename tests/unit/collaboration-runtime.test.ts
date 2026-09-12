@@ -252,3 +252,42 @@ test('late component model output cannot overwrite manual editing', async () => 
   );
   assert.equal(updated.jobs.at(-1)!.status, 'superseded');
 });
+
+test('audience-only model updates create a new review revision and preserve the old audience', async () => {
+  const x = setup();
+  const ids = x.meeting
+    .collaboration!.participants.filter((p) => p.role === 'participant')
+    .map((p) => p.id);
+  const intent = {
+    family: 'poll',
+    operation: 'prepare',
+    expression: 'suggested',
+    resolution: 'actionable_draft',
+    targetId: null,
+    scopeText: '范围',
+    collectionMode: 'retrospective',
+    sourceRefs: [],
+    objectRefs: [],
+  } as any;
+  enqueueCollaborationIntents(x.meeting, [intent], [], 'audience-first');
+  await new CollaborationRuntime({
+    ...x.ports,
+    generate: async () => ({ content: payload, clarification: null, audienceIds: ids }),
+  }).drain();
+  const before = structuredClone(x.meeting.collaboration!.components[0]);
+  enqueueCollaborationIntents(
+    x.meeting,
+    [{ ...intent, operation: 'update', targetId: before.id }],
+    [],
+    'audience-correction',
+  );
+  await new CollaborationRuntime({
+    ...x.ports,
+    generate: async () => ({ content: payload, clarification: null, audienceIds: [ids[0]] }),
+  }).drain();
+  const after = x.meeting.collaboration!.components[0];
+  assert.equal(after.draftRevision, before.draftRevision + 1);
+  assert.deepEqual(after.revisions[0].suggestedAudienceIds, ids);
+  assert.deepEqual(after.revisions.at(-1)!.suggestedAudienceIds, [ids[0]]);
+  assert.equal(after.rounds.length, 0);
+});

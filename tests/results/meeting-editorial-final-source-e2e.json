@@ -1,0 +1,325 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/bin/node",
+      "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/node_modules/.bin/playwright",
+      "test",
+      "tests/e2e/editorial.spec.ts"
+    ],
+    "configFile": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/playwright.config.ts",
+    "rootDir": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/results/meeting-editorial-final-source-run",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "tests/results/meeting-editorial-final-source-e2e.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "editorial.spec.ts",
+      "file": "editorial.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "editorial: stable split, exact numbered sources, preserved reading and contextual feedback draft",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 14428,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:30:27.466Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ec079a02c0facf936b0d-2d4540ea4b71302f31b8",
+          "file": "editorial.spec.ts",
+          "line": 167,
+          "column": 1
+        },
+        {
+          "title": "editorial: narrow overlay, focus, correction draft, readable zoom and English shell",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 61399,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"afterEach\" hook.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 60000ms exceeded while running \"afterEach\" hook.\u001b[39m\n    at /Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/editorial.spec.ts:161:6",
+                    "location": {
+                      "file": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/editorial.spec.ts",
+                      "column": 6,
+                      "line": 161
+                    },
+                    "snippet": "  159 |   await expect(page.getByText('方案比较', { exact: true })).toBeVisible();\n  160 | });\n> 161 | test.afterEach(async () => {\n      |      ^\n  162 |   await cdp?.detach().catch(() => {});\n  163 |   if (app) await app.close();\n  164 |   server.closeAllConnections();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/editorial.spec.ts",
+                        "column": 6,
+                        "line": 161
+                      },
+                      "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"afterEach\" hook.\u001b[39m\n\n  159 |   await expect(page.getByText('方案比较', { exact: true })).toBeVisible();\n  160 | });\n> 161 | test.afterEach(async () => {\n      |      ^\n  162 |   await cdp?.detach().catch(() => {});\n  163 |   if (app) await app.close();\n  164 |   server.closeAllConnections();\n    at /Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/editorial.spec.ts:161:6"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:30:41.918Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/results/meeting-editorial-final-source-run/editorial-editorial-narrow-e35cb-able-zoom-and-English-shell/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/editorial.spec.ts",
+                    "column": 6,
+                    "line": 161
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "ec079a02c0facf936b0d-7ff9d75b89d50df4b0b8",
+          "file": "editorial.spec.ts",
+          "line": 224,
+          "column": 1
+        },
+        {
+          "title": "editorial: long transcript preserves scroll and corrected source keeps its number and old revision",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 61726,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"afterEach\" hook.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 60000ms exceeded while running \"afterEach\" hook.\u001b[39m\n    at /Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/editorial.spec.ts:161:6",
+                    "location": {
+                      "file": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/editorial.spec.ts",
+                      "column": 6,
+                      "line": 161
+                    },
+                    "snippet": "  159 |   await expect(page.getByText('方案比较', { exact: true })).toBeVisible();\n  160 | });\n> 161 | test.afterEach(async () => {\n      |      ^\n  162 |   await cdp?.detach().catch(() => {});\n  163 |   if (app) await app.close();\n  164 |   server.closeAllConnections();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/editorial.spec.ts",
+                        "column": 6,
+                        "line": 161
+                      },
+                      "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"afterEach\" hook.\u001b[39m\n\n  159 |   await expect(page.getByText('方案比较', { exact: true })).toBeVisible();\n  160 | });\n> 161 | test.afterEach(async () => {\n      |      ^\n  162 |   await cdp?.detach().catch(() => {});\n  163 |   if (app) await app.close();\n  164 |   server.closeAllConnections();\n    at /Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/editorial.spec.ts:161:6"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:32:43.619Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/results/meeting-editorial-final-source-run/editorial-editorial-long-t-1d48f-its-number-and-old-revision/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/editorial.spec.ts",
+                    "column": 6,
+                    "line": 161
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "ec079a02c0facf936b0d-42cf829d0a214516b9cb",
+          "file": "editorial.spec.ts",
+          "line": 310,
+          "column": 1
+        },
+        {
+          "title": "editorial: explicit history navigation releases reading hold and failed corrections stay actionable",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 61687,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"afterEach\" hook.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 60000ms exceeded while running \"afterEach\" hook.\u001b[39m\n    at /Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/editorial.spec.ts:161:6",
+                    "location": {
+                      "file": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/editorial.spec.ts",
+                      "column": 6,
+                      "line": 161
+                    },
+                    "snippet": "  159 |   await expect(page.getByText('方案比较', { exact: true })).toBeVisible();\n  160 | });\n> 161 | test.afterEach(async () => {\n      |      ^\n  162 |   // Explicitly end this isolated synthetic event before normal application quit;\n  163 |   // otherwise the real app correctly asks the user to confirm an active meeting.\n  164 |   if (page && !page.isClosed())"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/editorial.spec.ts",
+                        "column": 6,
+                        "line": 161
+                      },
+                      "message": "\u001b[31mTest timeout of 60000ms exceeded while running \"afterEach\" hook.\u001b[39m\n\n  159 |   await expect(page.getByText('方案比较', { exact: true })).toBeVisible();\n  160 | });\n> 161 | test.afterEach(async () => {\n      |      ^\n  162 |   // Explicitly end this isolated synthetic event before normal application quit;\n  163 |   // otherwise the real app correctly asks the user to confirm an active meeting.\n  164 |   if (page && !page.isClosed())\n    at /Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/editorial.spec.ts:161:6"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T05:34:45.618Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/results/meeting-editorial-final-source-run/editorial-editorial-explic-a6b5b-corrections-stay-actionable/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/jeff/Library/Mobile Documents/com~apple~CloudDocs/黑客松/meeting-agent/tests/e2e/editorial.spec.ts",
+                    "column": 6,
+                    "line": 161
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "ec079a02c0facf936b0d-c7254aebe4894b7c31f2",
+          "file": "editorial.spec.ts",
+          "line": 360,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "message": "\u001b[31mWorker teardown timeout of 60000ms exceeded.\u001b[39m\n\n\u001b[31mFailed worker ran 2 tests:\u001b[39m\ntests/e2e/editorial.spec.ts:167:1 › editorial: stable split, exact numbered sources, preserved reading and contextual feedback draft\ntests/e2e/editorial.spec.ts:224:1 › editorial: narrow overlay, focus, correction draft, readable zoom and English shell",
+      "stack": "\u001b[31mWorker teardown timeout of 60000ms exceeded.\u001b[39m\n\n\u001b[31mFailed worker ran 2 tests:\u001b[39m\ntests/e2e/editorial.spec.ts:167:1 › editorial: stable split, exact numbered sources, preserved reading and contextual feedback draft\ntests/e2e/editorial.spec.ts:224:1 › editorial: narrow overlay, focus, correction draft, readable zoom and English shell"
+    },
+    {
+      "message": "\u001b[31mWorker teardown timeout of 60000ms exceeded.\u001b[39m\n\n\u001b[31mFailed worker ran 1 test:\u001b[39m\ntests/e2e/editorial.spec.ts:310:1 › editorial: long transcript preserves scroll and corrected source keeps its number and old revision",
+      "stack": "\u001b[31mWorker teardown timeout of 60000ms exceeded.\u001b[39m\n\n\u001b[31mFailed worker ran 1 test:\u001b[39m\ntests/e2e/editorial.spec.ts:310:1 › editorial: long transcript preserves scroll and corrected source keeps its number and old revision"
+    },
+    {
+      "message": "\u001b[31mWorker teardown timeout of 60000ms exceeded.\u001b[39m\n\n\u001b[31mFailed worker ran 1 test:\u001b[39m\ntests/e2e/editorial.spec.ts:360:1 › editorial: explicit history navigation releases reading hold and failed corrections stay actionable",
+      "stack": "\u001b[31mWorker teardown timeout of 60000ms exceeded.\u001b[39m\n\n\u001b[31mFailed worker ran 1 test:\u001b[39m\ntests/e2e/editorial.spec.ts:360:1 › editorial: explicit history navigation releases reading hold and failed corrections stay actionable"
+    }
+  ],
+  "stats": {
+    "startTime": "2026-09-12T05:30:27.110Z",
+    "duration": 380249.429,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

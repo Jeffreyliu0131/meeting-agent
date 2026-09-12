@@ -1,0 +1,15 @@
+
+Running 6 tests using 1 worker
+
+(node:81119) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:81119) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/e2e/editorial.spec.ts:185:1 › editorial: stable split, exact numbered sources, preserved reading and contextual feedback draft (3.8s)
+  ✓  2 tests/e2e/editorial.spec.ts:245:1 › editorial: narrow overlay, focus, correction draft, readable zoom and English shell (1.5s)
+  ✓  3 tests/e2e/editorial.spec.ts:331:1 › editorial: long transcript preserves scroll and corrected source keeps its number and old revision (1.6s)
+  ✓  4 tests/e2e/editorial.spec.ts:381:1 › editorial: explicit history navigation releases reading hold and failed corrections stay actionable (1.8s)
+  ✓  5 tests/e2e/meeting-reminder.spec.ts:218:1 › click starts one synthetic recording quietly; hide launcher and disable reminders preserve capture; preferences persist (3.5s)
+  ✓  6 tests/e2e/provider-contract.spec.ts:245:1 › provider transport, isolated preflight, generated structure, source binding, updates and personal calculator (2.9s)
+
+  6 passed (15.5s)

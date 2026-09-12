@@ -411,7 +411,11 @@ small,
   border-radius: 14px;
   overflow: hidden;
 }
-.meeting-row {
+.meeting-row,
+/* A collection row is a meeting row with different content. Kept as a separate
+   class because tests count .meeting-row, and because selection mode must not
+   turn a collection into a checkbox. */
+.collection-row {
   justify-content: flex-start;
   border: 0;
   border-bottom: 1px solid var(--subtleDivider);
@@ -422,11 +426,26 @@ small,
   gap: 18px;
   min-height: 88px;
 }
-.meeting-row:last-child {
+.meeting-row:last-child,
+.collection-row:last-child {
   border-bottom: 0;
 }
-.meeting-row:hover {
+.meeting-row:hover,
+.collection-row:hover {
   background: var(--selectedSurface);
+}
+/* In selection mode the row is a label so the checkbox is not nested inside a
+   button; the hit area is unchanged because the label fills the same box. */
+label.meeting-row.selectable {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+label.meeting-row.selectable > input[type='checkbox'] {
+  inline-size: 18px;
+  block-size: 18px;
+  flex: none;
+  accent-color: var(--accent);
 }
 .meeting-file,
 .quiet-icon {
@@ -1268,33 +1287,6 @@ html[data-role='launcher'] #root {
   height: 44px;
   overflow: hidden;
 }
-.preview {
-  padding: 20px;
-  font-size: 13px;
-  height: 230px;
-  overflow: auto;
-  border: 1px solid var(--divider);
-  border-radius: 14px;
-  background: #fffffff5;
-}
-.preview h2 {
-  font-size: 18px;
-  margin: 12px 0;
-}
-.preview p {
-  font-size: 12px;
-  margin: 5px 0;
-  color: var(--textSecondary);
-}
-.preview button {
-  margin-top: 12px;
-  font-size: 12px;
-}
-.preview .eyebrow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
 .reduce-motion * {
   transition: none !important;
   animation: none !important;
@@ -1929,4 +1921,298 @@ html[data-role='reminder'] #root {
 .reminder-action:focus-visible,
 .reminder-dismiss:focus-visible {
   outline-offset: -3px;
+}
+
+/* --- Cross-meeting collections ------------------------------------------ */
+.collections {
+  margin-top: 40px;
+}
+.collection-pick {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 20px;
+  margin-bottom: 12px;
+  background: var(--selectedSurface);
+  border: 1px solid var(--divider);
+  border-radius: 12px;
+  font-size: 13px;
+  color: var(--textSecondary);
+}
+.collection-empty {
+  margin-top: 12px;
+  font-size: 13px;
+}
+.meeting-file.is-collection {
+  background: var(--accentSubtle);
+  color: var(--accent);
+}
+/* A stale badge is advisory, never an error: the report is still readable. */
+.status.status-warning {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--warning);
+  background: var(--warningSurface);
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.collection-brief {
+  max-width: 70ch;
+  margin: 4px 0 28px;
+  color: var(--textSecondary);
+  font-size: 15px;
+  line-height: 1.55;
+}
+.collection-members-list,
+.collection-report {
+  margin-top: 32px;
+}
+.collection-members-list h2,
+.collection-report h2 {
+  font-size: 20px;
+  margin: 0;
+}
+.collection-report .recent-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.collection-form {
+  display: grid;
+  gap: 20px;
+}
+.collection-form label {
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--textSecondary);
+}
+.collection-form input,
+.collection-form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--controlBorder);
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--textPrimary);
+  background: var(--contentSurface);
+  resize: vertical;
+}
+.collection-members {
+  border: 1px solid var(--divider);
+  border-radius: 12px;
+  padding: 12px 16px 16px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.collection-members legend {
+  font-size: 13px;
+  color: var(--textSecondary);
+  padding: 0 6px;
+}
+.collection-members .check {
+  grid-auto-flow: column;
+  justify-content: start;
+  align-items: center;
+  padding: 8px 0;
+  color: var(--textPrimary);
+  font-size: 14px;
+}
+
+/* --- Deterministic digest panel ----------------------------------------- */
+.collection-deterministic {
+  margin-top: 32px;
+  padding: 24px 28px;
+  background: var(--contentSurface);
+  border: 1px solid var(--divider);
+  border-radius: 14px;
+}
+.digest-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  margin: 0 0 8px;
+}
+.digest-group {
+  margin-top: 24px;
+}
+.digest-group h3 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  color: var(--textSecondary);
+}
+.digest-item,
+.digest-dispute {
+  padding: 14px 0;
+  border-top: 1px solid var(--subtleDivider);
+}
+.digest-item:first-of-type,
+.digest-dispute:first-of-type {
+  border-top: 0;
+}
+.digest-title {
+  display: block;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  min-height: 0;
+  font-size: 15px;
+  color: var(--textPrimary);
+}
+.digest-title:hover:not(:disabled) {
+  background: transparent;
+  color: var(--accent);
+}
+.digest-item .eyebrow,
+.digest-dispute .eyebrow {
+  display: block;
+  margin-top: 4px;
+}
+.digest-item p {
+  margin: 6px 0 0;
+  font-size: 14px;
+}
+.digest-item .muted {
+  font-size: 13px;
+}
+/* A quoted passage is the actual utterance, so it is always clickable back to
+   the meeting that produced it. */
+.digest-quote {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-left: 3px solid var(--divider);
+  background: var(--subtleSurface);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  margin-top: 10px;
+  min-height: 0;
+  font-weight: 400;
+}
+.digest-quote:hover:not(:disabled) {
+  border-left-color: var(--accent);
+  background: var(--selectedSurface);
+}
+.digest-quote blockquote {
+  margin: 0;
+  font-size: 14px;
+  color: var(--textPrimary);
+  user-select: text;
+}
+/* Disagreements keep both sides visible at equal weight: no side is "first". */
+.digest-positions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+.digest-position {
+  display: block;
+  text-align: left;
+  border: 1px solid var(--divider);
+  background: var(--contentSurface);
+  border-radius: 10px;
+  padding: 12px 14px;
+  min-height: 0;
+  font-weight: 400;
+}
+.digest-position:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--selectedSurface);
+}
+.digest-position blockquote {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--textSecondary);
+  user-select: text;
+}
+
+.intent-panel {
+  margin: 24px 0;
+  padding: 20px;
+  border: 1px solid var(--borderSubtle, #dfe4ed);
+  border-radius: 12px;
+  background: white;
+}
+.intent-heading,
+.intent-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.intent-heading {
+  justify-content: space-between;
+}
+.intent-heading h2 {
+  margin: 0;
+  font-size: 20px;
+}
+.intent-panel > p,
+.intent-card small {
+  color: var(--textSecondary, #596579);
+}
+.intent-card {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #dfe4ed;
+  border-radius: 12px;
+  overflow-wrap: anywhere;
+}
+.intent-card h3 {
+  font-size: 18px;
+  margin: 0 0 12px;
+}
+.intent-card h3 small {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 400;
+}
+.intent-field {
+  margin: 12px 0;
+  min-width: 0;
+}
+.intent-field label {
+  display: grid;
+  gap: 6px;
+}
+.intent-field textarea {
+  width: 100%;
+  min-width: 0;
+  resize: vertical;
+  font: inherit;
+  padding: 8px 10px;
+  border: 1px solid #ccd5e3;
+  border-radius: 6px;
+  background: white;
+  color: inherit;
+}
+.intent-field button {
+  margin: 6px 8px 0 0;
+}
+.intent-card fieldset {
+  min-width: 0;
+  margin: 14px 0;
+  padding: 14px;
+  border: 1px solid #dfe4ed;
+  border-radius: 8px;
+}
+.intent-card [role='status'],
+.intent-panel [role='alert'] {
+  color: #8b4d16;
+}
+@media (max-width: 600px) {
+  .intent-panel,
+  .intent-card {
+    padding: 12px;
+  }
 }

@@ -430,7 +430,9 @@ export class CollaborationRuntime {
         if (
           JSON.stringify(content) !== JSON.stringify(previous.content) ||
           JSON.stringify(previous.sourceRefs) !== JSON.stringify(refs) ||
-          JSON.stringify(previous.objectRefs) !== JSON.stringify(intent.objectRefs ?? [])
+          JSON.stringify(previous.objectRefs) !== JSON.stringify(intent.objectRefs ?? []) ||
+          JSON.stringify(previous.suggestedAudienceIds) !==
+            JSON.stringify(defaultAudience(s, content, result.audienceIds))
         )
           savedRevision = saveDraft(s, c, content, 'agent:' + j.id, refs);
       }

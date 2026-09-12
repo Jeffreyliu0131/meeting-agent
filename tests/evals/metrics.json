@@ -1,0 +1,276 @@
+{
+  "schemaVersion": 1,
+  "policy": "所有比率必须带分子分母；分母0为null。目标来自现行文档的注明existing-target，其余不伪装成用户批准门槛。每指标同时说明实际已测层。",
+  "metrics": [
+    {
+      "id": "M01",
+      "name": "事件隔离",
+      "definition": "其他会议／个人输入污染次数",
+      "threshold": "0",
+      "thresholdKind": "hard",
+      "evidence": "unit + Electron",
+      "basis": "AC-01 / REL-02"
+    },
+    {
+      "id": "M02",
+      "name": "最终来源完整性",
+      "definition": "已处理final版本数 / 已接收final版本数；缺口单独计数",
+      "threshold": "1且无静默丢失",
+      "thresholdKind": "hard",
+      "evidence": "stream / unit；真实音频另验",
+      "basis": "LIVE-03 / G1"
+    },
+    {
+      "id": "M03",
+      "name": "来源版本可追溯",
+      "definition": "有效id/rev引用数 / 全部引用数",
+      "threshold": "1",
+      "thresholdKind": "hard",
+      "evidence": "程序完整性；语义另用M07",
+      "basis": "AC-08"
+    },
+    {
+      "id": "M04",
+      "name": "family分类macro-F1",
+      "definition": "每个family的2TP/(2TP+FP+FN)再宏平均；包括none、假阳性类与失败样本",
+      "threshold": ">=0.90",
+      "thresholdKind": "existing-target",
+      "evidence": "model.json",
+      "basis": "collaboration-v1-acceptance §7"
+    },
+    {
+      "id": "M05",
+      "name": "operation分类macro-F1",
+      "definition": "按prepare/update/preview/publish/close/cancel/none分别F1后宏平均",
+      "threshold": ">=0.90",
+      "thresholdKind": "existing-target",
+      "evidence": "model.json",
+      "basis": "collaboration-v1-acceptance §7"
+    },
+    {
+      "id": "M06",
+      "name": "明确目标定位",
+      "definition": "正确targetId数量 / 需明确定位的输出数量",
+      "threshold": ">=0.95",
+      "thresholdKind": "existing-target",
+      "evidence": "human-review / semantic-score",
+      "basis": "collaboration-v1-acceptance §7"
+    },
+    {
+      "id": "M07",
+      "name": "字段与来源语义正确",
+      "definition": "分别：正确字段/总字段；支持该含义的正确来源/全部应核对来源",
+      "threshold": "各>=0.95",
+      "thresholdKind": "existing-target",
+      "evidence": "human-review / semantic-score",
+      "basis": "collaboration-v1-acceptance §7"
+    },
+    {
+      "id": "M08",
+      "name": "无依据字段",
+      "definition": "无依据字段 / 输出字段；负责人或日期未标未知的编造另计",
+      "threshold": "负责人／日期编造0；其他先报告",
+      "thresholdKind": "hard-and-diagnostic",
+      "evidence": "human-review",
+      "basis": "collaboration-v1-acceptance §7"
+    },
+    {
+      "id": "M09",
+      "name": "条件保留",
+      "definition": "保留的仍有效条件 / 标注的应保留条件",
+      "threshold": "待实测校准；关键条件遗漏判案例失败",
+      "thresholdKind": "diagnostic",
+      "evidence": "human-review",
+      "basis": "REL-01 / REL-03"
+    },
+    {
+      "id": "M10",
+      "name": "持续收集误纳",
+      "definition": "无关收集项 / 全部收集项；不输出不是高召回",
+      "threshold": "先报告，误纳关键事实判案例失败",
+      "thresholdKind": "diagnostic",
+      "evidence": "human-review",
+      "basis": "INT-07"
+    },
+    {
+      "id": "M11",
+      "name": "有依据冲突精确率",
+      "definition": "具有充分证据的冲突 / 输出冲突；无输出分母0记null",
+      "threshold": "先报告；伪造确定性冲突判案例失败",
+      "thresholdKind": "diagnostic",
+      "evidence": "human-review",
+      "basis": "CON-01 / CON-02"
+    },
+    {
+      "id": "M12",
+      "name": "越权业务动作",
+      "definition": "无可信用户命令时新增的公开轮、回应、决定数量",
+      "threshold": "0",
+      "thresholdKind": "hard",
+      "evidence": "model.json + unit + IPC E2E",
+      "basis": "SYS-01 / INT-12"
+    },
+    {
+      "id": "M13",
+      "name": "投票计数／分母",
+      "definition": "每个本人最新有效票的可信精确值；零票、平票、多选、弃权、未回应分列",
+      "threshold": "确定性逐断言100%",
+      "thresholdKind": "hard",
+      "evidence": "collaboration tests；未覆盖角落仍缺口",
+      "basis": "POL-01–06"
+    },
+    {
+      "id": "M14",
+      "name": "确认与修订安全",
+      "definition": "旧同意迁移、未决异议／输入缺口下记录决定、代接受次数",
+      "threshold": "0",
+      "thresholdKind": "hard",
+      "evidence": "collaboration service/domain/Electron",
+      "basis": "DEC-01–07 / G2 / G3"
+    },
+    {
+      "id": "M15",
+      "name": "幂等与事务恢复",
+      "definition": "重复效果、假ack、部分写入、旧响应覆盖手工值次数",
+      "threshold": "0",
+      "thresholdKind": "hard",
+      "evidence": "unit / E2E；崩溃矩阵另验",
+      "basis": "SYS-04–07 / AC-16"
+    },
+    {
+      "id": "M16",
+      "name": "个人试算数值",
+      "definition": "已知关系下可信计算实际值与精确期望差；原始会议是否改变",
+      "threshold": "精确匹配；污染0",
+      "thresholdKind": "hard",
+      "evidence": "core / scenario-basis / provider-contract",
+      "basis": "AC-10 / AC-17"
+    },
+    {
+      "id": "M17",
+      "name": "理解响应时延",
+      "definition": "final输入到理解提交的逐样本p50/p95；样本数与设备同时报告",
+      "threshold": "p95<=5000ms",
+      "thresholdKind": "existing-target",
+      "evidence": "model checkpoints；真实输入另测",
+      "basis": "technical-design §性能"
+    },
+    {
+      "id": "M18",
+      "name": "完整产物与草稿时延",
+      "definition": "输入到生成完成／可见草稿；与理解提交分开",
+      "threshold": "暂无正式门槛，逐样本报告",
+      "thresholdKind": "diagnostic",
+      "evidence": "checkpoints.timeToSettledMs / trace；UI可见另测",
+      "basis": "AC-27"
+    },
+    {
+      "id": "M19",
+      "name": "缓存展开",
+      "definition": "点击到已有速览可见ms，逐样本p95",
+      "threshold": "<=300ms",
+      "thresholdKind": "existing-target",
+      "evidence": "待补真实UI计时探针",
+      "basis": "technical-design §性能"
+    },
+    {
+      "id": "M20",
+      "name": "本地试算时延",
+      "definition": "输入变更到可信结果可见ms",
+      "threshold": "<=100ms",
+      "thresholdKind": "existing-target",
+      "evidence": "待补真实UI计时探针",
+      "basis": "technical-design §性能"
+    },
+    {
+      "id": "M21",
+      "name": "调用／token与修复",
+      "definition": "每事件、每根job、每通道M/X/P/C/R调用和token；失败、旧响应也计入",
+      "threshold": "C/R最多2次；每根8任务；实际预算",
+      "thresholdKind": "hard-and-diagnostic",
+      "evidence": "trace + calls + jobs + usageTotals",
+      "basis": "collaboration-v1-runtime"
+    },
+    {
+      "id": "M22",
+      "name": "真实货币成本",
+      "definition": "供应商实际计量输入/输出/缓存token × 经核验对应价；重试计费另记",
+      "threshold": "缺价格或usage记null，不能记0",
+      "thresholdKind": "diagnostic",
+      "evidence": "未提供当前价，只有token不能推货币",
+      "basis": "AC-27"
+    },
+    {
+      "id": "M23",
+      "name": "音频时序／转写质量",
+      "definition": "首包／尾包丢失率，WER英文、CER中文=(替换+删除+插入)/参考量，否定/数字错误另列",
+      "threshold": "丢包0或显式缺口；质量阈值待真音频校准",
+      "thresholdKind": "physical",
+      "evidence": "需独立人工参考音频",
+      "basis": "AC-02 / AC-03 / AC-30"
+    },
+    {
+      "id": "M24",
+      "name": "身份准确与覆盖",
+      "definition": "正确显示归属/已显示归属；可归属片段/全部片段；实名、分组、unknown分列",
+      "threshold": "无既定90%/99%承诺",
+      "thresholdKind": "physical",
+      "evidence": "人工标注＋真音频；unknown不得移除分母",
+      "basis": "AC-13"
+    },
+    {
+      "id": "M25",
+      "name": "长会积压与资源",
+      "definition": "输入/理解水位差max/p95、processed数、context bytes；RSS、CPU、实时时长另测",
+      "threshold": "无静默丢来源／超预算无限循环",
+      "thresholdKind": "hard-and-diagnostic",
+      "evidence": "stream.json仅加速替身；资源另测",
+      "basis": "LIVE-04 / SYS-10"
+    },
+    {
+      "id": "M26",
+      "name": "低打扰与可读性",
+      "definition": "意外抢焦点、输入法误提交、草稿丢失、阅读跳动次数；360/800px、200%缩放",
+      "threshold": "0关键交互损失；屏幕阅读器另验",
+      "thresholdKind": "hard-and-physical",
+      "evidence": "Electron / manual a11y",
+      "basis": "AC-31–35 / UI-02–04"
+    },
+    {
+      "id": "M27",
+      "name": "双端源码／包一致性",
+      "definition": "当前构建dist逐文件SHA与Mac/Windows asar内容匹配；两端实际运行分别记录",
+      "threshold": "同源且各端有运行证据才完整通过",
+      "thresholdKind": "hard-and-physical",
+      "evidence": "packages.json + physical evidence",
+      "basis": "G5"
+    },
+    {
+      "id": "M28",
+      "name": "用户理解效果",
+      "definition": "事实问题正确率；找依据与发现变更耗时；打扰/人时；相对现有记录流程差值",
+      "threshold": "先建基线，不编造提升百分比",
+      "thresholdKind": "human-study",
+      "evidence": "需真实使用者和预注册问题",
+      "basis": "product-definition §8"
+    },
+    {
+      "id": "M29",
+      "name": "自动测试执行完整性",
+      "definition": "通过/执行；失败、跳过、flaky、没有测试均单列",
+      "threshold": "无失败／跳过／flaky；不能用数量替代业务覆盖",
+      "thresholdKind": "hard",
+      "evidence": "report.json + unit/Electron reports",
+      "basis": "G4"
+    },
+    {
+      "id": "M30",
+      "name": "双语与结束导出完整性",
+      "definition": "固定文案和输出语言正确；导出包含全部应保存的协作决定和来源",
+      "threshold": "缺项仍阻塞完整产品门槛",
+      "thresholdKind": "hard-and-physical",
+      "evidence": "协作双语/旧导出存在已知差距",
+      "basis": "AC-28 / REL-06"
+    }
+  ]
+}

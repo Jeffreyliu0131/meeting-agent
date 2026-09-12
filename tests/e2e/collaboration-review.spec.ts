@@ -143,7 +143,10 @@ test('agent prepares four families; host reviews and distributes each without fi
   const base = `http://127.0.0.1:${(server.address() as any).port}`;
   const dir = mkdtempSync(join(tmpdir(), 'meeting-desktop-review-'));
   const app = await electron.launch({
-    args: [resolve('.')],
+    ...(process.env.MEETING_TEST_EXECUTABLE
+      ? { executablePath: process.env.MEETING_TEST_EXECUTABLE }
+      : {}),
+    args: process.env.MEETING_TEST_EXECUTABLE ? [] : [resolve('.')],
     env: {
       ...process.env,
       MEETING_DATA_DIR: dir,
@@ -218,11 +221,45 @@ test('agent prepares four families; host reviews and distributes each without fi
         .toBe(true);
       const c = (await snapshot()).components.find((c: any) => c.family === family);
       expect(c.round).toBeNull();
-      await expect.poll(async () => (await app.windows()).some(p => p.url().includes('role=component-dock'))).toBe(true);
-      const page = (await app.windows()).find(p => p.url().includes('role=component-dock'))!;
-      await expect.poll(() => app.evaluate(({BrowserWindow}) => BrowserWindow.getAllWindows().find(w => w.webContents.getURL().includes('role=component-dock'))?.isVisible())).toBe(true);
+      await expect
+        .poll(async () =>
+          (await app.windows()).some((p) => p.url().includes('role=component-dock')),
+        )
+        .toBe(true);
+      const page = (await app.windows()).find((p) => p.url().includes('role=component-dock'))!;
+      await expect
+        .poll(() =>
+          app.evaluate(({ BrowserWindow }) =>
+            BrowserWindow.getAllWindows()
+              .find((w) => w.webContents.getURL().includes('role=component-dock'))
+              ?.isVisible(),
+          ),
+        )
+        .toBe(true);
       const thumbnail = page.locator(`[data-thumbnail-id="${c.id}"]`);
       await expect(thumbnail).toBeVisible();
+      if (family === 'poll') {
+        await host.evaluate(() =>
+          window.meeting.call('command', {
+            id: crypto.randomUUID(),
+            meetingId: null,
+            type: 'preferencesPatch',
+            payload: { uiLanguage: 'en' },
+          }),
+        );
+        await expect(page.getByText('Components to review', { exact: true })).toBeVisible();
+        await expect(page.getByText('Ready', { exact: true })).toBeVisible();
+        await host.evaluate(() =>
+          window.meeting.call('command', {
+            id: crypto.randomUUID(),
+            meetingId: null,
+            type: 'preferencesPatch',
+            payload: { uiLanguage: 'zh-CN' },
+          }),
+        );
+        await expect(page.getByText('待审核组件', { exact: true })).toBeVisible();
+      }
+
       await expect(thumbnail.locator('.component-mini-content')).not.toBeEmpty();
       const denied = await page.evaluate(() => window.meeting.call('snapshot'));
       expect(denied.ok).toBe(false);
@@ -231,7 +268,9 @@ test('agent prepares four families; host reviews and distributes each without fi
       await expect(page.locator('input:visible,textarea:visible,select:visible')).toHaveCount(0);
       await expect(page.getByRole('button', { name: '保存草稿', exact: true })).toHaveCount(0);
       await thumbnail.click();
-      await expect(page.getByText('审核已固定', {exact:true})).toBeVisible();
+      await expect(page.getByText('审核已固定', { exact: true })).toBeVisible();
+      if (family === 'poll')
+        await page.screenshot({ path: test.info().outputPath('component-dock-review.png') });
       await page.getByRole('button', { name: '审核并分发给3人', exact: true }).click();
       await expect
         .poll(
@@ -239,7 +278,7 @@ test('agent prepares four families; host reviews and distributes each without fi
         )
         .toBe('open');
       await expect(thumbnail).toHaveCount(0);
-      await page.getByRole('button', {name:'收起审核', exact:true}).click();
+      await page.getByRole('button', { name: '收起审核', exact: true }).click();
       return { id: c.id, page };
     };
     await speak(

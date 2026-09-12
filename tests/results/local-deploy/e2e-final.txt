@@ -1,0 +1,74 @@
+(node:79260) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 33 tests using 1 worker
+
+(node:79267) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:79267) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/collaboration.spec.ts:7:1 › host publishes a poll to independent participants; participant cannot read the host snapshot (2.3s)
+  ✓   2 tests/e2e/collaboration.spec.ts:80:1 › assignment objections produce a floating conflict, resolution drafts and explicit three-person confirmation (2.2s)
+(node:79267) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+  ✓   3 tests/e2e/collections.spec.ts:11:1 › collections combine explicit collaboration decisions, preserve source meetings, and become stale after editing (1.2s)
+  ✓   4 tests/e2e/desktop.spec.ts:51:1 › real Electron: event, manual original source, honest missing model, correction, UI locale, end and restore (2.7s)
+  ✓   5 tests/e2e/desktop.spec.ts:141:1 › native launcher opens one workspace; hiding does not stop the event; hover uses real windows (1.2s)
+  ✓   6 tests/e2e/desktop.spec.ts:190:1 › UI cannot impersonate audio adapter; no frame gets filesystem or arbitrary IPC; responsive shell (1.4s)
+  ✓   7 tests/e2e/desktop.spec.ts:229:1 › meeting library filters, search recovery and settings keyboard loop (1.1s)
+  ✓   8 tests/e2e/desktop.spec.ts:293:1 › launcher uses transparent chrome and distinct synthetic capture indicators with truthful labels (921ms)
+  ✓   9 tests/e2e/editorial.spec.ts:185:1 › editorial: stable split, exact numbered sources, preserved reading and contextual feedback draft (3.6s)
+  ✓  10 tests/e2e/editorial.spec.ts:245:1 › editorial: narrow overlay, focus, correction draft, readable zoom and English shell (1.4s)
+  ✓  11 tests/e2e/editorial.spec.ts:331:1 › editorial: long transcript preserves scroll and corrected source keeps its number and old revision (1.6s)
+  ✓  12 tests/e2e/editorial.spec.ts:381:1 › editorial: explicit history navigation releases reading hold and failed corrections stay actionable (1.7s)
+  ✓  13 tests/e2e/intent-preparation.spec.ts:9:1 › four intent drafts: real IPC, protected edits, sources and restart (2.5s)
+  ✓  14 tests/e2e/interface-settings.spec.ts:50:1 › settings save immediately, preserve independent changes and persist across restart (1.6s)
+  ✓  15 tests/e2e/interface-settings.spec.ts:83:1 › failed immediate settings roll back honestly and can be retried (932ms)
+  ✓  16 tests/e2e/interface-settings.spec.ts:107:1 › native preferred system language drives startup; chrome does not select and modal skips collapsed controls (997ms)
+  ✓  17 tests/e2e/interface-settings.spec.ts:148:1 › launcher and display switches apply immediately without Done; rapid changes survive reopening (1.4s)
+  ✓  18 tests/e2e/interface-settings.spec.ts:186:1 › failed launcher save reverts its checkbox and native window; retry applies the intent (813ms)
+  ✓  19 tests/e2e/interface-settings.spec.ts:216:1 › shortcut auto-save rolls back native registration when persistence fails (3.3s)
+  ✓  20 tests/e2e/live-transcription.spec.ts:16:1 › live audio shows drafts, drains short tails on pause/end, and resumes with a new connection (3.7s)
+  ✓  21 tests/e2e/meeting-reminder.spec.ts:135:1 › bilingual bubble anchors beside launcher, does not steal focus, closes without recording and stays deduplicated (1.3s)
+  ✓  22 tests/e2e/meeting-reminder.spec.ts:201:1 › bubble hover holds beyond eight seconds; moving away expires and stale click cannot start (18.5s)
+  ✘  23 tests/e2e/meeting-reminder.spec.ts:216:1 › click starts one synthetic recording quietly; hide launcher and disable reminders preserve capture; preferences persist (10.7s)
+(node:79913) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:79913) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  24 tests/e2e/meeting-reminder.spec.ts:242:1 › hidden launcher routes to native adapter: close/failure/expiry are inert; click records once without workspace (1.0s)
+  ✓  25 tests/e2e/meeting-reminder.spec.ts:271:1 › setup exception is explicit; reminder renderer has least privilege; production IPC cannot inject detections (1.4s)
+  ✓  26 tests/e2e/provider-contract.spec.ts:245:1 › provider transport, isolated preflight, generated structure, source binding, updates and personal calculator (3.3s)
+  ✓  27 tests/e2e/provider-contract.spec.ts:382:1 › synthetic oscillator keeps capturing through a slow STT response and stops cleanly (19.8s)
+  ✓  28 tests/e2e/provider-contract.spec.ts:463:1 › text, timeline, chart, SVG and passive HTML render without a privileged bridge (1.9s)
+  ✓  29 tests/e2e/provider-contract.spec.ts:503:1 › normal meeting entry saves setup once, starts audio in one intent and reveals exploration only after content (7.3s)
+  ✓  30 tests/e2e/reliability.spec.ts:9:1 › conditional meeting record survives personal exploration, end, sources and restart (3.3s)
+(node:79913) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+  ✓  31 tests/e2e/scenario-basis.spec.ts:16:3 › saved scenario basis: unrelated input, missing evidence and source correction · en (744ms)
+  ✓  32 tests/e2e/scenario-basis.spec.ts:16:3 › saved scenario basis: unrelated input, missing evidence and source correction · zh-CN (712ms)
+  ✓  33 tests/e2e/workflow.spec.ts:8:1 › workflow: object-bound exploration, live progress, cancellation and persistent clarification (2.9s)
+
+
+  1) tests/e2e/meeting-reminder.spec.ts:216:1 › click starts one synthetic recording quietly; hide launcher and disable reminders preserve capture; preferences persist 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "capturing"
+    Received: "input_error"
+
+    Call Log:
+    - Timeout 10000ms exceeded while waiting on the predicate
+
+      218 |   await signal();
+      219 |   await bubble.getByRole('button', { name: /Click to start recording/ }).click();
+    > 220 |   await expect.poll(async () => (await state()).meetings[0]?.capture).toBe('capturing');
+          |                                                                       ^
+      221 |   expect(await visible('workspace')).toBe(false);
+      222 |   expect((await state()).meetings).toHaveLength(1);
+      223 |   await preferences({ launcherVisible: false, meetingReminders: false });
+        at /private/tmp/meeting-local-deploy-u8rx3x8b/tests/e2e/meeting-reminder.spec.ts:220:71
+
+    Error Context: tests/results/local-deploy-final-run/meeting-reminder-click-sta-3b5ac-capture-preferences-persist/error-context.md
+
+  1 failed
+    tests/e2e/meeting-reminder.spec.ts:216:1 › click starts one synthetic recording quietly; hide launcher and disable reminders preserve capture; preferences persist 
+  32 passed (1.9m)

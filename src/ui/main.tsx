@@ -1,4 +1,10 @@
+import { HoverPreview } from './HoverPreview';
+import { SourcePanel as SourceDrawer } from './SourcePanel';
+import { sourceNumbers } from './source-references';
+import { editorialCopy } from './editorial-copy';
 import { MeetingReminderBubble } from './MeetingReminderBubble';
+
+import { IntentPanel } from './IntentPanel';
 import { WorkflowPanel } from './WorkflowPanel';
 import { CollaborationPanel } from './collaboration/Panel';
 import { ComponentDock } from './collaboration/ComponentDock';
@@ -28,6 +34,9 @@ import {
   Search,
   ListFilter,
   ListTree,
+  Plus,
+  Layers,
+  AlertTriangle,
 } from 'lucide-react';
 import { applyTheme } from './theme';
 import { MeetingReview, MeaningNotes } from './MeetingReview';
@@ -47,17 +56,16 @@ import { translator, errorText } from './i18n';
 import { ArtifactView } from '../renderers/ArtifactView';
 import { calculate } from '../domain/calculator';
 import './style.css';
+import './meeting-editorial.css';
+import './live-visuals.css';
+import { LiveEditing } from './LiveEditing';
 import { api } from './bridge';
 import { useLiveArtifact, ScenarioShelf } from './live';
 import { artifactIsStale } from '../domain/artifacts';
-import {
-  Modal,
-  NewMeeting,
-  Settings,
-  SourceDrawer,
-  ScenarioEditor,
-  DecisionModal,
-} from './components';
+import { scenarioBasisStatus } from '../domain/scenario-basis';
+import { Modal, NewMeeting, Settings, ScenarioEditor, DecisionModal } from './components';
+import { collectionReportStaleness } from '../domain/collection';
+import { CollectionModal, CollectionWorkspace } from './CollectionView';
 
 applyTheme();
 const role = new URLSearchParams(location.search).get('role') || 'workspace';
@@ -93,6 +101,11 @@ function App() {
   };
   const [meetingFilter, setMeetingFilter] = useState<'all' | 'active' | 'ended'>('all');
   const [search, setSearch] = useState('');
+  // Collections: which one is open, multi-select for creating one, and the modal.
+  const [collectionId, setCollectionId] = useState<string | null>(null);
+  const [selectMode, setSelectMode] = useState(false);
+  const [picked, setPicked] = useState<string[]>([]);
+  const [collectionModal, setCollectionModal] = useState<'new' | 'edit' | null>(null);
   const [sourceTarget, setSourceTarget] = useState('');
   const [outlineOpen, setOutlineOpen] = useState(false);
   const [outlineSelection, setOutlineSelection] = useState('');
@@ -102,6 +115,7 @@ function App() {
   };
   const startRequest = useRef<string | null>(null);
   const current = snapshot?.meetings.find((m) => m.id === selected),
+    currentCollection = snapshot?.collections.find((c) => c.id === collectionId),
     locale = snapshot?.preferences.uiLocale || 'en',
     t = translator(locale);
   const latest =
@@ -110,7 +124,20 @@ function App() {
   const requested = view
     ? current?.artifacts.find((a) => a.id === view.id && a.rev === view.rev)
     : latest;
-  const { artifact } = useLiveArtifact(requested);
+  const {
+    artifact,
+    pending: pendingArtifact,
+    applyPending,
+  } = useLiveArtifact(
+    requested,
+    false,
+    current?.id,
+    sourceRefs !== null
+      ? requested?.blocks.find(
+          (b) => sourceTarget === b.title || sourceTarget.startsWith(b.title + ' · '),
+        )?.id
+      : undefined,
+  );
   const personal =
     current?.artifacts.filter(
       (a) =>
@@ -137,6 +164,21 @@ function App() {
       setServiceError(false);
       setSnapshot(value);
       if (value.selectMeetingId) setSelected(value.selectMeetingId);
+      if (role === 'preview' && value.previewVisible === false)
+        window.getSelection()?.removeAllRanges();
+      if (role === 'workspace' && value.previewOpen) {
+        const context = value.previewOpen;
+        setCollectionId(null);
+        setHistory(false);
+        setView(context.refs?.length || context.prompt ? context.artifact : null);
+        setSourceRefs(context.refs?.length ? context.refs : null);
+        setSourceTarget(context.target ?? '');
+        if (context.prompt) {
+          setAsk(context.prompt);
+          setAskOpen(true);
+          setAskContext({ artifactId: context.artifact.id, artifactRev: context.artifact.rev });
+        }
+      }
       if (value.openSettings) {
         setAudioSetup(value.audioSetup === true);
         setSettings(true);
@@ -184,6 +226,26 @@ function App() {
     setAskContext(null);
     setSourceText('');
   };
+  const openCollection = (id: string) => {
+    setCollectionId(id);
+    setSelected(null);
+    setSourceRefs(null);
+    setSelectMode(false);
+    setPicked([]);
+  };
+  /**
+   * openMeeting() clears sourceRefs, so setting them in the same handler is what
+   * makes "open this evidence in that meeting" work: React batches both updates
+   * and the last write wins.
+   */
+  const openInMeeting = (meetingId: string, refs: Ref[]) => {
+    const target = snapshot?.meetings.find((m) => m.id === meetingId);
+    if (!target) return;
+    openMeeting(target);
+    setSourceRefs(refs.length ? refs : null);
+    setSourceTarget(target.title);
+    setCollectionId(null);
+  };
   const active = snapshot?.meetings.find((m) => m.status === 'active');
   const indicator = launcherIndicator(active, serviceError);
   const captureLabel = t(indicator.labelKey);
@@ -211,6 +273,7 @@ function App() {
         m.title.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()),
     ) ?? [];
   const drag = useRef<{ x: number; y: number; dragged: boolean } | null>(null);
+  const suppressLauncherClick = useRef(false);
   if (role === 'reminder')
     return <MeetingReminderBubble key={snapshot?.reminder?.id} view={snapshot?.reminder} t={t} />;
   if (role === 'launcher')
@@ -234,6 +297,8 @@ function App() {
         }}
         onPointerDown={(e) => {
           if (e.button === 0) {
+            suppressLauncherClick.current = false;
+            void api('hover', false);
             drag.current = { x: e.screenX, y: e.screenY, dragged: false };
             e.currentTarget.setPointerCapture(e.pointerId);
           }
@@ -244,15 +309,28 @@ function App() {
             Math.hypot(e.screenX - drag.current.x, e.screenY - drag.current.y) > 6
           ) {
             drag.current.dragged = true;
+            suppressLauncherClick.current = true;
             void api('drag');
           }
         }}
         onPointerUp={() => {
           if (drag.current?.dragged) void api('snap');
+          drag.current = null;
+        }}
+        onLostPointerCapture={() => {
+          if (drag.current?.dragged) void api('snap');
+          drag.current = null;
+        }}
+        onPointerCancel={() => {
+          suppressLauncherClick.current = true;
+          if (drag.current?.dragged) void api('snap');
+          drag.current = null;
+          void api('hover', false);
         }}
         onClick={() => {
-          if (!drag.current?.dragged)
+          if (!suppressLauncherClick.current)
             void api(componentNotices.length ? 'openReadyComponents' : 'open');
+          suppressLauncherClick.current = false;
           drag.current = null;
         }}
       >
@@ -273,46 +351,7 @@ function App() {
         </span>
       </button>
     );
-  if (role === 'preview')
-    return (
-      <div
-        className="preview"
-        onMouseEnter={() => void api('hover', true)}
-        onMouseLeave={() => void api('hover', false)}
-      >
-        <div className="eyebrow">
-          Agents, Everywhere{' '}
-          <span className={`status launcher-status-${indicator.state}`}>{captureLabel}</span>
-        </div>
-        {!!componentNotices.length && (
-          <div className="launcher-component-notices">
-            <strong>{componentNoticeLabel}</strong>
-            {componentNotices.slice(0, 2).map((c) => (
-              <button
-                key={c.id}
-                onClick={() =>
-                  void api('openComponent', { meetingId: active!.id, componentId: c.id })
-                }
-              >
-                {c.title || c.family} ↗
-              </button>
-            ))}
-          </div>
-        )}
-        <h2>{active?.focus || active?.title || t('emptyLibrary')}</h2>
-        {active?.changes.slice(0, 3).map((s, i) => (
-          <p key={i}>{s}</p>
-        ))}
-        {(active?.captureError || active?.error || serviceError) && (
-          <p className="error-text">
-            {serviceError
-              ? t('serviceError')
-              : errorText(locale, active!.captureError || active!.error!)}
-          </p>
-        )}
-        <button onClick={() => void api('open')}>{t('preview.open')} ↗</button>
-      </div>
-    );
+  if (role === 'preview') return <HoverPreview key={active?.id ?? 'idle'} snapshot={snapshot} serviceError={serviceError} />;
   if (!snapshot)
     return (
       <main>
@@ -360,11 +399,14 @@ function App() {
   };
   return (
     <div
-      className={`app-shell ${current ? 'meeting-shell' : 'home-shell'} ${sourceRefs !== null ? 'has-source' : ''}`}
+      className={`app-shell ${current || currentCollection ? 'meeting-shell' : 'home-shell'} ${sourceRefs !== null ? 'has-source' : ''}`}
     >
       <header className="toolbar">
         {current ? (
           <>
+            <div className="meeting-wordmark">
+              <span>Agents,</span> Everywhere.
+            </div>
             <button
               className="text-button back-button"
               onClick={() => {
@@ -459,7 +501,27 @@ function App() {
           <button onClick={() => setError('')}>{t('dismiss')}</button>
         </div>
       )}
-      {!current ? (
+      {currentCollection ? (
+        <CollectionWorkspace
+          collection={currentCollection}
+          meetings={snapshot.meetings}
+          locale={locale}
+          onBack={() => setCollectionId(null)}
+          onEdit={() => setCollectionModal('edit')}
+          onDelete={() =>
+            void act(async () => {
+              await command('collectionDelete', { collectionId: currentCollection.id }, null);
+              setCollectionId(null);
+            })
+          }
+          onGenerate={() =>
+            void act(() =>
+              command('collectionReport', { collectionId: currentCollection.id }, null),
+            )
+          }
+          onOpenInMeeting={openInMeeting}
+        />
+      ) : !current ? (
         <main className="library">
           <section className="home-hero">
             <div className="hero-kicker">
@@ -512,6 +574,78 @@ function App() {
               </button>
             </div>
           )}
+          <section className="collections">
+            <div className="recent-heading">
+              <h2>{t('collection.heading')}</h2>
+              <span>{t('collection.hint')}</span>
+              {snapshot.meetings.length > 0 && (
+                <button
+                  className="source-link"
+                  aria-pressed={selectMode}
+                  onClick={() => {
+                    setSelectMode(!selectMode);
+                    setPicked([]);
+                  }}
+                >
+                  {t(selectMode ? 'collection.selectCancel' : 'collection.select')}
+                </button>
+              )}
+            </div>
+            {selectMode && (
+              <div className="collection-pick">
+                <span>
+                  {picked.length} {t('collection.selectedSuffix')}
+                </span>
+                <button
+                  className="primary"
+                  disabled={!picked.length}
+                  onClick={() => setCollectionModal('new')}
+                >
+                  <Plus size={15} />
+                  {t('collection.createFromSelection')}
+                </button>
+              </div>
+            )}
+            {snapshot.collections.length > 0 && (
+              <div className="meeting-list">
+                {snapshot.collections.map((c) => {
+                  const latestReport = c.reports.at(-1);
+                  const stale = latestReport
+                    ? collectionReportStaleness(latestReport, c, snapshot.meetings).length > 0
+                    : false;
+                  return (
+                    <button
+                      className="collection-row"
+                      key={c.id}
+                      onClick={() => openCollection(c.id)}
+                    >
+                      <span className="meeting-file is-collection">
+                        <Layers size={21} />
+                      </span>
+                      <div className="meeting-row-content">
+                        <strong>{c.title}</strong>
+                        <p>
+                          {c.meetingIds.length} {t('collection.meetingSuffix')}
+                          <span>·</span>
+                          {c.reports.length} {t('collection.reportSuffix')}
+                        </p>
+                      </div>
+                      {stale && (
+                        <span className="status status-warning">
+                          <AlertTriangle size={13} />
+                          {t('collection.report.stale')}
+                        </span>
+                      )}
+                      <ChevronRight className="row-chevron" size={17} />
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {snapshot.collections.length === 0 && !selectMode && (
+              <p className="muted collection-empty">{t('collection.empty')}</p>
+            )}
+          </section>
           <section className="recent-meetings">
             <div className="recent-heading">
               <h2>{t('meeting.recent')}</h2>
@@ -574,32 +708,54 @@ function App() {
                     </button>
                   </div>
                 )}
-                {filteredMeetings.map((m) => (
-                  <button className="meeting-row" key={m.id} onClick={() => openMeeting(m)}>
-                    <span className={`meeting-file ${m.status === 'active' ? 'is-active' : ''}`}>
-                      <FileText size={21} />
-                    </span>
-                    <div className="meeting-row-content">
-                      <strong>{m.title}</strong>
-                      <p>
-                        <Clock3 size={13} />
-                        {new Date(m.createdAt).toLocaleString(locale, {
-                          month: 'short',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                        <span>·</span>
-                        {t(m.mode)}
-                      </p>
-                    </div>
-                    <span className={`status status-${m.capture}`}>
-                      <i className={`dot ${m.capture}`} />
-                      {t('status.' + m.capture)}
-                    </span>
-                    <ChevronRight className="row-chevron" size={17} />
-                  </button>
-                ))}
+                {filteredMeetings.map((m) => {
+                  const body = (
+                    <>
+                      <span className={`meeting-file ${m.status === 'active' ? 'is-active' : ''}`}>
+                        <FileText size={21} />
+                      </span>
+                      <div className="meeting-row-content">
+                        <strong>{m.title}</strong>
+                        <p>
+                          <Clock3 size={13} />
+                          {new Date(m.createdAt).toLocaleString(locale, {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                          <span>·</span>
+                          {t(m.mode)}
+                        </p>
+                      </div>
+                    </>
+                  );
+                  // A checkbox may not nest inside the row button, so in selection
+                  // mode the row itself becomes the label and keeps its hit area.
+                  return selectMode ? (
+                    <label className="meeting-row selectable" key={m.id}>
+                      <input
+                        type="checkbox"
+                        checked={picked.includes(m.id)}
+                        onChange={() =>
+                          setPicked((c) =>
+                            c.includes(m.id) ? c.filter((x) => x !== m.id) : [...c, m.id],
+                          )
+                        }
+                      />
+                      {body}
+                    </label>
+                  ) : (
+                    <button className="meeting-row" key={m.id} onClick={() => openMeeting(m)}>
+                      {body}
+                      <span className={`status status-${m.capture}`}>
+                        <i className={`dot ${m.capture}`} />
+                        {t('status.' + m.capture)}
+                      </span>
+                      <ChevronRight className="row-chevron" size={17} />
+                    </button>
+                  );
+                })}
               </div>
             )}
           </section>
@@ -673,7 +829,10 @@ function App() {
                   <button
                     key={`${a.id}-${a.rev}`}
                     aria-pressed={view?.id === a.id && view?.rev === a.rev}
-                    onClick={() => setView({ id: a.id, rev: a.rev })}
+                    onClick={() => {
+                      setSourceRefs(null);
+                      setView({ id: a.id, rev: a.rev });
+                    }}
                   >
                     {a.question} · {t('revision')} {a.rev} · {a.locale}
                   </button>
@@ -681,34 +840,14 @@ function App() {
             </nav>
           )}
           <main className="workspace">
-            <div className="document-meta">
-              <span>
-                {new Date(current.createdAt).toLocaleDateString(locale, {
-                  month: 'short',
-                  day: 'numeric',
-                })}
-              </span>
-              <span>
-                {t(
-                  current.status === 'ended'
-                    ? 'design.closedContext'
-                    : current.processing === 'working'
-                      ? 'processing.active'
-                      : current.segments.length
-                        ? 'design.receivedContext'
-                        : 'design.waitingContext',
-                )}
-              </span>
-              {current.lastExpressionAt && (
-                <span>
-                  {t('design.updated')}{' '}
-                  {new Date(current.lastExpressionAt).toLocaleTimeString(locale, {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </span>
-              )}
-            </div>
+            {pendingArtifact && (
+              <div className="reading-update" role="status">
+                <span>{editorialCopy[locale].newContent}</span>
+                <button className="text-button" onClick={applyPending}>
+                  {editorialCopy[locale].apply}
+                </button>
+              </div>
+            )}
             {outlineOpen && artifact && (
               <nav className="document-outline" aria-label={t('design.outline')}>
                 <span>{t('design.outline')}</span>
@@ -729,29 +868,25 @@ function App() {
                 ))}
               </nav>
             )}
-            {(snapshot.liveTranscripts ?? [])
-              .filter((p) => p.meetingId === current.id)
-              .map((p) => (
-                <p className="muted" key={p.segmentId} role="status">
-                  {t('live.transcribing')} · {t('sourceKind.' + p.channel)}: {p.text}
-                </p>
-              ))}
+            <LiveEditing meeting={current} snapshot={snapshot} locale={locale} />
             {(current.audioPending ?? 0) > 1 && (
               <p className="muted" role="status">
                 {t('live.audioPending')}: {current.audioPending}
               </p>
             )}
-            {current.expressionStatus === 'working' && (
-              <p className="muted" role="status">
-                {t('live.preparing')}
-              </p>
-            )}
+
             <MeetingReview meeting={current} locale={locale} onSources={openSources} />
             {personal.length > 0 && (
               <nav className="personal-work" aria-label={t('live.personal')}>
                 <span>{t('live.personal')}</span>
                 {personal.map((a) => (
-                  <button key={a.id} onClick={() => setView({ id: a.id, rev: a.rev })}>
+                  <button
+                    key={a.id}
+                    onClick={() => {
+                      setSourceRefs(null);
+                      setView({ id: a.id, rev: a.rev });
+                    }}
+                  >
                     {a.question}
                   </button>
                 ))}
@@ -760,7 +895,14 @@ function App() {
             {view && latest && (
               <div className="update-notice">
                 {t('design.viewingHistory')}
-                <button onClick={() => setView(null)}>{t('artifact.applyUpdates')}</button>
+                <button
+                  onClick={() => {
+                    setSourceRefs(null);
+                    setView(null);
+                  }}
+                >
+                  {t('artifact.applyUpdates')}
+                </button>
               </div>
             )}
             {artifact ? (
@@ -795,6 +937,7 @@ function App() {
                   artifact={artifact}
                   locale={locale}
                   onSources={openSources}
+                  sourceNumbers={sourceNumbers(current.segments)}
                   selectedSources={sourceRefs}
                   selectedTarget={sourceTarget}
                   onAction={(prompt) => void act(() => command('ask', { text: prompt }))}
@@ -847,6 +990,13 @@ function App() {
                 )}
               </div>
             )}
+            <IntentPanel
+              key={current.id}
+              meeting={current}
+              locale={locale}
+              command={(type, payload) => command(type as any, payload)}
+              onSources={openSources}
+            />
             <WorkflowPanel
               meeting={current}
               locale={locale}
@@ -858,6 +1008,17 @@ function App() {
                 if (artifact) setAskContext({ artifactId: artifact.id, artifactRev: artifact.rev });
               }}
             />
+            {current.changes.length > 0 && (
+              <section className="changes">
+                <div className="section-label">
+                  <Clock3 size={15} />
+                  {t('changes')}
+                </div>
+                {current.changes.map((c, i) => (
+                  <p key={i}>{c}</p>
+                ))}
+              </section>
+            )}
             {(current.status === 'active' || current.collaboration) && (
               <CollaborationPanel
                 meetingId={current.id}
@@ -868,6 +1029,7 @@ function App() {
             {current.status === 'active' && artifact && (
               <div className="explore-entry">
                 <button
+                  aria-label={t(askOpen ? 'entry.closeExplore' : 'entry.explore')}
                   className="explore-toggle"
                   onClick={() => {
                     if (!askOpen && !ask.trim())
@@ -875,9 +1037,9 @@ function App() {
                     setAskOpen(!askOpen);
                   }}
                 >
-                  <MessageSquare size={17} />
+                  <ChevronRight size={17} className={askOpen ? 'rotated' : ''} />
                   {t(askOpen ? 'entry.closeExplore' : 'entry.explore')}
-                  <ChevronRight size={15} className={askOpen ? 'rotated' : ''} />
+                  <span className="explore-hint">{editorialCopy[locale].exploreHint}</span>
                 </button>
               </div>
             )}
@@ -974,37 +1136,31 @@ function App() {
                 </button>
               </form>
             )}
-            {current.changes.length > 0 && (
-              <section className="changes">
-                <div className="section-label">
-                  <Clock3 size={15} />
-                  {t('changes')}
-                </div>
-                {current.changes.map((c, i) => (
-                  <p key={i}>{c}</p>
-                ))}
-              </section>
-            )}
             {current.scenarios.length > 0 && (
               <details>
                 <summary>
                   {t('savedScenarios')} ({current.scenarios.length})
                 </summary>
-                {current.scenarios.map((s) => (
-                  <div key={s.id} className="saved-record">
-                    <strong>
-                      {s.formula.label}: {s.result ?? t('unknown')} {s.formula.unit}
-                    </strong>
-                    <p>
-                      {Object.entries(s.values)
-                        .map(([k, v]) => `${k}: ${v ?? '?'}`)
-                        .join(' · ')}
-                    </p>
-                    {s.baseInputVersion < current.inputVersion && (
-                      <p className="stale">{t('scenarioStale')}</p>
-                    )}
-                  </div>
-                ))}
+                {current.scenarios.map((s) => {
+                  const basis = scenarioBasisStatus(s, current);
+                  return (
+                    <div key={s.id} className="saved-record">
+                      <strong>
+                        {s.formula.label}: {s.result ?? t('unknown')} {s.formula.unit}
+                      </strong>
+                      <p>
+                        {Object.entries(s.values)
+                          .map(([k, v]) => `${k}: ${v ?? '?'}`)
+                          .join(' · ')}
+                      </p>
+                      {basis !== 'unchanged' && (
+                        <p className="stale" data-testid="scenario-basis-status">
+                          {t(basis === 'changed' ? 'scenarioStale' : 'scenarioBasisUnknown')}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
               </details>
             )}
             {current.decisions.length > 0 && (
@@ -1056,6 +1212,34 @@ function App() {
                 )}
               </section>
             )}
+            <div className="document-meta">
+              <span>
+                {new Date(current.createdAt).toLocaleDateString(locale, {
+                  month: 'short',
+                  day: 'numeric',
+                })}
+              </span>
+              <span>
+                {t(
+                  current.status === 'ended'
+                    ? 'design.closedContext'
+                    : current.processing === 'working'
+                      ? 'processing.active'
+                      : current.segments.length
+                        ? 'design.receivedContext'
+                        : 'design.waitingContext',
+                )}
+              </span>
+              {current.lastExpressionAt && (
+                <span>
+                  {t('design.updated')}{' '}
+                  {new Date(current.lastExpressionAt).toLocaleTimeString(locale, {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </span>
+              )}
+            </div>
             <details className="processing-details">
               <summary>{t('live.processingDetails')}</summary>
               <p>
@@ -1086,10 +1270,65 @@ function App() {
               refs={sourceRefs ?? []}
               locale={locale}
               onClose={() => setSourceRefs(null)}
-              onCorrect={(payload) => act(() => command('correct', payload))}
+              onOpen={() => openSources([])}
+              onFeedback={
+                artifact && current.status === 'active'
+                  ? (segment) => {
+                      if (!artifact || current.status !== 'active') return;
+                      if (!ask.trim())
+                        setAskContext({ artifactId: artifact.id, artifactRev: artifact.rev });
+                      const feedback = `${editorialCopy[locale].feedbackPrompt}\n\n${sourceTarget || artifact.question}\n“${segment.text}”\n`;
+                      setAsk((previous) =>
+                        previous.trim() ? `${previous}\n\n${feedback}` : feedback,
+                      );
+                      setAskOpen(true);
+                      setSourceRefs(null);
+                      setTimeout(() => {
+                        const field =
+                          document.querySelector<HTMLTextAreaElement>('.ask-bar textarea');
+                        field?.scrollIntoView({ block: 'center' });
+                        field?.focus({ preventScroll: true });
+                      }, 0);
+                    }
+                  : undefined
+              }
+              onCorrect={(payload) => command('correct', payload)}
             />
           )}
         </>
+      )}
+      {collectionModal && (
+        <CollectionModal
+          collection={collectionModal === 'edit' ? currentCollection : undefined}
+          meetings={snapshot.meetings}
+          locale={locale}
+          close={() => setCollectionModal(null)}
+          save={async ({ title, brief, meetingIds }) => {
+            if (collectionModal === 'edit' && currentCollection) {
+              await command(
+                'collectionUpdate',
+                {
+                  collectionId: currentCollection.id,
+                  baseRevision: currentCollection.revision,
+                  title,
+                  brief,
+                  meetingIds,
+                },
+                null,
+              );
+            } else {
+              const id = (await command(
+                'collectionCreate',
+                { title, brief, meetingIds },
+                null,
+              )) as string;
+              setCollectionId(id);
+              setSelectMode(false);
+              setPicked([]);
+            }
+            setCollectionModal(null);
+          }}
+        />
       )}
       {newMeeting && snapshot.capabilities.developerInputs && (
         <NewMeeting

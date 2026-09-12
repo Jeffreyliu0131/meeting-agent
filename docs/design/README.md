@@ -1,6 +1,11 @@
 # 前端设计资料
 
-- [首版协作组件设计](../collaboration-v1-design.md)：投票、分工、冲突、决定确认的三类角色视图、样式及节点触发；核心已实施，完整设计差距见运行说明。
+- [当前首页客户端视觉HTML](prototypes/home-v4/README.md)：第四版完成待评审；保留当前上下结构，按用户选择强化飞书客户端式层次与控件。
+
+- [会中正文与窄原话边注](meeting-editorial.md)：2026-09-12确认的会中专项规范、窄栏比例、精确来源和阅读保护；[视觉稿](assets/meeting-editorial-reference.png)。
+
+- [首版协作组件设计](../collaboration-v1-design.md)：投票、分工、冲突、决定确认的三类角色视图、样式及节点触发；预设schema契约见正文入口，核心已在PR #3实现，完整差距见运行时与验收记录。
+
 - [第二阶段协作设计](../collaboration-phase2-design.md)：先补闭环，再新增议程、信息收集、方案对比、风险与问题清单；schema、悬浮窗与图触发详见正文，[实施计划](../collaboration-phase2-plan.md)尚未执行。
 
 - [style.md](style.md)：当前已认可 8 图方向的风格、页面、组件与状态规范；本地整合修订版，含来源与未验证范围。

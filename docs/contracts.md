@@ -1,6 +1,12 @@
 # 数据与操作契约
 
+PR #4协作扩展：C提案可携带`audienceIds`，服务校验后保存为不可变草稿修订的`suggestedAudienceIds`；仅受众改变也形成新审核版本。`ComponentDockView`只暴露当前会议待审核卡片及选择状态，dock IPC绑定当前发起者／选中组件，不提供全局snapshot。详见[实际运行时](collaboration-v1-runtime.md)。
+
+[Demo实时表达](demo-live-visuals.md)新增可选diagram.layout、节点icon及受校验的edge.kind；Snapshot.liveDrafts为按会议／调用隔离的临时模型文字，不持久化、不作为来源。完整输出仍通过原校验提交，旧产物缺少这些可选字段仍可读取。
+
 协作组件新增严格Zod契约与规范化存储已实现，运行时见[实际契约](collaboration-v1-runtime.md)，目标及示意类型见[设计契约](collaboration-v1-contracts.md)。两者的字段差异须按运行说明读取，不能用设计示意调用IPC。
+
+私有意图使用 `Proposal.intentPreparation`／`Meeting.intentPreparation`；正式协作使用 `Proposal.collaborationIntents`／`Meeting.collaboration`。原 FTY 的 `Proposal.collaboration` 不是当前接口。候选、白名单草稿命令、finality与持久化边界见[意图契约说明](collaboration-intents.md)。
 
 > 文件职责：产品／工程设计要求，不是完成清单。当前进度与最新修订见[状态页](status.md)；已交付首版取舍见[ADR-003](adr/003-cross-platform-first-version.md)，实际结果见[验证记录](../tests/results/README.md)。具体实现以代码核对，未实现的要求仍是目标。
 版本0.1｜业务设计契约。下面的TypeScript是设计示意；实际运行时 schema 与类型见 `src/contracts/model.ts`，需按当前状态核对差异。本文件定义业务职责，不将具体库写成不可替换前提。
@@ -22,6 +28,14 @@
 | 表达修复 | RenderReport反馈、一次受预算约束的定向修复、内容／公式／来源保持、候选持久化 |
 | 数值 | Decimal及符号单位校验、引文basis、可选可信计算绑定；语义依据仍需人工验收 |
 | 平台与真实效果 | 合成程序结果见[验证](../tests/results/agent-workflow-validation.md)；真实模型／音源、Windows实机未验收 |
+
+## PR #3 协议整合说明
+
+[对照与代码定位](pr3-doc-alignment.md)覆盖分支新增的协作契约与流式瞬态状态：组件草稿 revision、公开轮、本人 responseVersion、来源／分析前沿分别建模；actor 取可信窗口绑定，模型不能写公开状态、票数或操作者权限。暂定转写只在快照内存中展示，最终文本才进入来源和 Agent，仍保留会议／epoch／通道隔离。
+
+这些接口已随 PR #3 合入 `5878c20`；FTY 与跨会议整合已进入 `55267d6`。实际调用以当前 Zod schema 和可信服务为准。旧 FTY 聚合状态在 `store.load()` 中迁至 `Meeting.intentPreparation`，正式协作从规范化表恢复；缺少 `collections` 的旧库补空数组，`schema_version` 保持 1。
+
+输入缺口检查与新轮回应重算已有[修复回归](../tests/results/pr3-fix-validation.md)，不再列为待合并接口。协作决定保存在 `Meeting.collaboration.decisions`，没有并入旧 `Meeting.decisions`；集合汇总已通过 `collectionDecisions()` 同时读取两类会议级决定。当前导出直接序列化完整 Meeting，包含两个独立字段及私有意图；尚无统一决定摘要、跨会议报告导出或导出后重新导入功能，不能把“字段未统一”写成“协作决定未导出”。
 
 ## 当前可靠性契约
 
@@ -168,6 +182,8 @@ Agent可以设计新组合，应用不提供“特定会议模板ID”要求它�
 
 ## 6. Scenario与Decision
 
+已保存试算的当前实现保留`artifactId/artifactRev`、公式快照、覆盖参数和结果，沿用schema_version=1。提示由[scenario-basis.ts](../src/domain/scenario-basis.ts)只读计算：核对同一产物／分支的公式、原始来源、保存产物的对象／关系依赖及传递条件；无关新输入、纯布局／显示标签／语言版本变化不触发。已知依赖变化显示原提示，历史依据缺失显示无法完整核对，均不改变保存值。当前依赖粒度为保存产物，尚未细化为每条公式的独立对象读集；没有提示仅代表记录内未发现依赖变化，不证明全场理解完整或语义正确。
+
 Scenario保存`id, meetingId, baseObjectRefs, baseSnapshot, overrides, assumptionRefs, toolResults, owner, rev`。覆盖值标明来源和假设；改变日期和数字不会改原话。基础对象修正后显示过期，用户选择重基或保留旧基线；不静默刷新。
 
 Decision保存`id, scope: personal|meeting, targetSnapshot, evidenceRefs, confirmedBy, confirmationBasis, affectedParticipants, createdAt, supersedesDecisionId`。个人采用自己的试算只能建立personal。meeting要求明确会议级确认依据与范围；应用操作者不是天然代表所有人。
@@ -211,3 +227,17 @@ Decision保存`id, scope: personal|meeting, targetSnapshot, evidenceRefs, confir
 
 
 设置新增preferencesPatch命令，使用PreferencesPatchSchema严格校验可选字段，audio按子字段合并；返回保存后的Preferences。旧preferences全量接口保留兼容，正常设置和托盘改用补丁。桌面串行协调快捷键注册／失败回滚，前端PreferenceWriter串行持久化、保留最新意图并对失败字段回滚。见[即时设置规范](meeting-entry-spec.md#11-设置即时保存2026-09-12)。
+
+## 会中来源展示契约（2026-09-12）
+
+来源显示编号是UI对source ID首次顺序的映射，不是数据库ID，也不替代revision。来源按钮继续传Ref(id,rev)，纠错仍走现有correct乐观并发校验；历史引用不自动替换为最新修订。反馈理解仅预填现有ask入口及artifactId／revision上下文，等待用户发送，不新增隐式写入命令或模型权限。
+
+
+两分支整合：Meeting.intentPreparation保存FTY私有草稿，Meeting.collaboration保存正式轮次，collections与二者在同一SQLite事务持久化。collaborationPromote通过精确草稿版本显式转交，正式发放另行操作。集合报告绑定生成起点的成员与版本；生成期间变化返回COLLECTION_CHANGED，旧报告保留。决定别名可以作为来源引用，但不是语义对象，也不是转写；返回时路由到其原会议。
+
+
+## 悬停画板与工作页接续
+
+速览从桌面快照选择活动会议最新 meeting-scope 产物（旧版未标scope按meeting处理），个人产物不替换会议画板。显示／隐藏、实时修订不产生业务命令或模型请求。`hover(boolean)`仅允许launcher／preview顶层窗口调用；主进程维护两个命中区域与展开／关闭计时器；速览使用原生WebContents鼠标事件及窗口坐标，避免进入隔离HTML／SVG子框架时误认为移出。拖动、菜单、打开工作页、隐藏入口均取消待展开。窗口尺寸由[preview-bounds.ts](../src/desktop/preview-bounds.ts)按显示器工作区计算。
+
+`openPreview({meetingId?, artifactId?, artifactRev?, refs?, target?, prompt?})`只允许preview顶层窗口；桌面校验活动会议、所见会议产物、引用来源与产物内已有建议文本。工作页收到瞬态`previewOpen`上下文：普通打开跟随最新产物，来源／建议按所见版本打开；建议仅预填提问草稿，不直接提交。速览隐藏时清除其文本选择，避免再次打开仍锁住旧块。此瞬态上下文不写入会议数据库。生成内容iframe仍使用既有sandbox与CSP，无IPC权限。

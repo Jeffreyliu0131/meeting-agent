@@ -1,0 +1,171 @@
+{
+  "url": "http://127.0.0.1:4179/",
+  "checks": [
+    {
+      "name": "daily has six labeled synthetic rows",
+      "pass": true
+    },
+    {
+      "name": "meeting preview opens",
+      "pass": true
+    },
+    {
+      "name": "source matches selected meeting",
+      "pass": true
+    },
+    {
+      "name": "source interaction keeps detail open",
+      "pass": true
+    },
+    {
+      "name": "search finds discussion content",
+      "pass": true
+    },
+    {
+      "name": "active filter empty",
+      "pass": true
+    },
+    {
+      "name": "first use has no fake rows",
+      "pass": true
+    },
+    {
+      "name": "explicit sample opens synthetic meeting",
+      "pass": true
+    },
+    {
+      "name": "audio settings open",
+      "pass": true
+    },
+    {
+      "name": "scope updates",
+      "pass": true
+    },
+    {
+      "name": "switch interaction keeps settings open",
+      "pass": true
+    },
+    {
+      "name": "settings do not record",
+      "pass": true
+    },
+    {
+      "name": "bad device routes to settings",
+      "pass": true
+    },
+    {
+      "name": "start disables during connection",
+      "pass": true
+    },
+    {
+      "name": "recording simulation explicitly labeled",
+      "pass": true
+    },
+    {
+      "name": "opening paused meeting does not resume",
+      "pass": true
+    },
+    {
+      "name": "ending returns to idle",
+      "pass": true
+    },
+    {
+      "name": "200 percent zoom without horizontal overflow",
+      "pass": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "daily-desktop",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "scrollHeight": 1000,
+      "footerTop": 966
+    },
+    {
+      "name": "daily-standard",
+      "width": 1180,
+      "height": 808,
+      "scrollWidth": 1180,
+      "scrollHeight": 902,
+      "footerTop": 774
+    },
+    {
+      "name": "meeting-preview",
+      "width": 1180,
+      "height": 808,
+      "scrollWidth": 1180,
+      "scrollHeight": 902,
+      "footerTop": 774
+    },
+    {
+      "name": "first-use",
+      "width": 1180,
+      "height": 808,
+      "scrollWidth": 1180,
+      "scrollHeight": 808,
+      "footerTop": 774
+    },
+    {
+      "name": "first-use-small",
+      "width": 800,
+      "height": 600,
+      "scrollWidth": 800,
+      "scrollHeight": 677,
+      "footerTop": 566
+    },
+    {
+      "name": "first-use-mobile",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "scrollHeight": 844,
+      "footerTop": 810
+    },
+    {
+      "name": "settings-mobile",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "scrollHeight": 960,
+      "footerTop": 810
+    },
+    {
+      "name": "device-error",
+      "width": 1180,
+      "height": 808,
+      "scrollWidth": 1180,
+      "scrollHeight": 934,
+      "footerTop": 774
+    },
+    {
+      "name": "active-meeting",
+      "width": 1180,
+      "height": 808,
+      "scrollWidth": 1180,
+      "scrollHeight": 997,
+      "footerTop": 774
+    },
+    {
+      "name": "daily-small",
+      "width": 800,
+      "height": 600,
+      "scrollWidth": 800,
+      "scrollHeight": 898,
+      "footerTop": 566
+    },
+    {
+      "name": "daily-mobile",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "scrollHeight": 960,
+      "footerTop": 810
+    }
+  ],
+  "consoleErrors": [],
+  "result": "passed",
+  "htmlSha256": "42db05ad6d8210d2004e62e93a5f99a1384232e812498cce2f78896a35784d18",
+  "environment": "macOS, isolated Electron Chromium; synthetic local HTML, no recording"
+}

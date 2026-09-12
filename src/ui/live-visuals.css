@@ -1,0 +1,222 @@
+/* Source-bound diagrams and real work feedback, shared by both desktop platforms. */
+.live-editing {
+  margin: 0 0 26px;
+  padding: 12px 16px;
+  border-left: 3px solid var(--accent);
+  background: var(--accentSubtle);
+  border-radius: 0 10px 10px 0;
+}
+.live-editing-heading {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  color: var(--accent);
+  font-size: 13px;
+  min-height: 22px;
+}
+.live-editing-heading strong {
+  font-weight: 600;
+}
+.live-editing[data-stage='listening'] {
+  background: transparent;
+  border-color: var(--divider);
+  padding-block: 4px;
+}
+.live-editing[data-stage='listening'] .live-editing-heading {
+  color: var(--textSecondary);
+}
+.live-editing p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.live-editing p > span {
+  font-size: 12px;
+  color: var(--textSecondary);
+  margin-right: 9px;
+}
+.live-model-draft i {
+  display: inline-block;
+  width: 2px;
+  height: 14px;
+  margin-left: 4px;
+  background: var(--accent);
+  vertical-align: -2px;
+}
+.working-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: actual-work 1.3s ease-in-out infinite;
+}
+.live-transcript {
+  color: var(--textSecondary);
+  max-height: 72px;
+  overflow: auto;
+}
+.semantic-graph {
+  container-type: inline-size;
+}
+.graph-caption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--textSecondary);
+  margin-bottom: 12px;
+}
+.graph-caption > span:last-child {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+.semantic-graph .relationship-scroll {
+  border-radius: 14px;
+  padding: 10px;
+  background-color: #f8fafd;
+  background-image: radial-gradient(#b8c5d844 0.7px, transparent 0.7px);
+  background-size: 18px 18px;
+  border: 1px solid #dce4ee;
+}
+.semantic-graph .relationship-canvas {
+  display: block;
+  margin-inline: auto;
+}
+.semantic-graph .relationship-node {
+  width: 192px;
+  min-height: 86px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 16px 14px;
+  border: 1px solid #cbd8e9;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 22px;
+  box-shadow: 0 3px 9px #203b6209;
+  transition:
+    left 0.35s,
+    top 0.35s,
+    height 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.semantic-graph .relationship-node > span:last-child {
+  min-width: 0;
+  flex: 1;
+}
+.node-symbol {
+  color: #37619a;
+  background: #edf3fc;
+  border-radius: 9px;
+  width: 32px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 32px;
+}
+.semantic-graph [data-icon='goal'] {
+  border-color: #9ab7e1;
+  background: #f1f6ff;
+  font-weight: 600;
+}
+.semantic-graph [data-icon='risk'] .node-symbol {
+  color: #ae682c;
+  background: #fff2e4;
+}
+.semantic-graph [data-icon='question'] .node-symbol {
+  color: #8061a4;
+  background: #f3edfb;
+}
+.semantic-graph [data-icon='task'] .node-symbol {
+  color: #397c69;
+  background: #eaf5f0;
+}
+.semantic-graph .relationship-edges {
+  color: #7092c0;
+  overflow: visible;
+}
+.semantic-graph .relationship-label {
+  font-size: 12px;
+  max-width: 100px;
+  width: max-content;
+  transform: translateX(-50%);
+  background: #f8fafd;
+  color: #526987;
+  border-radius: 5px;
+  padding: 4px;
+}
+.semantic-graph [data-relation-kind='challenges'] {
+  color: #b86c43;
+  stroke-dasharray: 0.025 0.015;
+}
+.semantic-graph [data-relation-kind='supports'] {
+  color: #459382;
+}
+.semantic-graph [data-relation-kind='conditions'],
+.semantic-graph [data-relation-kind='depends_on'] {
+  color: #7b70af;
+}
+.graph-text-alternative {
+  color: var(--textSecondary);
+  font-size: 12px;
+  margin-top: 10px;
+}
+.graph-text-alternative summary {
+  cursor: pointer;
+  width: fit-content;
+}
+.graph-text-alternative p {
+  margin: 9px 0;
+}
+.graph-text-alternative button {
+  white-space: normal;
+  text-align: left;
+}
+.semantic-graph .graph-node-edited {
+  animation: node-edited 1.8s ease-out;
+}
+.semantic-graph .graph-edge-new {
+  animation: edge-drawn 0.8s ease-out;
+}
+@keyframes node-edited {
+  0% {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px #6397e02b;
+    background-color: #edf4ff;
+  }
+  100% {
+    box-shadow: 0 3px 9px #203b6209;
+  }
+}
+@keyframes edge-drawn {
+  from {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    opacity: 0.2;
+  }
+  to {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+@keyframes actual-work {
+  50% {
+    opacity: 0.3;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .semantic-graph *,
+  .live-editing * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+[data-reduce-motion='true'] .semantic-graph *,
+[data-reduce-motion='true'] .live-editing *,
+.reduce-motion .semantic-graph *,
+.reduce-motion .live-editing * {
+  animation: none !important;
+  transition: none !important;
+}

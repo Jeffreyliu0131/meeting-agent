@@ -67,7 +67,7 @@ function setup(
 ) {
   const service = new SessionService(
     {
-      load: () => ({ meetings: [], preferences: { ...defaults } }),
+      load: () => ({ meetings: [], collections: [], preferences: { ...defaults } }),
       save: () => {},
       command: () => null,
       close: () => {},
@@ -131,6 +131,36 @@ function proposal(m: Meeting, content = true): Proposal {
 const fake: ModelPort = {
   interpret: async (m) => ({ proposal: proposal(m), inputTokens: 10, outputTokens: 10 }),
 };
+test('streamed model drafts are ephemeral and clear on failure without changing facts', async () => {
+  const x = setup(fake);
+  try {
+    let release!: () => void;
+    const gate = new Promise<void>((r) => {
+      release = r;
+    });
+    let ready!: () => void;
+    const entered = new Promise<void>((r) => {
+      ready = r;
+    });
+    const call = x.service.runCall(x.id, 'understand', async (options) => {
+      options.onDraft?.('A tentative draft');
+      ready();
+      await gate;
+      throw new Error('MODEL_STREAM_INTERRUPTED');
+    });
+    const checked = assert.rejects(call, /MODEL_STREAM_INTERRUPTED/);
+    await entered;
+    assert.equal(x.service.snapshot().liveDrafts?.[0].text, 'A tentative draft');
+    assert.equal(x.service.meetings[0].objects.length, 0);
+    assert.equal(x.service.meetings[0].artifacts.length, 0);
+    release();
+    await checked;
+    assert.equal(x.service.snapshot().liveDrafts?.length, 0);
+  } finally {
+    x.service.close();
+  }
+});
+
 test('understanding commits while preview is held, and new speech is processed independently', async () => {
   const held = deferred(),
     entered = deferred();
@@ -673,6 +703,7 @@ test('user rename wins over an in-flight automatic title proposal', async () => 
 test('start intent snapshots configured audio and never silently selects manual input', () => {
   const state = {
     meetings: [] as Meeting[],
+    collections: [],
     preferences: {
       ...defaults,
       audio: {

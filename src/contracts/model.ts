@@ -2,6 +2,7 @@ import type { ReminderView } from './meeting-candidate';
 import { EvidenceRequest } from './workflow';
 import { CollaborationIntent } from './collaboration-workflow';
 import { z } from 'zod';
+import { CollaborationProposal } from './intent-preparation';
 export const Locale = z.enum(['en', 'zh-CN']);
 export type Locale = z.infer<typeof Locale>;
 const id = z
@@ -95,9 +96,45 @@ const graph = z
   .object({
     ...base,
     type: z.literal('diagram'),
-    nodes: z.array(z.object({ id, label: z.string().max(120), objectId: id }).strict()).max(16),
+    layout: z.enum(['mindmap', 'flow', 'argument']).nullable().optional(),
+    nodes: z
+      .array(
+        z
+          .object({
+            id,
+            label: z.string().max(120),
+            objectId: id,
+            icon: z
+              .enum([
+                'idea',
+                'goal',
+                'task',
+                'option',
+                'risk',
+                'question',
+                'person',
+                'time',
+                'data',
+                'constraint',
+              ])
+              .nullable()
+              .optional(),
+          })
+          .strict(),
+      )
+      .max(16),
     edges: z
-      .array(z.object({ from: id, to: id, relationId: id, label: z.string().max(100) }).strict())
+      .array(
+        z
+          .object({
+            from: id,
+            to: id,
+            relationId: id,
+            label: z.string().max(100),
+            kind: Relation.shape.kind.nullable().optional(),
+          })
+          .strict(),
+      )
       .max(24),
   })
   .strict();
@@ -249,6 +286,8 @@ export type ExpressionPlan = z.infer<typeof ExpressionPlan>;
 export const Proposal = z
   .object({
     collaborationIntents: z.array(CollaborationIntent).max(4).optional(),
+
+    intentPreparation: CollaborationProposal.nullable().optional(),
     evidenceRequest: EvidenceRequest.nullable().optional(),
     clarification: z
       .object({
@@ -293,6 +332,7 @@ export const Proposal = z
   .strict();
 export type Proposal = z.infer<typeof Proposal>;
 export type Segment = {
+  finality?: 'partial' | 'final';
   id: string;
   rev: number;
   text: string;
@@ -374,7 +414,14 @@ export type Translation = {
 export type CallRecord = {
   id: string;
   kind:
-    'understand' | 'personal' | 'generate' | 'translate' | 'transcribe' | 'component' | 'impact';
+    | 'understand'
+    | 'personal'
+    | 'generate'
+    | 'translate'
+    | 'transcribe'
+    | 'component'
+    | 'impact'
+    | 'collection';
   startedAt: string;
   durationMs: number;
   status: 'pending' | 'ok' | 'failed';
@@ -383,6 +430,15 @@ export type CallRecord = {
   reservedTokens: number;
   audioSeconds?: number;
   error?: string;
+};
+/** Shared by meetings and collections; both keep their own hourly ledger. */
+export type UsageTotals = {
+  reservedTokens: number;
+  calls: number;
+  inputTokens: number;
+  outputTokens: number;
+  unknownUsageCalls: number;
+  audioSeconds: number;
 };
 export type ExpressionJob = {
   workflowJobId?: string;
@@ -405,6 +461,7 @@ export type ExpressionJob = {
   updateKind: 'patch' | 'create' | 'restructure';
 };
 export type Meeting = {
+  intentPreparation?: import('./intent-preparation').IntentPreparationState;
   clarifications?: Array<{
     id: string;
     key: string;
@@ -463,14 +520,7 @@ export type Meeting = {
   collaboration?: import('./collaboration').CollaborationState;
   processedSources?: Record<string, number>;
   calls?: CallRecord[];
-  usageTotals?: {
-    reservedTokens: number;
-    calls: number;
-    inputTokens: number;
-    outputTokens: number;
-    unknownUsageCalls: number;
-    audioSeconds: number;
-  };
+  usageTotals?: UsageTotals;
   expressionJobs?: ExpressionJob[];
   failedExpression?: ExpressionJob;
   expressionStatus?: 'idle' | 'working' | 'error';
@@ -509,11 +559,108 @@ export type Preferences = {
   launcherVisible?: boolean;
   meetingReminders?: boolean;
 };
+/** Supported ceiling. Above 8 the "every dispute must appear" coverage check
+ *  stops being satisfiable inside the collection context budget. */
+export const MAX_COLLECTION_MEMBERS = 8;
+
+/**
+ * Cross-meeting consolidated report. Field-for-field identical to `Artifact` so
+ * ArtifactView and preflightMarkup accept it unchanged; only the runtime caps
+ * differ, because N meetings cite far more sources than one.
+ *
+ * `formulas` is capped at 0: a collection report may not carry tool-computed
+ * values or chart bindings. That is a structural guarantee, not a prompt rule —
+ * see assertCollectionCoverage.
+ */
+export const CollectionReport = z
+  .object({
+    id,
+    purposeKey: id,
+    question: z.string().max(180),
+    summary: z.string().max(500),
+    layout: z.enum(['stack', 'columns']),
+    objectIds: z.array(id).max(160),
+    blocks: z.array(Block).min(1).max(12),
+    formulas: z.array(Formula).max(0),
+    sources: z.array(Ref).max(160),
+  })
+  .strict();
+export type CollectionReport = z.infer<typeof CollectionReport>;
+
+/** Host-side only. The model sees `alias` and `meetingAlias`; never `meetingId`. */
+export type CollectionAlias = {
+  alias: string;
+  meetingAlias: string;
+  meetingId: string;
+  /** A decision is citable evidence, not a semantic object. */
+  kind: 'source' | 'object' | 'relation' | 'decision';
+  id: string;
+  rev: number;
+};
+export type CollectionWatermark = {
+  meetingId: string;
+  revision: number;
+  languageRevision: number;
+  inputVersion: number;
+};
+/** What the digest could not fit. Surfaced so the model never claims completeness. */
+export type CollectionOmitted = { openItems: number; meetings: number; quotes: number };
+
+export type CollectionReportRevision = CollectionReport & {
+  definition?: { title: string; brief: string; outputLocale: Locale };
+  reportId: string;
+  rev: number;
+  generation: number;
+  locale: Locale;
+  languageRevision: number;
+  inputVersion: number;
+  objectRefs: Ref[];
+  relationRefs: Ref[];
+  changedBlockIds: string[];
+  updateKind: 'create';
+  createdAt: string;
+  meetingIds: string[];
+  watermarks: CollectionWatermark[];
+  aliasMap: Record<string, CollectionAlias>;
+  aliasRefs: CollectionAlias[];
+  digestHash: string;
+  omitted: CollectionOmitted;
+  modelCalls: number;
+};
+
+/**
+ * A user-declared grouping of meetings. Not a partition: one meeting may belong
+ * to several collections.
+ */
+export type MeetingCollection = {
+  id: string;
+  title: string;
+  brief: string;
+  meetingIds: string[];
+  outputLocale: Locale;
+  revision: number;
+  createdAt: string;
+  updatedAt: string;
+  reports: CollectionReportRevision[];
+  calls?: CallRecord[];
+  usageTotals?: UsageTotals;
+  reportStatus: 'idle' | 'working' | 'error';
+  reportError: string | null;
+  lastReportAt?: string;
+};
+
 export type Snapshot = {
+  liveDrafts?: Array<{
+    meetingId: string;
+    callId: string;
+    kind: 'understand' | 'generate';
+    text: string;
+  }>;
   liveTranscripts?: Array<{ meetingId: string; segmentId: string; channel: string; text: string }>;
   reminder?: ReminderView | null;
   notificationUnavailable?: boolean;
   meetings: Meeting[];
+  collections: MeetingCollection[];
   preferences: Preferences;
   capabilities: {
     developerInputs?: boolean;
@@ -554,6 +701,18 @@ export const Command = z
       'preferencesPatch',
       'rename',
       'audioSettings',
+      'collectionCreate',
+      'collectionUpdate',
+      'collectionMembers',
+      'collectionDelete',
+      'collectionReport',
+
+      'collaborationPromote',
+      'collaborationEnable',
+      'collaborationEdit',
+      'collaborationDismiss',
+      'collaborationFreeze',
+      'collaborationResolve',
     ]),
     payload: z.record(z.string(), z.unknown()),
   })

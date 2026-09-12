@@ -1,0 +1,37 @@
+# LiteLLM proxy config - exposes third-party providers in OpenAI shape.
+#
+# !! KEEP THIS FILE PURE ASCII !!
+# LiteLLM loads it with Python's default locale encoding, which is GBK on a
+# Chinese Windows install. Any UTF-8 (e.g. Chinese) comment here crashes
+# startup with UnicodeDecodeError before the server ever binds.
+#
+# Why this proxy exists: the Meeting Agent app speaks OpenAI wire format to
+#   {base}/chat/completions        and   {base}/audio/transcriptions
+# DeepSeek has no transcription API at all, so the two ends come from different
+# providers. LiteLLM also translates params a provider does not accept.
+
+model_list:
+  # ---- understanding model (chat) -----------------------------------------
+  # deepseek-chat, NOT deepseek-reasoner: the reasoning model spends the app's
+  # 2500-token output budget on thinking, which surfaces as MODEL_OUTPUT_LIMIT.
+  - model_name: meeting-chat
+    litellm_params:
+      model: deepseek/deepseek-chat
+      api_key: os.environ/DEEPSEEK_API_KEY
+
+  # ---- transcription (speech to text) -------------------------------------
+  # DeepSeek has no STT, so this one stays on OpenAI.
+  - model_name: meeting-transcribe
+    litellm_params:
+      model: openai/gpt-4o-transcribe
+      api_key: os.environ/OPENAI_API_KEY
+
+litellm_settings:
+  # Critical: the app sends max_completion_tokens, and a `prompt` field on the
+  # transcription call. DeepSeek takes max_tokens instead, and gpt-4o-transcribe
+  # takes neither. Without drop_params these become 400s.
+  drop_params: true
+
+general_settings:
+  # Must match OPENAI_API_KEY in the app's .env.
+  master_key: sk-1234

@@ -2,32 +2,60 @@ import type { Closeout, Meeting } from '../contracts/model';
 import { artifactIsStale } from './artifacts';
 import { refsCurrent } from './meaning';
 
+export type OpenItemClassification = Pick<
+  Closeout,
+  | 'reviewObjectIds'
+  | 'unresolvedObjectIds'
+  | 'conditionalObjectIds'
+  | 'incompleteTaskIds'
+  | 'provisionalObjectIds'
+>;
+
+/**
+ * The deterministic classification on its own, without reconcileCloseout's
+ * ended-only gate. A cross-meeting collection may contain a meeting that is
+ * still running, and it still needs the same open-item classification.
+ * Pure move out of reconcileCloseout: predicates are unchanged and in order.
+ */
+export function classifyOpenItems(m: Meeting): OpenItemClassification {
+  const active = m.objects.filter((o) => o.lifecycle === 'active');
+  return {
+    reviewObjectIds: active.filter((o) => o.reviewRequired).map((o) => o.id),
+    unresolvedObjectIds: active
+      .filter((o) => o.kind === 'question' || o.status === 'disputed' || o.status === 'unknown')
+      .map((o) => o.id),
+    conditionalObjectIds: active
+      .filter((o) => o.meaning?.conditionIds.length || o.meaning?.stance === 'conditional')
+      .map((o) => o.id),
+    incompleteTaskIds: active
+      .filter(
+        (o) =>
+          o.kind === 'task' &&
+          (!o.meaning?.owner || !o.meaning.deadline || o.meaning.stance !== 'committed'),
+      )
+      .map((o) => o.id),
+    provisionalObjectIds: active
+      .filter((o) => o.kind !== 'topic' && (!o.meaning || o.meaning.stance === 'unknown'))
+      .map((o) => o.id),
+  };
+}
+
 /** Whole saved state is checked, not the last model context window. No new facts are inferred. */
 export function reconcileCloseout(m: Meeting): Closeout | undefined {
   if (m.status !== 'ended') return undefined;
   const latest = new Map(m.segments.map((s) => [s.id, s]));
   for (const s of m.segments) if (s.rev > latest.get(s.id)!.rev) latest.set(s.id, s);
   const pendingSources = [...latest.values()]
+    .filter((s) => s.finality !== 'partial')
     .filter((s) => m.processedSources?.[s.id] !== s.rev)
     .map((s) => ({ id: s.id, rev: s.rev }));
-  const active = m.objects.filter((o) => o.lifecycle === 'active');
-  const reviewObjectIds = active.filter((o) => o.reviewRequired).map((o) => o.id);
-  const unresolvedObjectIds = active
-    .filter((o) => o.kind === 'question' || o.status === 'disputed' || o.status === 'unknown')
-    .map((o) => o.id);
-  const conditionalObjectIds = active
-    .filter((o) => o.meaning?.conditionIds.length || o.meaning?.stance === 'conditional')
-    .map((o) => o.id);
-  const incompleteTaskIds = active
-    .filter(
-      (o) =>
-        o.kind === 'task' &&
-        (!o.meaning?.owner || !o.meaning.deadline || o.meaning.stance !== 'committed'),
-    )
-    .map((o) => o.id);
-  const provisionalObjectIds = active
-    .filter((o) => o.kind !== 'topic' && (!o.meaning || o.meaning.stance === 'unknown'))
-    .map((o) => o.id);
+  const {
+    reviewObjectIds,
+    unresolvedObjectIds,
+    conditionalObjectIds,
+    incompleteTaskIds,
+    provisionalObjectIds,
+  } = classifyOpenItems(m);
   const staleDecisionIds = m.decisions
     .filter(
       (d) =>
