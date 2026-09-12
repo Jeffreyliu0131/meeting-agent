@@ -236,9 +236,14 @@ test.beforeEach(async () => {
   });
 });
 test.afterEach(async () => {
-  await app?.evaluate(({ app }) => app.exit(0)).catch(() => {});
+  if (app && app.process().exitCode === null) {
+    const closed = app.waitForEvent('close', { timeout: 10000 });
+    await app.evaluate(({ app }) => app.exit(0)).catch(() => {});
+    await closed;
+  }
+  server.closeAllConnections();
   await new Promise<void>((r) => server.close(() => r()));
-  if (dir) rmSync(dir, { recursive: true, force: true });
+  if (dir) rmSync(dir, { recursive: true, force: true, maxRetries: 3 });
 });
 test('provider transport, isolated preflight, generated structure, source binding, updates and personal calculator', async () => {
   let page: any;

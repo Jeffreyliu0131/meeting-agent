@@ -1,3 +1,4 @@
+import { MeetingReminderBubble } from './MeetingReminderBubble';
 import { WorkflowPanel } from './WorkflowPanel';
 import launcherArtwork from './assets/launcher-dialogue-v1.png';
 import { launcherIndicator } from './launcher-status';
@@ -134,7 +135,11 @@ function App() {
       setServiceError(false);
       setSnapshot(value);
       if (value.selectMeetingId) setSelected(value.selectMeetingId);
-      if (value.openSettings) showSettings();
+      if (value.openSettings) {
+        setAudioSetup(value.audioSetup === true);
+        setSettings(true);
+      }
+      if (value.startError) setError(value.startError);
     };
     const off = window.meeting.subscribe(update);
     let canceled = false;
@@ -197,6 +202,8 @@ function App() {
         m.title.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()),
     ) ?? [];
   const drag = useRef<{ x: number; y: number; dragged: boolean } | null>(null);
+  if (role === 'reminder')
+    return <MeetingReminderBubble key={snapshot?.reminder?.id} view={snapshot?.reminder} t={t} />;
   if (role === 'launcher')
     return (
       <button

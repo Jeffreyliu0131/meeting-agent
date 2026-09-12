@@ -1,7 +1,10 @@
 {
   "schemaVersion": 1,
   "defaultLocale": "en",
-  "supportedLocales": ["en", "zh-CN"],
+  "supportedLocales": [
+    "en",
+    "zh-CN"
+  ],
   "en": {
     "app.name": "Meeting Agent",
     "navigation.meetings": "Meetings",
@@ -71,7 +74,19 @@
     "app.quitActiveBody": "Capture will stop. Your received content will be saved before the app closes.",
     "app.quitActiveAction": "End and quit",
     "preview.open": "Open workspace",
-    "launcher.label": "Meeting Agent. Open the current meeting."
+    "launcher.label": "Meeting Agent. Open the current meeting.",
+    "reminder.title": "You might be in a meeting",
+    "reminder.body": "Click to start recording",
+    "reminder.starting": "Connecting audio…",
+    "reminder.recording": "Recording",
+    "reminder.dismiss": "Dismiss reminder",
+    "settings.launcherVisible": "Show desktop launcher",
+    "settings.launcherHelp": "When hidden, meeting reminders use system notifications. Recording continues.",
+    "settings.meetingReminders": "Remind me when a meeting is detected",
+    "settings.reminderHelp": "Recording starts only when you click the reminder.",
+    "launcher.show": "Show desktop launcher",
+    "launcher.hide": "Hide desktop launcher",
+    "settings.notificationUnavailable": "System notifications could not be shown. Check this app’s notification settings."
   },
   "zh-CN": {
     "app.name": "Meeting Agent",
@@ -142,6 +157,18 @@
     "app.quitActiveBody": "采集将停止。应用关闭前会保存已收到的内容。",
     "app.quitActiveAction": "结束并退出",
     "preview.open": "打开工作页",
-    "launcher.label": "Meeting Agent，打开当前会议。"
+    "launcher.label": "Meeting Agent，打开当前会议。",
+    "reminder.title": "你可能正在开会",
+    "reminder.body": "点击开始记录",
+    "reminder.starting": "正在连接音频…",
+    "reminder.recording": "记录中",
+    "reminder.dismiss": "关闭提醒",
+    "settings.launcherVisible": "显示桌面悬浮球",
+    "settings.launcherHelp": "隐藏后，会议提醒改用系统通知。正在进行的记录不受影响。",
+    "settings.meetingReminders": "发现会议时提醒我",
+    "settings.reminderHelp": "只有点击提醒后才会开始记录。",
+    "launcher.show": "显示桌面悬浮球",
+    "launcher.hide": "隐藏桌面悬浮球",
+    "settings.notificationUnavailable": "系统通知未能显示，请检查此应用的通知设置。"
   }
 }

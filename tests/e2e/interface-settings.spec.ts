@@ -50,7 +50,7 @@ test.afterEach(async () => {
 test('interface language saves immediately, preserves unrelated drafts and persists across restart', async () => {
   await launch();
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
-  const motion = page.locator('#settings-experience input[type=checkbox]').first();
+  const motion = page.locator('#settings-experience input[name=reduceMotion]');
   await motion.check();
   await page.getByLabel('Interface language', { exact: true }).selectOption('zh-CN');
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
@@ -88,12 +88,12 @@ test('language persistence failure stays visible in settings and permits retry w
       "CREATE TRIGGER reject_settings BEFORE UPDATE ON state BEGIN SELECT RAISE(FAIL, 'synthetic storage failure'); END;",
     );
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
-    await page.locator('#settings-experience input[type=checkbox]').first().check();
+    await page.locator('#settings-experience input[name=reduceMotion]').check();
     await page.getByLabel('Interface language', { exact: true }).selectOption('zh-CN');
     await expect(page.getByRole('dialog').getByRole('alert')).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     await expect(page.getByLabel('Interface language', { exact: true })).toHaveValue('system');
-    await expect(page.locator('#settings-experience input[type=checkbox]').first()).toBeChecked();
+    await expect(page.locator('#settings-experience input[name=reduceMotion]')).toBeChecked();
     db.exec('DROP TRIGGER reject_settings');
     await page.getByLabel('Interface language', { exact: true }).selectOption('zh-CN');
     await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
