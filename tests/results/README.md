@@ -1,5 +1,7 @@
 # 执行记录
 
+[PR #5合并验证](pr5-integration-validation.md)：238单元／40桌面、Mac包1项及启动通过；双端14文件／app.asar一致，Windows真机与真实音频待验。
+
 最新[完整自然音频实测](../../docs/sessions/2026-09-12-full-audio-simulation.md)：Windows真实系统采音与真实API，因转写积压／超时未完成全链路；不把生成卡片视为分发与回应通过。
 
 [PR #4与当前main整合验证](pr4-integration-validation.md)：236单元、40桌面、Mac包专项与启动通过；双端14文件及app.asar一致，Windows真机待验。
