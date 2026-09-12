@@ -1,0 +1,53 @@
+{
+  "at": "2026-09-12T07:24:38.280822+00:00",
+  "main": "9882f04",
+  "prHead": "ee5ccc3",
+  "scope": "combined candidate plus documented integration repairs",
+  "build": "passed",
+  "unit": {
+    "tests": 236,
+    "passed": 236,
+    "exitCode": 0
+  },
+  "electron": {
+    "stats": {
+      "startTime": "2026-09-12T07:20:30.173Z",
+      "duration": 138773.90800000002,
+      "expected": 40,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "exitCode": 0,
+    "errors": []
+  },
+  "macPackage": {
+    "stats": {
+      "startTime": "2026-09-12T07:23:15.256Z",
+      "duration": 5639.429999999999,
+      "expected": 1,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "exitCode": 0,
+    "errors": []
+  },
+  "format": {
+    "passed": false,
+    "preExistingWarnings": [
+      "src/ui/i18n.ts",
+      "src/ui/main.tsx",
+      "tests/e2e/hover-preview.spec.ts",
+      "tests/unit/collection-digest.test.ts",
+      "tests/unit/collection.test.ts",
+      "tests/unit/intent-preparation.test.ts"
+    ],
+    "verifiedAgainst": "origin/main 9882f04"
+  },
+  "notVerified": [
+    "Windows device runtime",
+    "real meeting audio",
+    "real model semantic quality"
+  ]
+}

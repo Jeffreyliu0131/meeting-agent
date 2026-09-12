@@ -1,0 +1,57 @@
+TAP version 13
+# (node:80849) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: review: historical source retrieval can inform a successful current batch
+ok 1 - review: historical source retrieval can inform a successful current batch
+  ---
+  duration_ms: 91.584583
+  ...
+# Subtest: review: an invalid persisted clarification cannot poison subsequent independent input
+ok 2 - review: an invalid persisted clarification cannot poison subsequent independent input
+  ---
+  duration_ms: 20.403
+  ...
+# Subtest: review: historical reads still reject a head changed after retrieval
+ok 3 - review: historical reads still reject a head changed after retrieval
+  ---
+  duration_ms: 11.86625
+  ...
+# Subtest: review: production context capacity accounts for schema overhead before a call
+ok 4 - review: production context capacity accounts for schema overhead before a call
+  ---
+  duration_ms: 40.3265
+  ...
+# Subtest: review: legacy IDs beginning new_ stay stable and cannot switch entity kind
+ok 5 - review: legacy IDs beginning new_ stay stable and cannot switch entity kind
+  ---
+  duration_ms: 13.711167
+  ...
+# Subtest: model drafts decode split escapes and never expose reasoning fields or markup
+ok 6 - model drafts decode split escapes and never expose reasoning fields or markup
+  ---
+  duration_ms: 0.532667
+  ...
+# Subtest: SSE drafts arrive before completion; split UTF-8, CRLF, usage and finish reason survive
+ok 7 - SSE drafts arrive before completion; split UTF-8, CRLF, usage and finish reason survive
+  ---
+  duration_ms: 15.424375
+  ...
+# Subtest: interrupted SSE cannot silently become a committed model result
+ok 8 - interrupted SSE cannot silently become a committed model result
+  ---
+  duration_ms: 1.121375
+  ...
+# Subtest: mindmap follows actual topology; long labels and appended nodes do not overlap
+ok 9 - mindmap follows actual topology; long labels and appended nodes do not overlap
+  ---
+  duration_ms: 0.45225
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 834.996583

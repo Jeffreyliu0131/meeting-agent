@@ -691,7 +691,7 @@ export function SourceDrawer({
     </aside>
   );
 }
-function TranslationView({
+export function TranslationView({
   meeting,
   segment,
   locale,

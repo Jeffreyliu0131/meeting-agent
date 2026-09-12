@@ -14,7 +14,12 @@ function MiniContent({ card, zh }: { card: DockCard; zh: boolean }) {
           {c.payload.options.slice(0, 3).map((o) => (
             <span key={o.id}>○ {o.label}</span>
           ))}
-          {c.payload.options.length > 3 && <small>+{c.payload.options.length - 3}项</small>}
+          {c.payload.options.length > 3 && (
+            <small>
+              +{c.payload.options.length - 3}
+              {zh ? '项' : ' more'}
+            </small>
+          )}
         </>
       ) : c.kind === 'assignment' ? (
         <>
@@ -34,7 +39,7 @@ function MiniContent({ card, zh }: { card: DockCard; zh: boolean }) {
         <>
           <strong>{c.payload.statement}</strong>
           <span>{c.payload.scopeText}</span>
-          <small>{zh ? '等待指定参与者确认' : 'Awaiting explicit confirmation'}</small>
+          <small>{zh ? '等待指定参与者确认' : 'Awaiting required participants'}</small>
         </>
       )}
     </div>
@@ -74,9 +79,9 @@ export function ComponentDock() {
     ? { poll: '投票', assignment: '分工', conflict: '冲突讨论', decision_confirmation: '决定确认' }
     : {
         poll: 'Poll',
-        assignment: 'Assignments',
-        conflict: 'Conflict',
-        decision_confirmation: 'Confirmation',
+        assignment: 'Assignment',
+        conflict: 'Conflict discussion',
+        decision_confirmation: 'Decision confirmation',
       };
   return (
     <main
@@ -94,7 +99,7 @@ export function ComponentDock() {
                   : 'Review pinned'
                 : zh
                   ? '悬停预览 · 点击缩略卡固定审核'
-                  : 'Hover preview · click thumbnail to pin'}
+                  : 'Hover preview · click a card to pin'}
             </span>
             <button onClick={() => send('componentDockCollapse')}>
               {zh ? '收起审核' : 'Collapse review'}
@@ -113,9 +118,9 @@ export function ComponentDock() {
       )}
       <aside className="dock-thumbnails" aria-label={zh ? '自动准备的组件' : 'Prepared components'}>
         <header>
-          <strong>{zh ? '待审核组件' : 'Ready to review'}</strong>
+          <strong>{zh ? '待审核组件' : 'Components to review'}</strong>
           <small>
-            {view.cards.length} · {zh ? '自动更新' : 'Live updates'}
+            {view.cards.length} {zh ? '项 · 自动更新' : 'items · live updates'}
           </small>
         </header>
         <div className="dock-card-list">
@@ -146,7 +151,7 @@ export function ComponentDock() {
             </button>
           ))}
         </div>
-        {!view.cards.length && <p>{zh ? '本轮组件已处理' : 'All components reviewed'}</p>}
+        {!view.cards.length && <p>{zh ? '本轮组件已处理' : 'All current components reviewed'}</p>}
         {error && <p role="alert">{error}</p>}
       </aside>
     </main>

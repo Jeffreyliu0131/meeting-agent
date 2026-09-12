@@ -557,7 +557,7 @@ test('restored legacy relations propagate review even when the model is unavaila
   ];
   const s = new SessionService(
     {
-      load: () => ({ meetings: [m], preferences: defaults }),
+      load: () => ({ meetings: [m], collections: [], preferences: defaults }),
       save: () => {},
       command: () => null,
       close: () => {},

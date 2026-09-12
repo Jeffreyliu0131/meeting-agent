@@ -1,0 +1,1 @@
+{"status": "passed", "markdownFiles": 134, "sessionRecords": 38, "errors": [], "scope": "local links, entry routes, session fields, reachability", "productTests": "not run; structure does not verify claims"}

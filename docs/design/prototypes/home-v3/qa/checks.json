@@ -1,0 +1,275 @@
+{
+  "checks": [
+    {
+      "name": "exact current text and structure retained",
+      "pass": true
+    },
+    {
+      "name": "comparison changes only styles",
+      "pass": true
+    },
+    {
+      "name": "short window content clears preview bar",
+      "pass": true
+    },
+    {
+      "name": "actual settings layout opens",
+      "pass": true
+    },
+    {
+      "name": "audio scope changes inside preview only",
+      "pass": true
+    },
+    {
+      "name": "closing restores interactive home",
+      "pass": true
+    },
+    {
+      "name": "existing list structure with labeled synthetic data",
+      "pass": true
+    },
+    {
+      "name": "existing filters work",
+      "pass": true
+    },
+    {
+      "name": "clear restores list",
+      "pass": true
+    },
+    {
+      "name": "close preview hides page",
+      "pass": true
+    },
+    {
+      "name": "restore preview",
+      "pass": true
+    },
+    {
+      "name": "200 percent no horizontal overflow",
+      "pass": true
+    }
+  ],
+  "screens": [
+    {
+      "name": "polished",
+      "width": 1180,
+      "height": 808,
+      "scrollWidth": 1180,
+      "hero": {
+        "x": 62,
+        "y": 104,
+        "width": 1056,
+        "height": 307.6875,
+        "top": 104,
+        "right": 1118,
+        "bottom": 411.6875,
+        "left": 62
+      },
+      "recent": {
+        "x": 62,
+        "y": 510.6875,
+        "width": 1056,
+        "height": 138.2890625,
+        "top": 510.6875,
+        "right": 1118,
+        "bottom": 648.9765625,
+        "left": 62
+      },
+      "shellText": "Agents, Everywhere\n个人工作空间\n留一点空间，让思路更清晰\n让每一次讨论，都更清楚。\n\n专注于眼前的交流。重要的观点、关系和待解问题，会在这里逐渐清晰。\n\n开始会议\n系统默认麦克风\n仅麦克风\n·\n更改\n\n准备好时开始，需要时再打开。\n\n会议理解服务尚未连接\n\n连接服务后，即可将讨论整理为可追溯的工作内容。\n\n服务配置 ↗\n最近会议\n回到讨论，接着思考\n暂无会议\n\n开始后的会议会保存在这里，方便随时回看。"
+    },
+    {
+      "name": "current",
+      "width": 1180,
+      "height": 808,
+      "scrollWidth": 1180,
+      "hero": {
+        "x": 62,
+        "y": 112,
+        "width": 1056,
+        "height": 321.640625,
+        "top": 112,
+        "right": 1118,
+        "bottom": 433.640625,
+        "left": 62
+      },
+      "recent": {
+        "x": 62,
+        "y": 557.8359375,
+        "width": 1056,
+        "height": 154.6953125,
+        "top": 557.8359375,
+        "right": 1118,
+        "bottom": 712.53125,
+        "left": 62
+      },
+      "shellText": "Agents, Everywhere\n个人工作空间\n留一点空间，让思路更清晰\n让每一次讨论，都更清楚。\n\n专注于眼前的交流。重要的观点、关系和待解问题，会在这里逐渐清晰。\n\n开始会议\n系统默认麦克风\n仅麦克风\n·\n更改\n\n准备好时开始，需要时再打开。\n\n会议理解服务尚未连接\n\n连接服务后，即可将讨论整理为可追溯的工作内容。\n\n服务配置 ↗\n最近会议\n回到讨论，接着思考\n暂无会议\n\n开始后的会议会保存在这里，方便随时回看。"
+    },
+    {
+      "name": "polished-wide",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "hero": {
+        "x": 192,
+        "y": 104,
+        "width": 1056,
+        "height": 307.6875,
+        "top": 104,
+        "right": 1248,
+        "bottom": 411.6875,
+        "left": 192
+      },
+      "recent": {
+        "x": 192,
+        "y": 510.6875,
+        "width": 1056,
+        "height": 138.2890625,
+        "top": 510.6875,
+        "right": 1248,
+        "bottom": 648.9765625,
+        "left": 192
+      },
+      "shellText": "Agents, Everywhere\n个人工作空间\n留一点空间，让思路更清晰\n让每一次讨论，都更清楚。\n\n专注于眼前的交流。重要的观点、关系和待解问题，会在这里逐渐清晰。\n\n开始会议\n系统默认麦克风\n仅麦克风\n·\n更改\n\n准备好时开始，需要时再打开。\n\n会议理解服务尚未连接\n\n连接服务后，即可将讨论整理为可追溯的工作内容。\n\n服务配置 ↗\n最近会议\n回到讨论，接着思考\n暂无会议\n\n开始后的会议会保存在这里，方便随时回看。"
+    },
+    {
+      "name": "polished-small",
+      "width": 800,
+      "height": 600,
+      "scrollWidth": 800,
+      "hero": {
+        "x": 24,
+        "y": 84,
+        "width": 752,
+        "height": 263.578125,
+        "top": 84,
+        "right": 776,
+        "bottom": 347.578125,
+        "left": 24
+      },
+      "recent": {
+        "x": 24,
+        "y": 432.578125,
+        "width": 752,
+        "height": 119.2890625,
+        "top": 432.578125,
+        "right": 776,
+        "bottom": 551.8671875,
+        "left": 24
+      },
+      "shellText": "Agents, Everywhere\n留一点空间，让思路更清晰\n让每一次讨论，都更清楚。\n\n专注于眼前的交流。重要的观点、关系和待解问题，会在这里逐渐清晰。\n\n开始会议\n系统默认麦克风\n仅麦克风\n·\n更改\n\n准备好时开始，需要时再打开。\n\n会议理解服务尚未连接\n\n连接服务后，即可将讨论整理为可追溯的工作内容。\n\n服务配置 ↗\n最近会议\n回到讨论，接着思考\n暂无会议\n\n开始后的会议会保存在这里，方便随时回看。"
+    },
+    {
+      "name": "polished-mobile",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "hero": {
+        "x": 16,
+        "y": 84,
+        "width": 358,
+        "height": 353.3828125,
+        "top": 84,
+        "right": 374,
+        "bottom": 437.3828125,
+        "left": 16
+      },
+      "recent": {
+        "x": 16,
+        "y": 577.7734375,
+        "width": 358,
+        "height": 153.3359375,
+        "top": 577.7734375,
+        "right": 374,
+        "bottom": 731.109375,
+        "left": 16
+      },
+      "shellText": "Agents, Everywhere\n留一点空间，让思路更清晰\n让每一次讨论，都更清楚。\n\n专注于眼前的交流。重要的观点、关系和待解问题，会在这里逐渐清晰。\n\n开始会议\n系统默认麦克风\n仅麦克风\n·\n更改\n\n准备好时开始，需要时再打开。\n\n会议理解服务尚未连接\n\n连接服务后，即可将讨论整理为可追溯的工作内容。\n\n服务配置 ↗\n最近会议\n回到讨论，接着思考\n暂无会议\n\n开始后的会议会保存在这里，方便随时回看。"
+    },
+    {
+      "name": "settings",
+      "width": 1180,
+      "height": 808,
+      "scrollWidth": 1180,
+      "hero": {
+        "x": 62,
+        "y": 104,
+        "width": 1056,
+        "height": 307.6875,
+        "top": 104,
+        "right": 1118,
+        "bottom": 411.6875,
+        "left": 62
+      },
+      "recent": {
+        "x": 62,
+        "y": 510.6875,
+        "width": 1056,
+        "height": 138.2890625,
+        "top": 510.6875,
+        "right": 1118,
+        "bottom": 648.9765625,
+        "left": 62
+      },
+      "shellText": "Agents, Everywhere\n个人工作空间\n留一点空间，让思路更清晰\n让每一次讨论，都更清楚。\n\n专注于眼前的交流。重要的观点、关系和待解问题，会在这里逐渐清晰。\n\n开始会议\n系统默认麦克风\n麦克风与电脑声音\n·\n更改\n\n准备好时开始，需要时再打开。\n\n会议理解服务尚未连接\n\n连接服务后，即可将讨论整理为可追溯的工作内容。\n\n服务配置 ↗\n最近会议\n回到讨论，接着思考\n暂无会议\n\n开始后的会议会保存在这里，方便随时回看。"
+    },
+    {
+      "name": "history-polished",
+      "width": 1180,
+      "height": 808,
+      "scrollWidth": 1180,
+      "hero": {
+        "x": 62,
+        "y": 104,
+        "width": 1056,
+        "height": 307.6875,
+        "top": 104,
+        "right": 1118,
+        "bottom": 411.6875,
+        "left": 62
+      },
+      "recent": {
+        "x": 62,
+        "y": 443.6875,
+        "width": 1056,
+        "height": 251.140625,
+        "top": 443.6875,
+        "right": 1118,
+        "bottom": 694.828125,
+        "left": 62
+      },
+      "shellText": "Agents, Everywhere\n个人工作空间\n留一点空间，让思路更清晰\n让每一次讨论，都更清楚。\n\n专注于眼前的交流。重要的观点、关系和待解问题，会在这里逐渐清晰。\n\n开始会议\n系统默认麦克风\n麦克风与电脑声音\n·\n更改\n\n准备好时开始，需要时再打开。\n\n最近会议\n回到讨论，接着思考\n全部\n进行中\n已结束\n产品方案讨论\n\n9月12日 10:30\n·\n麦克风\n\n已停止\n上线计划沟通\n\n9月11日 16:00\n·\n麦克风 + 电脑声音\n\n已停止"
+    },
+    {
+      "name": "history-current",
+      "width": 1180,
+      "height": 808,
+      "scrollWidth": 1180,
+      "hero": {
+        "x": 62,
+        "y": 112,
+        "width": 1056,
+        "height": 321.640625,
+        "top": 112,
+        "right": 1118,
+        "bottom": 433.640625,
+        "left": 62
+      },
+      "recent": {
+        "x": 62,
+        "y": 473.640625,
+        "width": 1056,
+        "height": 272.4921875,
+        "top": 473.640625,
+        "right": 1118,
+        "bottom": 746.1328125,
+        "left": 62
+      },
+      "shellText": "Agents, Everywhere\n个人工作空间\n留一点空间，让思路更清晰\n让每一次讨论，都更清楚。\n\n专注于眼前的交流。重要的观点、关系和待解问题，会在这里逐渐清晰。\n\n开始会议\n系统默认麦克风\n麦克风与电脑声音\n·\n更改\n\n准备好时开始，需要时再打开。\n\n最近会议\n回到讨论，接着思考\n全部\n进行中\n已结束\n产品方案讨论\n\n9月12日 10:30\n·\n麦克风\n\n已停止\n上线计划沟通\n\n9月11日 16:00\n·\n麦克风 + 电脑声音\n\n已停止"
+    }
+  ],
+  "errors": [],
+  "url": "http://127.0.0.1:4180/",
+  "result": "passed",
+  "htmlSha256": "028dbb377b61172161ed079b81e49b76f84b46807511d2cd1eb8df2be938abb4",
+  "source": "Current dist isolated home DOM/CSS, HEAD 596c8b7 plus pre-existing working tree; no production files changed"
+}

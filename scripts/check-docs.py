@@ -66,12 +66,13 @@ def main():
         if stale in entry:
             errors.append(f"AGENTS.md: stale phase instruction: {stale}")
     index = (ROOT / "docs/sessions/README.md").read_text()
+    indexed_sessions = {unquote(target.strip().strip("<>")) for target in re.findall(r"\]\(([^)]+)\)", index)}
     records = sorted((ROOT / "docs/sessions").glob("*.md"))
     for path in records:
         if path.name in ("README.md", "template.md"):
             continue
         text = path.read_text()
-        if f"]({path.name})" not in index:
+        if path.name not in indexed_sessions:
             errors.append(f"session not indexed: {path.name}")
         for field in SESSION_FIELDS:
             if f"## {field}" not in text:

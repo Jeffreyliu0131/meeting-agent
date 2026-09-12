@@ -9,12 +9,14 @@
 | 文件 | 场景 | 主要验证 |
 |---|---|---|
 | [自然讨论v2台词](collaboration-natural-dialogue.zh-CN.txt)／[操作验收表](collaboration-manual-test.md) | 星桥试点：投票、准备收集、分工、冲突、决定确认 | 自然需求识别、默认组件生成、host审核一键分发，含否定／引用／改口；TTS与真实模型摘录检查见[本轮结果](../results/agent-component-review-validation.md) |
+
+| [实时表达变体](visual-expression.json) | 展览组成、试点依赖、预算与时间的三组自然讨论 | 无画图指令的主动选型、图增长、条件修订；运行 `MEETING_EVAL_FIXTURE=visual-expression npm run test:model`，无凭证明确阻塞 |
 | [观点分歧](discussion-options.json) | 功能开放范围：内部、客户、白名单 | 条件支持、分歧、话题回归、非数字比较、无共识 |
 | [执行安排](execution-plan.json) | 客户演示的日期、前置步骤和备选 | 时间关系、工期未知、来源改口、Agent拆解建议 |
 | [条件推演](scenario-calculation.json) | 有明确公式的活动费用试算 | 确定性结果、分支隔离、基线变化、未知条件 |
 | [双语变体](bilingual-meeting.json) | 中文、英文与混说，以及输出语言切换 | 限定词、数字、原文保留、UI／输出分离、旧语言响应 |
 
-前三类是业务场景覆盖，第四份是跨场景语言验证，不新增一种限定业务。当前共四份JSON；均未运行实际模型或STT。
+原前三类是业务场景覆盖，双语文件是跨场景语言验证；新增实时表达文件包含三组自然讨论，不作为固定答案。是否运行真实模型／STT以对应版本的验证记录为准。
 
 ## 输入协议
 
@@ -35,3 +37,7 @@ JSON是测试夹具格式，不是生产Segment的完整序列。测试驱动器
 - 身份未知／匿名分组／人工确认三种输入条件分别跑。
 
 数值检查可直接执行；语义和渲染必须运行实际实现后才记录结果。真机录音与真实STT另按AC-02／03测试，不能从这些JSON推出采音成功。
+
+[scenario-basis.ts](scenario-basis.ts)为试算依据提示的确定性TypeScript夹具，供领域与Electron回归共用；只包含合成费用和依赖，不调用模型或采音，不改变上述四份JSON的评估用途。
+
+完整业务事件与多轮验收新增于[Event评测语料](../evals/README.md)，与本目录早期样例分开。

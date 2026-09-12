@@ -154,7 +154,10 @@ test('agent prepares four families; host reviews and distributes each without fi
   const base = `http://127.0.0.1:${(server.address() as any).port}`;
   const dir = mkdtempSync(join(tmpdir(), 'meeting-desktop-review-'));
   const app = await electron.launch({
-    args: [resolve('.')],
+    ...(process.env.MEETING_TEST_EXECUTABLE
+      ? { executablePath: process.env.MEETING_TEST_EXECUTABLE }
+      : {}),
+    args: process.env.MEETING_TEST_EXECUTABLE ? [] : [resolve('.')],
     env: {
       ...process.env,
       MEETING_DATA_DIR: dir,
@@ -246,6 +249,28 @@ test('agent prepares four families; host reviews and distributes each without fi
         .toBe(true);
       const thumbnail = page.locator(`[data-thumbnail-id="${c.id}"]`);
       await expect(thumbnail).toBeVisible();
+      if (family === 'poll') {
+        await host.evaluate(() =>
+          window.meeting.call('command', {
+            id: crypto.randomUUID(),
+            meetingId: null,
+            type: 'preferencesPatch',
+            payload: { uiLanguage: 'en' },
+          }),
+        );
+        await expect(page.getByText('Components to review', { exact: true })).toBeVisible();
+        await expect(page.getByText('Ready', { exact: true })).toBeVisible();
+        await host.evaluate(() =>
+          window.meeting.call('command', {
+            id: crypto.randomUUID(),
+            meetingId: null,
+            type: 'preferencesPatch',
+            payload: { uiLanguage: 'zh-CN' },
+          }),
+        );
+        await expect(page.getByText('待审核组件', { exact: true })).toBeVisible();
+      }
+
       await expect(thumbnail.locator('.component-mini-content')).not.toBeEmpty();
       const denied = await page.evaluate(() => window.meeting.call('snapshot'));
       expect(denied.ok).toBe(false);
@@ -255,7 +280,8 @@ test('agent prepares four families; host reviews and distributes each without fi
       await expect(page.getByRole('button', { name: '保存草稿', exact: true })).toHaveCount(0);
       await thumbnail.click();
       await expect(page.getByText('审核已固定', { exact: true })).toBeVisible();
-      if (family === 'poll') await page.screenshot({ path: '.cache/component-dock-review.png' });
+      if (family === 'poll')
+        await page.screenshot({ path: test.info().outputPath('component-dock-review.png') });
       await page.getByRole('button', { name: '审核并分发给3人', exact: true }).click();
       await expect
         .poll(

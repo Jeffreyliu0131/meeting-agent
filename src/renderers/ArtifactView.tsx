@@ -1,4 +1,4 @@
-import { ArrowUpRight } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
 import { themeVariables } from '../ui/theme';
 import React, { useEffect, useState } from 'react';
 import { RelationshipGraph } from './RelationshipGraph';
@@ -7,7 +7,7 @@ import { translator } from '../ui/i18n';
 const csp =
   "default-src 'none'; script-src 'none'; style-src 'unsafe-inline'; img-src 'none'; connect-src 'none'; form-action 'none'; base-uri 'none'";
 export function Markup({ block }: { block: Extract<Block, { markup: string }> }) {
-  const css = `:root{${themeVariables}}*{box-sizing:border-box}body{margin:20px;font:15px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;color:var(--textPrimary);background:var(--contentSurface);overflow-wrap:anywhere}h2{font-size:22px;font-weight:600}h3{font-size:18px;font-weight:600}table{border-collapse:collapse;width:100%;font-size:14px}td,th{padding:14px;text-align:left;border-bottom:1px solid var(--divider)}th{background:var(--subtleSurface)}svg{max-width:100%;height:auto}section{margin-bottom:24px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:20px}.stack{display:grid;gap:16px}.muted{color:var(--textSecondary)}.emphasis{font-weight:600}.callout{padding:16px;background:var(--accentSubtle);border-left:3px solid var(--accent);border-radius:0 8px 8px 0}`;
+  const css = `:root{${themeVariables}}*{box-sizing:border-box}body{margin:16px;font:15px/1.65 -apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;color:var(--textPrimary);background:var(--contentSurface);overflow-wrap:anywhere}h2{font-size:17px;font-weight:600}h3{font-size:16px;font-weight:600}table{border-collapse:collapse;width:100%;font-size:14px}td,th{padding:14px;text-align:left;border-bottom:1px solid var(--divider)}th{background:var(--subtleSurface)}svg{max-width:100%;height:auto}section{margin-bottom:24px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:20px}.stack{display:grid;gap:16px}.muted{color:var(--textSecondary)}.emphasis{font-weight:600}.callout{padding:16px;background:var(--accentSubtle);border-left:3px solid var(--accent);border-radius:0 8px 8px 0}`;
   return (
     <iframe
       title={block.title}
@@ -22,6 +22,7 @@ export function ArtifactView({
   artifact,
   locale,
   onSources,
+  sourceNumbers = {},
   selectedSources,
   selectedTarget,
   onAction,
@@ -29,11 +30,40 @@ export function ArtifactView({
   artifact: ArtifactRevision;
   locale: Locale;
   onSources: (refs: Ref[], target?: string) => void;
+  sourceNumbers?: Record<string, number>;
   selectedSources?: Ref[] | null;
   selectedTarget?: string;
   onAction?: (prompt: string) => void;
 }) {
   const t = translator(locale);
+  const citations = (refs: Ref[], target: string) =>
+    refs.length > 0 && (
+      <span className="source-citations">
+        {refs.slice(0, 3).map((ref) => (
+          <button
+            key={`${ref.id}:${ref.rev}`}
+            aria-label={t('sources.open')}
+            title={`${target} · ${t('revision')} ${ref.rev}`}
+            aria-pressed={
+              !!selectedSources?.some(
+                (selected) => selected.id === ref.id && selected.rev === ref.rev,
+              ) && selectedTarget === target
+            }
+            onClick={() => onSources([ref], target)}
+          >
+            [{sourceNumbers[ref.id] ?? '…'}]
+          </button>
+        ))}
+        {refs.length > 3 && (
+          <button
+            aria-label={`${t('sources.open')}: ${target}`}
+            onClick={() => onSources(refs, target)}
+          >
+            +{refs.length - 3}
+          </button>
+        )}
+      </span>
+    );
   const [highlight, setHighlight] = useState<string[]>([]);
   useEffect(() => {
     setHighlight(artifact.changedBlockIds ?? []);
@@ -63,14 +93,17 @@ export function ArtifactView({
         >
           <div className="expression-heading">
             <h2>{block.title}</h2>
-            <button
-              className="source-link"
-              onClick={() => onSources(block.sources, block.title)}
-              aria-label={`${t('sources.open')}: ${block.title}`}
-            >
-              <ArrowUpRight size={14} />
-              {t('sources.open')}
-            </button>
+            {block.sources.length > 0 && (
+              <button
+                className="block-source-trigger text-button"
+                aria-label={`${t('sources.open')}: ${block.title}`}
+                title={t('sources.open')}
+                onClick={() => onSources(block.sources, block.title)}
+              >
+                <BookOpen size={13} />
+                <span>{block.sources.length}</span>
+              </button>
+            )}
           </div>
           <div className="provenance">
             <span>{t(block.origin)}</span>
@@ -104,21 +137,19 @@ export function ArtifactView({
                 </thead>
                 <tbody>
                   {block.rows.map((row) => (
-                    <tr key={row.id}>
+                    <tr
+                      key={row.id}
+                      data-source-selected={
+                        (selectedTarget === block.title + ' · ' + row.cells[0] &&
+                          !!selectedSources?.length) ||
+                        undefined
+                      }
+                    >
                       {row.cells.map((cell, i) => (
                         <td key={i}>
                           {cell}
-                          {i === row.cells.length - 1 && (
-                            <button
-                              className="cite"
-                              onClick={() =>
-                                onSources(row.sources, block.title + ' · ' + row.cells[0])
-                              }
-                              aria-label={t('sources.open')}
-                            >
-                              <ArrowUpRight size={14} />
-                            </button>
-                          )}
+                          {i === row.cells.length - 1 &&
+                            citations(row.sources, block.title + ' · ' + row.cells[0])}
                         </td>
                       ))}
                     </tr>
@@ -129,6 +160,7 @@ export function ArtifactView({
           )}
           {block.type === 'diagram' && (
             <RelationshipGraph
+              locale={locale}
               block={block}
               artifact={artifact}
               onSources={(refs) => onSources(refs, block.title)}

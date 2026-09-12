@@ -1,0 +1,92 @@
+{
+  "checkedAt": "2026-09-12T07:07:34.619Z",
+  "source": "5011c180ff28ef216b4446d5c7d35254400a5115b1dad968ccc4a210bd281989",
+  "macAsarSha256": "0b380d5019ac6cd7304d0aadd902bf33b68e405aee0876360aafc70d55abdac4",
+  "winAsarSha256": "0b380d5019ac6cd7304d0aadd902bf33b68e405aee0876360aafc70d55abdac4",
+  "files": [
+    {
+      "file": "dist/main.cjs",
+      "sha256": "ace9847732e884eafb363108c10cbe1108cd420c079dd304e9b2d6b608903985",
+      "macMatches": true,
+      "winMatches": true
+    },
+    {
+      "file": "dist/main.cjs.map",
+      "sha256": "83ef3f5e3ed801648ce13796a41929db4e3b2c30b977a8eafe1d36b15b3a3fa1",
+      "macMatches": true,
+      "winMatches": true
+    },
+    {
+      "file": "dist/preload.cjs",
+      "sha256": "72e96d4193cd8d02dcfc29b0dd57bbe6724fc060fa723e3e8bbc7956fe55a224",
+      "macMatches": true,
+      "winMatches": true
+    },
+    {
+      "file": "dist/preload.cjs.map",
+      "sha256": "0eb3dab73f53cddd61c1bd751b3e223d3c50efdbcd9e0cc652b2c4c3003a0437",
+      "macMatches": true,
+      "winMatches": true
+    },
+    {
+      "file": "dist/ui/assets/capture-CtBbZetc.js",
+      "sha256": "01b7a2da7d3b10f5abcf5a095f02a444a866ccf01b8ffd1775942e73d861c480",
+      "macMatches": true,
+      "winMatches": true
+    },
+    {
+      "file": "dist/ui/assets/launcher-dialogue-v1-B9Qjn0Ww.png",
+      "sha256": "a0b3044a869f9a236d519f5df9221c0b6b459bf2ba0f3f43d4e07a6bbebff10f",
+      "macMatches": true,
+      "winMatches": true
+    },
+    {
+      "file": "dist/ui/assets/main-BLsZGEjZ.css",
+      "sha256": "4460770a36e2017bdc4be32b02c3c08a8004a3043a4e6b7697849a29bce65ca3",
+      "macMatches": true,
+      "winMatches": true
+    },
+    {
+      "file": "dist/ui/assets/main-BlVdRkWU.js",
+      "sha256": "3318d8684bbfb482d1726946b6af7dbbd612b835bc1dc0946015366c4437abf0",
+      "macMatches": true,
+      "winMatches": true
+    },
+    {
+      "file": "dist/ui/assets/modulepreload-polyfill-P2Xu9kJm.js",
+      "sha256": "418c206484b89b68ef5f067277831e583fc9193a62aadf4de269acaaeb12a85f",
+      "macMatches": true,
+      "winMatches": true
+    },
+    {
+      "file": "dist/ui/capture.html",
+      "sha256": "dd26c87e475127a283d56daaa8e41b52a027c4854e964f1eca95e03aedce6f76",
+      "macMatches": true,
+      "winMatches": true
+    },
+    {
+      "file": "dist/ui/index.html",
+      "sha256": "fb1604524208029ee76fd5bc6e27881223356ca66e09a0f3ac1fc56084fb786a",
+      "macMatches": true,
+      "winMatches": true
+    },
+    {
+      "file": "dist/ui/pcm-worklet.js",
+      "sha256": "79cb07c03b6a88928331e922f5e12ebd3c4a72ae75f78377eaff8549411dfb23",
+      "macMatches": true,
+      "winMatches": true
+    },
+    {
+      "file": "dist/worker.cjs",
+      "sha256": "bc7be35bdfd4f303df5dbfd3643bce04afe6957a4d0f38bf0bdbe6ebcd4254a8",
+      "macMatches": true,
+      "winMatches": true
+    },
+    {
+      "file": "dist/worker.cjs.map",
+      "sha256": "35076056ad6747542ac7bfb3a5e50f1b6ad6068aaaf2daa209c1d398c5c2e201",
+      "macMatches": true,
+      "winMatches": true
+    }
+  ]
+}

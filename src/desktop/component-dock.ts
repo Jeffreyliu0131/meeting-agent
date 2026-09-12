@@ -81,6 +81,7 @@ export class ComponentDock {
   sync() {
     if (this.window.isDestroyed()) return;
     const view = this.view();
+    this.window.setTitle(view.locale === 'zh-CN' ? '待审核组件' : 'Components to review');
     const work = screen.getPrimaryDisplay().workArea;
     const expanded = !!view.selectedId;
     const width = Math.min(expanded ? 920 : 300, work.width - 24);

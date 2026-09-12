@@ -1,0 +1,16 @@
+  • electron-builder  version=26.15.3 os=27.0.0
+  • loaded configuration  file=package.json ("build" field)
+  • description is missed in the package.json  appPackageFile=/private/tmp/meeting-local-deploy-u8rx3x8b/package.json
+  • author is missed in the package.json  appPackageFile=/private/tmp/meeting-local-deploy-u8rx3x8b/package.json
+  • executing @electron/rebuild  electronVersion=44.3.0 arch=x64 buildFromSource=false workspaceRoot=/private/tmp/meeting-local-deploy-u8rx3x8b projectDir=./ appDir=./
+  • installing native dependencies  arch=x64
+  • completed installing native dependencies
+  • packaging       platform=win32 arch=x64 electron=44.3.0 appOutDir=release/win-unpacked
+  • downloaded      label=electron progress=100%
+  • downloaded electron zip extracted successfully  output=/private/tmp/meeting-local-deploy-u8rx3x8b/release/win-unpacked
+  • searching for node modules  pm=npm searchDir=/private/tmp/meeting-local-deploy-u8rx3x8b
+  • duplicate dependency references  dependencies=["domhandler@6.0.1","domhandler@6.0.1"]
+  • cannot find path for dependency  dependencies=["zod@undefined","@cfworker/json-schema@undefined","@standard-schema/spec@undefined","js-tiktoken@undefined","langsmith@undefined","mustache@undefined","p-queue@undefined","@langchain/langgraph-checkpoint@undefined","@langchain/langgraph-sdk@undefined","@langchain/protocol@undefined","scheduler@undefined","deepmerge@undefined","escape-string-regexp@undefined","is-plain-object@undefined","launder@undefined","parse-srcset@undefined","postcss@undefined"]
+  • updating asar integrity executable resource  executablePath=release/win-unpacked/Meeting Agent.exe
+  • default Electron icon is used  reason=application icon is not set
+  • signing with signtool.exe  path=release/win-unpacked/Meeting Agent.exe

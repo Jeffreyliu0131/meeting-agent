@@ -1,0 +1,16 @@
+{
+  "observedAt": "2026-09-12T14:54:42+08:00",
+  "changedAfterSnapshot": [
+    "src/desktop/main.ts",
+    "src/renderers/RelationshipGraph.tsx",
+    "src/ui/live-visuals.css",
+    "src/ui/main.tsx",
+    "src/ui/style.css"
+  ],
+  "addedAfterSnapshot": [
+    "src/ui/hover-preview.css",
+    "src/ui/HoverPreview.tsx",
+    "src/desktop/preview-bounds.ts"
+  ],
+  "reason": "Concurrent hover-preview development continues; deployment is the verified 14:45 snapshot, not the moving worktree."
+}

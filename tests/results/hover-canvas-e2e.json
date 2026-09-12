@@ -1,0 +1,342 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/bin/node",
+      "/private/tmp/meeting-hover-build-7r1xr14g/node_modules/.bin/playwright",
+      "test",
+      "tests/e2e/hover-preview.spec.ts"
+    ],
+    "configFile": "/private/tmp/meeting-hover-build-7r1xr14g/playwright.config.ts",
+    "rootDir": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/private/tmp/meeting-hover-build-7r1xr14g/tests/results/hover-canvas-run",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "tests/results/hover-canvas-e2e.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "hover-preview.spec.ts",
+      "file": "hover-preview.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "hover shows the actual canvas and live revisions while the workspace stays hidden",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 12314,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 10000ms exceeded while waiting on the predicate",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 10000ms exceeded while waiting on the predicate\n    at ingest (/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:71:6)\n    at /private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:229:3",
+                    "location": {
+                      "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                      "column": 6,
+                      "line": 71
+                    },
+                    "snippet": "  69 |           ?.understoodVersion,\n  70 |     )\n> 71 |     .toBe(n);\n     |      ^\n  72 | }\n  73 |\n  74 | test.beforeEach(async () => {"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                        "column": 6,
+                        "line": 71
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 10000ms exceeded while waiting on the predicate\n\n  69 |           ?.understoodVersion,\n  70 |     )\n> 71 |     .toBe(n);\n     |      ^\n  72 | }\n  73 |\n  74 | test.beforeEach(async () => {\n    at ingest (/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:71:6)\n    at /private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:229:3"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T06:49:19.325Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/private/tmp/meeting-hover-build-7r1xr14g/tests/results/hover-canvas-run/hover-preview-hover-shows--c55d3--the-workspace-stays-hidden/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                    "column": 6,
+                    "line": 71
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "714f016c699f2eb8d498-d6ea3b19f4ec7c8e8f46",
+          "file": "hover-preview.spec.ts",
+          "line": 219,
+          "column": 1
+        },
+        {
+          "title": "union-region grace, pending hover cancellation, drag and native menu do not open the workspace",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 12805,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\nCall Log:\n- Timeout 10000ms exceeded while waiting on the predicate",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\nCall Log:\n- Timeout 10000ms exceeded while waiting on the predicate\n    at /private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:283:68",
+                    "location": {
+                      "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                      "column": 68,
+                      "line": 283
+                    },
+                    "snippet": "  281 |   expect((await native('workspace')).visible).toBe(false);\n  282 |   await enter();\n> 283 |   await expect.poll(async () => (await native('preview')).visible).toBe(true);\n      |                                                                    ^\n  284 |   await app.evaluate(({ Menu }) => {\n  285 |     const original = Menu.prototype.popup;\n  286 |     Menu.prototype.popup = function (options) {"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                        "column": 68,
+                        "line": 283
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\nCall Log:\n- Timeout 10000ms exceeded while waiting on the predicate\n\n  281 |   expect((await native('workspace')).visible).toBe(false);\n  282 |   await enter();\n> 283 |   await expect.poll(async () => (await native('preview')).visible).toBe(true);\n      |                                                                    ^\n  284 |   await app.evaluate(({ Menu }) => {\n  285 |     const original = Menu.prototype.popup;\n  286 |     Menu.prototype.popup = function (options) {\n    at /private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:283:68"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T06:49:31.928Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/private/tmp/meeting-hover-build-7r1xr14g/tests/results/hover-canvas-run/hover-preview-union-region-2c01f-u-do-not-open-the-workspace/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                    "column": 68,
+                    "line": 283
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "714f016c699f2eb8d498-986f4f630c9f12324086",
+          "file": "hover-preview.spec.ts",
+          "line": 259,
+          "column": 1
+        },
+        {
+          "title": "sources open the displayed revision and suggested actions only prepare a draft",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 11254,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 10000ms exceeded while waiting on the predicate",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 10000ms exceeded while waiting on the predicate\n    at ingest (/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:71:6)\n    at /private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:307:3",
+                    "location": {
+                      "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                      "column": 6,
+                      "line": 71
+                    },
+                    "snippet": "  69 |           ?.understoodVersion,\n  70 |     )\n> 71 |     .toBe(n);\n     |      ^\n  72 | }\n  73 |\n  74 | test.beforeEach(async () => {"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                        "column": 6,
+                        "line": 71
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 10000ms exceeded while waiting on the predicate\n\n  69 |           ?.understoodVersion,\n  70 |     )\n> 71 |     .toBe(n);\n     |      ^\n  72 | }\n  73 |\n  74 | test.beforeEach(async () => {\n    at ingest (/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:71:6)\n    at /private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:307:3"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T06:49:44.981Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/private/tmp/meeting-hover-build-7r1xr14g/tests/results/hover-canvas-run/hover-preview-sources-open-5d63f-ctions-only-prepare-a-draft/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                    "column": 6,
+                    "line": 71
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "714f016c699f2eb8d498-731fb16d66d091c5614f",
+          "file": "hover-preview.spec.ts",
+          "line": 305,
+          "column": 1
+        },
+        {
+          "title": "preview follows display edges, stays readable at 200 percent, and clears ended content",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 11320,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 10000ms exceeded while waiting on the predicate",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 10000ms exceeded while waiting on the predicate\n    at ingest (/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:71:6)\n    at /private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:326:3",
+                    "location": {
+                      "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                      "column": 6,
+                      "line": 71
+                    },
+                    "snippet": "  69 |           ?.understoodVersion,\n  70 |     )\n> 71 |     .toBe(n);\n     |      ^\n  72 | }\n  73 |\n  74 | test.beforeEach(async () => {"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                        "column": 6,
+                        "line": 71
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 10000ms exceeded while waiting on the predicate\n\n  69 |           ?.understoodVersion,\n  70 |     )\n> 71 |     .toBe(n);\n     |      ^\n  72 | }\n  73 |\n  74 | test.beforeEach(async () => {\n    at ingest (/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:71:6)\n    at /private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:326:3"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T06:49:56.680Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/private/tmp/meeting-hover-build-7r1xr14g/tests/results/hover-canvas-run/hover-preview-preview-foll-08e30-nt-and-clears-ended-content/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                    "column": 6,
+                    "line": 71
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "714f016c699f2eb8d498-701c8454b990c02c0892",
+          "file": "hover-preview.spec.ts",
+          "line": 324,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-12T06:49:19.044Z",
+    "duration": 48983.871999999996,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 4,
+    "flaky": 0
+  }
+}

@@ -9,6 +9,16 @@ import { OpenAIProvider, configFromEnv } from '../src/agent/provider';
 import { uid } from '../src/domain/commands';
 dotenv.config({ quiet: true });
 const config = configFromEnv();
+const fixtureNames = [
+  'discussion-options',
+  'execution-plan',
+  'scenario-calculation',
+  'bilingual-meeting',
+  'visual-expression',
+];
+const requestedFixture = process.env.MEETING_EVAL_FIXTURE;
+if (requestedFixture && !fixtureNames.includes(requestedFixture))
+  throw new Error('INVALID_EVAL_FIXTURE');
 if (!config.key) {
   console.log(
     'BLOCKED: MODEL_NOT_CONFIGURED. No model calls were made; synthetic fixtures are not model results.',
@@ -22,12 +32,9 @@ if (!config.key) {
     config,
   );
   const results = [];
-  for (const name of [
-    'discussion-options',
-    'execution-plan',
-    'scenario-calculation',
-    'bilingual-meeting',
-  ]) {
+  for (const name of fixtureNames.filter(
+    (name) => !requestedFixture || requestedFixture === name,
+  )) {
     const f = JSON.parse(readFileSync(`tests/fixtures/${name}.json`, 'utf8'));
     const groups = f.turns ? [{ id: name, turns: f.turns }] : f.variants || f.cases || [];
     for (const group of groups) {

@@ -1,0 +1,156 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/bin/node",
+      "/private/tmp/meeting-hover-build-7r1xr14g/node_modules/.bin/playwright",
+      "test",
+      "tests/e2e/hover-preview.spec.ts",
+      "-g",
+      "sandboxed generated SVG"
+    ],
+    "configFile": "/private/tmp/meeting-hover-build-7r1xr14g/playwright.config.ts",
+    "rootDir": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/private/tmp/meeting-hover-build-7r1xr14g/tests/results/hover-canvas-daily-svg-run",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "tests/results/hover-canvas-daily-svg.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "hover-preview.spec.ts",
+      "file": "hover-preview.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "hover remains open over sandboxed generated SVG without giving the frame desktop access",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 3569,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at /private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:433:45",
+                    "location": {
+                      "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                      "column": 45,
+                      "line": 433
+                    },
+                    "snippet": "  431 |   await svg.hover();\n  432 |   await new Promise((r) => setTimeout(r, 450));\n> 433 |   expect((await native('preview')).visible).toBe(true);\n      |                                             ^\n  434 |   expect((await native('workspace')).visible).toBe(false);\n  435 |   expect((await native('preview')).focused).toBe(false);\n  436 |   expect(await svg.evaluate(() => typeof (window as any).meeting)).toBe('undefined');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                        "column": 45,
+                        "line": 433
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n  431 |   await svg.hover();\n  432 |   await new Promise((r) => setTimeout(r, 450));\n> 433 |   expect((await native('preview')).visible).toBe(true);\n      |                                             ^\n  434 |   expect((await native('workspace')).visible).toBe(false);\n  435 |   expect((await native('preview')).focused).toBe(false);\n  436 |   expect(await svg.evaluate(() => typeof (window as any).meeting)).toBe('undefined');\n    at /private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:433:45"
+                    }
+                  ],
+                  "stdout": [
+                    {
+                      "text": "Hover failure state {\"meeting\":[{\"error\":null,\"understoodVersion\":1,\"calls\":[{\"id\":\"fe41c4fc-38f9-4d77-a8ab-bb2b6bc61d95\",\"kind\":\"understand\",\"startedAt\":\"2026-09-12T07:02:02.935Z\",\"durationMs\":21,\"status\":\"ok\",\"inputTokens\":10,\"outputTokens\":10,\"reservedTokens\":62500,\"audioSeconds\":0}]}],\"workspace\":{\"visible\":false,\"focused\":false,\"bounds\":{\"x\":166,\"y\":50,\"width\":1180,\"height\":840}},\"launcher\":{\"visible\":true,\"focused\":false,\"bounds\":{\"x\":1448,\"y\":133,\"width\":44,\"height\":44}},\"preview\":{\"visible\":false,\"focused\":false,\"bounds\":{\"x\":680,\"y\":121,\"width\":760,\"height\":560}}}\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T07:02:00.703Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/private/tmp/meeting-hover-build-7r1xr14g/tests/results/hover-canvas-daily-svg-run/hover-preview-hover-remain-6ab6b-ng-the-frame-desktop-access/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                    "column": 45,
+                    "line": 433
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "714f016c699f2eb8d498-8a6f07c43b3b10d05269",
+          "file": "hover-preview.spec.ts",
+          "line": 423,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-12T07:02:00.370Z",
+    "duration": 3930.2180000000003,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

@@ -361,7 +361,9 @@ test('provider transport, isolated preflight, generated structure, source bindin
   await expect
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
     .toBe(true);
-  await expect(page.locator('.relationship-list')).toBeVisible();
+  await expect(page.locator('.relationship-canvas')).toBeVisible();
+  await page.locator('.graph-text-alternative summary').click();
+  await expect(page.locator('.graph-text-alternative button').first()).toBeVisible();
   // Electron zoom affects CDP screenshot cropping; use the native surface at 200%.
   const zoomCapture = await app.evaluate(async ({ BrowserWindow }) =>
     (

@@ -1,0 +1,256 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/bin/node",
+      "/private/tmp/meeting-hover-build-7r1xr14g/node_modules/.bin/playwright",
+      "test",
+      "tests/e2e/hover-preview.spec.ts"
+    ],
+    "configFile": "/private/tmp/meeting-hover-build-7r1xr14g/playwright.config.ts",
+    "rootDir": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/private/tmp/meeting-hover-build-7r1xr14g/tests/results/hover-canvas-package-run",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "tests/results/hover-canvas-package-e2e.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "hover-preview.spec.ts",
+      "file": "hover-preview.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "hover shows the actual canvas and live revisions while the workspace stays hidden",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 3651,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"Synthetic meeting surface\"\u001b[39m\nReceived: \u001b[31mundefined\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"Synthetic meeting surface\"\u001b[39m\nReceived: \u001b[31mundefined\u001b[39m\n    at /private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:236:5",
+                    "location": {
+                      "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                      "column": 5,
+                      "line": 236
+                    },
+                    "snippet": "  234 |   expect(\n  235 |     await app.evaluate(({ BrowserWindow }) => BrowserWindow.getFocusedWindow()?.getTitle()),\n> 236 |   ).toBe('Synthetic meeting surface');\n      |     ^\n  237 |   await ingest(1);\n  238 |   await expect(preview.locator('.preview-summary')).toHaveText('合成更新 1：容量仍待确认。');\n  239 |   await expect(preview.locator('.relationship-canvas')).toBeVisible();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                        "column": 5,
+                        "line": 236
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"Synthetic meeting surface\"\u001b[39m\nReceived: \u001b[31mundefined\u001b[39m\n\n  234 |   expect(\n  235 |     await app.evaluate(({ BrowserWindow }) => BrowserWindow.getFocusedWindow()?.getTitle()),\n> 236 |   ).toBe('Synthetic meeting surface');\n      |     ^\n  237 |   await ingest(1);\n  238 |   await expect(preview.locator('.preview-summary')).toHaveText('合成更新 1：容量仍待确认。');\n  239 |   await expect(preview.locator('.relationship-canvas')).toBeVisible();\n    at /private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts:236:5"
+                    }
+                  ],
+                  "stdout": [
+                    {
+                      "text": "Hover failure state {\"meeting\":[{\"error\":null,\"understoodVersion\":0,\"calls\":[]}],\"workspace\":{\"visible\":false,\"focused\":false,\"bounds\":{\"x\":166,\"y\":50,\"width\":1180,\"height\":840}},\"launcher\":{\"visible\":true,\"focused\":false,\"bounds\":{\"x\":1448,\"y\":133,\"width\":44,\"height\":44}},\"preview\":{\"visible\":true,\"focused\":false,\"bounds\":{\"x\":680,\"y\":121,\"width\":760,\"height\":560}}}\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T06:57:30.618Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/private/tmp/meeting-hover-build-7r1xr14g/tests/results/hover-canvas-package-run/hover-preview-hover-shows--c55d3--the-workspace-stays-hidden/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/private/tmp/meeting-hover-build-7r1xr14g/tests/e2e/hover-preview.spec.ts",
+                    "column": 5,
+                    "line": 236
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "714f016c699f2eb8d498-d6ea3b19f4ec7c8e8f46",
+          "file": "hover-preview.spec.ts",
+          "line": 227,
+          "column": 1
+        },
+        {
+          "title": "union-region grace, pending hover cancellation, drag and native menu do not open the workspace",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4241,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T06:57:34.504Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "714f016c699f2eb8d498-986f4f630c9f12324086",
+          "file": "hover-preview.spec.ts",
+          "line": 267,
+          "column": 1
+        },
+        {
+          "title": "sources open the displayed revision and suggested actions only prepare a draft",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2180,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T06:57:38.760Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "714f016c699f2eb8d498-731fb16d66d091c5614f",
+          "file": "hover-preview.spec.ts",
+          "line": 318,
+          "column": 1
+        },
+        {
+          "title": "preview follows display edges, stays readable at 200 percent, and clears ended content",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2340,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T06:57:40.949Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "714f016c699f2eb8d498-701c8454b990c02c0892",
+          "file": "hover-preview.spec.ts",
+          "line": 340,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-12T06:57:30.291Z",
+    "duration": 13016,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

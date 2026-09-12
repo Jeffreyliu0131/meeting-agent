@@ -1,0 +1,950 @@
+{
+  "schemaVersion": 1,
+  "requirements": [
+    {
+      "id": "AC-01",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV19"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-02",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV21"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-03",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV22"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-04",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV01"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-05",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV03"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-06",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV01"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-07",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV08", "EV12"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-08",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV08"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-09",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV07"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-10",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV07"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-11",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV07"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-12",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV08", "EV19"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-13",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV08", "EV21"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-14",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV02"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-15",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV04"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-16",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV18", "EV19", "EV23", "EV24"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-17",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV07"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-18",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV18", "EV19", "EV23", "EV24"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-19",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV22"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-20",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-21",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV18", "EV19", "EV23", "EV24"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-22",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV18", "EV19", "EV23", "EV24"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-23",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV18", "EV19", "EV23", "EV24"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-24",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV18", "EV19", "EV23", "EV24"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-25",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV18", "EV19", "EV23", "EV24"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-26",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV24"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-27",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV24"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-28",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV18", "EV19", "EV23", "EV24"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-29",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV18", "EV19", "EV23", "EV24"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-30",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV09", "EV10", "EV11", "EV21"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-31",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV17"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-32",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV23"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-33",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV23"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-34",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV17", "EV24"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "AC-35",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV17"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "UX-AC01",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV13", "EV14", "EV17"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "UX-AC02",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV15"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "UX-AC03",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV15", "EV22"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "UX-AC04",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV13", "EV14", "EV17"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "UX-AC05",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV13", "EV14", "EV17"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "UX-AC06",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV13", "EV14", "EV17"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "LIVE-01",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV17"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "LIVE-02",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV18"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "LIVE-03",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV15"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "LIVE-04",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV18"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "LIVE-05",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV18", "EV19", "EV23", "EV24"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "UI-01",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV13", "EV14", "EV17"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "UI-02",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV17"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "UI-03",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV17"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "UI-04",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV13", "EV14", "EV17"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "UI-05",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV13", "EV14", "EV17"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "UI-06",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV13", "EV14", "EV17"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "REL-01",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV04", "EV11"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "REL-02",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV07"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "REL-03",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV18"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "REL-04",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV08"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "REL-05",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV08", "EV19"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "REL-06",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV19"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "REM-01",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV13"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "REM-02",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV13"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "REM-03",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV13"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "REM-04",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV13"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "REM-05",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV13"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "REM-06",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV13", "EV23"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "SET-01",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV14"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "SET-02",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV14"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "SET-03",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV14"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "SET-04",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV14"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "G1",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV15"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "G2",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV15"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "G3",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV16"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "G4",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV18", "EV19", "EV23", "EV24"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "G5",
+      "source": "docs/acceptance-criteria.md",
+      "eventIds": ["EV23"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "INT-01",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV01", "EV09", "EV11"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "INT-02",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV02", "EV09"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "INT-03",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV03", "EV09"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "INT-04",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16", "EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "INT-05",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16", "EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "INT-06",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV15"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "INT-07",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV02", "EV12"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "INT-08",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV02"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "INT-09",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16", "EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "INT-10",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16", "EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "INT-11",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV05"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "INT-12",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV03"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "POL-01",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "POL-02",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "POL-03",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "POL-04",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "POL-05",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "POL-06",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "ASN-01",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV04", "EV10", "EV11"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "ASN-02",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV04"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "ASN-03",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16", "EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "ASN-04",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16", "EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "ASN-05",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16", "EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "CON-01",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV05", "EV12"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "CON-02",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV05", "EV10", "EV12"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "CON-03",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16", "EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "CON-04",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16", "EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "CON-05",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV05"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "CON-06",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16", "EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "CON-07",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "DEC-01",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV06", "EV10"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "DEC-02",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV06"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "DEC-03",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV06"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "DEC-04",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV06", "EV12"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "DEC-05",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16", "EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "DEC-06",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV06"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "DEC-07",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "GR-01",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV03"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "GR-02",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV01"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "GR-03",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16", "EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "GR-04",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16", "EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "GR-05",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16", "EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "GR-06",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16", "EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "GR-07",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16", "EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "GR-08",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16", "EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "GR-09",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16", "EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "GR-10",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16", "EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "GR-11",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV06"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "GR-12",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV18"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "SYS-01",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "SYS-02",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "SYS-03",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16", "EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "SYS-04",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "SYS-05",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16", "EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "SYS-06",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV19"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "SYS-07",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV19"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "SYS-08",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16", "EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "SYS-09",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV18"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "SYS-10",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV18"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "SYS-11",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16", "EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "SYS-12",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV19"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    },
+    {
+      "id": "SYS-13",
+      "source": "docs/collaboration-v1-acceptance.md",
+      "eventIds": ["EV16", "EV20"],
+      "coverage": "mapped_not_proven",
+      "rule": "关联套件通过不等于本条全覆盖；需核对具体断言、模型／人工／平台证据。"
+    }
+  ]
+}

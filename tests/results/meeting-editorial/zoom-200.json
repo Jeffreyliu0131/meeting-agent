@@ -1,0 +1,19 @@
+{
+  "zoom": 2,
+  "bounds": {
+    "x": 166,
+    "y": 85,
+    "width": 800,
+    "height": 568
+  },
+  "viewport": {
+    "width": 400,
+    "height": 284
+  },
+  "sourcePanel": {
+    "x": 32,
+    "y": 0,
+    "width": 368,
+    "height": 284
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "ranAt": "2026-09-12T05:55:00.539Z",
+  "prCodeCommit": "6ec79474d92f9441d07cd9bc4ce7397ff9025851",
+  "sourceFilesVerified": 114,
+  "packages": {
+    "macOS": {
+      "path": "/Users/jeff/Desktop/黑客松/meeting-agent/release/mac-arm64/Meeting Agent.app/Contents/Resources/app.asar",
+      "asarSha256": "45a78fe133034d9df98ccea0fc05584ef431ca8cb0b9503abb8de9e6aab48da9",
+      "distHashes": {
+        "dist/main.cjs": "b5c41c185f9dbd4d9753ae67d10737ab7572021ec6e6a677b9cb9bcfb04b1d12",
+        "dist/main.cjs.map": "2cd56e4bba3eeed1f3bf2935e326cce0a79a40aa9a5b404bbb06ffa10273c87c",
+        "dist/preload.cjs": "72e96d4193cd8d02dcfc29b0dd57bbe6724fc060fa723e3e8bbc7956fe55a224",
+        "dist/preload.cjs.map": "0eb3dab73f53cddd61c1bd751b3e223d3c50efdbcd9e0cc652b2c4c3003a0437",
+        "dist/ui/assets/capture-CtBbZetc.js": "01b7a2da7d3b10f5abcf5a095f02a444a866ccf01b8ffd1775942e73d861c480",
+        "dist/ui/assets/launcher-dialogue-v1-B9Qjn0Ww.png": "a0b3044a869f9a236d519f5df9221c0b6b459bf2ba0f3f43d4e07a6bbebff10f",
+        "dist/ui/assets/main-Dg-kbbjr.css": "418c19cebaf4aa2a68adb60673d7f9ce9f7d36914df824fc0f48005ef64f15e4",
+        "dist/ui/assets/main-LGhDXoxO.js": "9d7b83cba8d41b375225bc141664421c8b3f59154c1841e92cfd28c42291a51a",
+        "dist/ui/assets/modulepreload-polyfill-P2Xu9kJm.js": "418c206484b89b68ef5f067277831e583fc9193a62aadf4de269acaaeb12a85f",
+        "dist/ui/capture.html": "dd26c87e475127a283d56daaa8e41b52a027c4854e964f1eca95e03aedce6f76",
+        "dist/ui/index.html": "7cce89b6bf854940dd970e657641f46c8e0c032a55ddf9621dce40c457c26993",
+        "dist/ui/pcm-worklet.js": "79cb07c03b6a88928331e922f5e12ebd3c4a72ae75f78377eaff8549411dfb23",
+        "dist/worker.cjs": "c0380e2d89c6780a77bf42a19bec687eae3c77afa85beab8886c97f8bc51836e",
+        "dist/worker.cjs.map": "2da6f9a87a43701cededdba43283ce1f7e53806b5b1479b0ec1d3de5b7f555c1"
+      }
+    },
+    "Windows": {
+      "path": "/Users/jeff/Desktop/黑客松/meeting-agent/release/win-unpacked/resources/app.asar",
+      "asarSha256": "45a78fe133034d9df98ccea0fc05584ef431ca8cb0b9503abb8de9e6aab48da9",
+      "distHashes": {
+        "dist/main.cjs": "b5c41c185f9dbd4d9753ae67d10737ab7572021ec6e6a677b9cb9bcfb04b1d12",
+        "dist/main.cjs.map": "2cd56e4bba3eeed1f3bf2935e326cce0a79a40aa9a5b404bbb06ffa10273c87c",
+        "dist/preload.cjs": "72e96d4193cd8d02dcfc29b0dd57bbe6724fc060fa723e3e8bbc7956fe55a224",
+        "dist/preload.cjs.map": "0eb3dab73f53cddd61c1bd751b3e223d3c50efdbcd9e0cc652b2c4c3003a0437",
+        "dist/ui/assets/capture-CtBbZetc.js": "01b7a2da7d3b10f5abcf5a095f02a444a866ccf01b8ffd1775942e73d861c480",
+        "dist/ui/assets/launcher-dialogue-v1-B9Qjn0Ww.png": "a0b3044a869f9a236d519f5df9221c0b6b459bf2ba0f3f43d4e07a6bbebff10f",
+        "dist/ui/assets/main-Dg-kbbjr.css": "418c19cebaf4aa2a68adb60673d7f9ce9f7d36914df824fc0f48005ef64f15e4",
+        "dist/ui/assets/main-LGhDXoxO.js": "9d7b83cba8d41b375225bc141664421c8b3f59154c1841e92cfd28c42291a51a",
+        "dist/ui/assets/modulepreload-polyfill-P2Xu9kJm.js": "418c206484b89b68ef5f067277831e583fc9193a62aadf4de269acaaeb12a85f",
+        "dist/ui/capture.html": "dd26c87e475127a283d56daaa8e41b52a027c4854e964f1eca95e03aedce6f76",
+        "dist/ui/index.html": "7cce89b6bf854940dd970e657641f46c8e0c032a55ddf9621dce40c457c26993",
+        "dist/ui/pcm-worklet.js": "79cb07c03b6a88928331e922f5e12ebd3c4a72ae75f78377eaff8549411dfb23",
+        "dist/worker.cjs": "c0380e2d89c6780a77bf42a19bec687eae3c77afa85beab8886c97f8bc51836e",
+        "dist/worker.cjs.map": "2da6f9a87a43701cededdba43283ce1f7e53806b5b1479b0ec1d3de5b7f555c1"
+      }
+    }
+  },
+  "windowsRuntimeVerified": false,
+  "realModelOrAudio": false,
+  "architectures": {
+    "Windows": "x64",
+    "macOS": "arm64"
+  },
+  "macSmoke": {
+    "passed": true,
+    "synthetic": true,
+    "defaultSttModel": "gpt-live-transcribe",
+    "collaborationParticipants": 4,
+    "componentCount": 1,
+    "capture": "idle"
+  }
+}
