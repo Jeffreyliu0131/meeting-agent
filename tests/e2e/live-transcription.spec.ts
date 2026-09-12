@@ -101,7 +101,7 @@ test('live audio shows drafts, drains short tails on pause/end, and resumes with
       };
     });
     await page.getByRole('button', { name: 'Start meeting' }).first().click();
-    await page.getByRole('button', { name: 'Save settings', exact: true }).click();
+    await page.getByRole('button', { name: 'Done', exact: true }).click();
     await page.getByRole('button', { name: 'Start meeting' }).first().click();
     const initial = await page.evaluate(() => window.meeting.call('snapshot'));
     const id = initial.value.meetings[0].id;

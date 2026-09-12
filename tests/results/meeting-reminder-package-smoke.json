@@ -1,0 +1,15 @@
+{
+  "ranAt": "2026-09-12T03:40:26.697Z",
+  "platform": "macOS arm64",
+  "packaged": true,
+  "locales": [
+    "zh-CN",
+    "en"
+  ],
+  "hiddenLauncher": true,
+  "testInjectionDenied": true,
+  "meetings": 0,
+  "realAudioCaptured": false,
+  "productionDetectorConnected": false,
+  "realNativeNotificationDelivery": "not verified; signing/OS setup required"
+}

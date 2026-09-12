@@ -1,3 +1,11 @@
+import { PreferencesPatchSchema } from '../domain/preferences';
+import { EventEmitter } from 'node:events';
+import { MeetingReminder } from './meeting-reminder';
+import { SystemReminder } from './system-reminder';
+import { onMeetingCandidate, reportMeetingCandidate } from './meeting-signals';
+import type { ReminderView } from '../contracts/meeting-candidate';
+import { translator } from '../ui/i18n';
+import { launcherIndicator } from '../ui/launcher-status';
 import {
   app,
   BrowserWindow,
@@ -11,6 +19,8 @@ import {
   session,
   desktopCapturer,
   globalShortcut,
+  Notification,
+  powerMonitor,
 } from 'electron';
 import { join } from 'node:path';
 import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
@@ -19,9 +29,9 @@ import dotenv from 'dotenv';
 import type { Snapshot, Meeting, Command } from '../contracts/model';
 import { renderPreflight } from './preflight';
 import { platformInfo, supportedDesktop } from './platform';
-import copy from '../../docs/design/ui-copy.json';
 dotenv.config({ quiet: true });
 app.setName('Meeting Agent');
+if (process.platform === 'win32') app.setAppUserModelId('dev.meetingagent.desktop');
 if (process.env.MEETING_DATA_DIR) app.setPath('userData', process.env.MEETING_DATA_DIR);
 dotenv.config({ path: join(app.getPath('userData'), 'provider.env'), quiet: true });
 const locked = app.requestSingleInstanceLock();
@@ -30,6 +40,7 @@ let workspace: BrowserWindow,
   launcher: BrowserWindow,
   preview: BrowserWindow,
   capture: BrowserWindow,
+  reminderWindow: BrowserWindow,
   tray: Tray;
 let state: Snapshot | null = null,
   quitting = false,
@@ -90,6 +101,79 @@ async function openComponent(meetingId: string, componentId: string | null) {
   w.on('closed', () => componentWindows.delete(webId));
   return true;
 }
+let reminders: MeetingReminder;
+let nativeReminder: SystemReminder;
+let serviceAvailable = false,
+  desktopPaused = false;
+let notificationUnavailable = false;
+const reminderTestMode =
+  !app.isPackaged &&
+  process.env.MEETING_DEV_INPUTS === '1' &&
+  process.env.MEETING_REMINDER_TEST === '1';
+const testNotifications: Array<{
+  options: { title: string; body: string; silent: boolean };
+  events: EventEmitter;
+  closed: boolean;
+}> = [];
+function desktopSnapshot() {
+  return state && { ...state, reminder: reminders?.current ?? null, notificationUnavailable };
+}
+function broadcast() {
+  if (!state) return;
+  for (const w of [workspace, launcher, preview, reminderWindow])
+    if (w && !w.isDestroyed()) w.webContents.send('snapshot', desktopSnapshot());
+}
+function positionReminder() {
+  if (!reminderWindow || !launcher) return;
+  const b = launcher.getBounds(),
+    area = screen.getDisplayMatching(b).workArea;
+  const { width, height } = reminderWindow.getBounds();
+  const left = b.x - width - 8;
+  const x = left >= area.x ? left : b.x + b.width + 8;
+  reminderWindow.setPosition(
+    Math.round(Math.max(area.x, Math.min(x, area.x + area.width - width))),
+    Math.round(Math.max(area.y, Math.min(b.y - 8, area.y + area.height - height))),
+  );
+}
+function presentReminder(view: ReminderView | null) {
+  broadcast();
+  if (view?.channel === 'bubble') {
+    nativeReminder?.clear();
+    clearTimeout(hoverTimer);
+    preview?.hide();
+    positionReminder();
+    if (!reminderWindow.isVisible()) reminderWindow.showInactive();
+  } else {
+    reminderWindow?.hide();
+    if (view?.channel === 'system' && view.phase === 'prompt')
+      nativeReminder.show(view.id, t('reminder.title'), t('reminder.body'));
+    else nativeReminder?.clear();
+  }
+}
+function syncDesktop() {
+  if (!state || !launcher) return;
+  const visible = state.preferences.launcherVisible !== false;
+  if (visible && !launcher.isVisible()) launcher.showInactive();
+  if (!visible) {
+    launcher.hide();
+    preview?.hide();
+    clearTimeout(hoverTimer);
+  }
+  reminders?.synchronize();
+  tray?.setToolTip(`Meeting Agent · ${t(launcherIndicator(active(), !serviceAvailable).labelKey)}`);
+}
+function recoverReminderStart(reason?: string) {
+  openWorkspace();
+  const needsSetup = reason === 'AUDIO_SETUP_REQUIRED' || reason === 'STT_NOT_CONFIGURED';
+  workspace.webContents.send('snapshot', {
+    ...desktopSnapshot(),
+    selectMeetingId: active()?.id,
+    openSettings: needsSetup,
+    audioSetup: needsSetup,
+    startError: reason === 'AUDIO_SETUP_REQUIRED' ? undefined : reason,
+  });
+}
+
 function request(method: string, args?: unknown): Promise<any> {
   return new Promise((resolve, reject) => {
     const id = randomUUID();
@@ -104,13 +188,14 @@ function request(method: string, args?: unknown): Promise<any> {
 const active = () => state?.meetings.find((m) => m.status === 'active');
 const t = (key: string) => {
   const locale = state?.preferences.uiLocale || 'en';
-  return (copy[locale] as Record<string, string>)[key] || key;
+  return translator(locale)(key);
 };
 function openWorkspace() {
   preview?.hide();
   workspace.show();
   workspace.focus();
-  if (state) workspace.webContents.send('snapshot', { ...state, selectMeetingId: active()?.id });
+  if (state)
+    workspace.webContents.send('snapshot', { ...desktopSnapshot(), selectMeetingId: active()?.id });
 }
 function dispatch(
   type: Command['type'],
@@ -118,6 +203,36 @@ function dispatch(
   meetingId = active()?.id ?? null,
 ) {
   return request('command', { id: randomUUID(), meetingId, type, payload });
+}
+let preferenceWrites: Promise<unknown> = Promise.resolve();
+function writePreferences(command: Command) {
+  const operation = preferenceWrites.then(async () => {
+    if (command.type === 'preferencesPatch') PreferencesPatchSchema.parse(command.payload);
+    const fresh = (await request('snapshot')) as Snapshot;
+    const old = fresh.preferences.shortcut;
+    const next = typeof command.payload.shortcut === 'string' ? command.payload.shortcut : old;
+    const changed = next !== old;
+    let installedNext = false;
+    const toggle = () => (workspace.isVisible() ? workspace.hide() : openWorkspace());
+    try {
+      if (changed) {
+        if (old) globalShortcut.unregister(old);
+        if (next) {
+          if (!globalShortcut.register(next, toggle)) throw new Error('SHORTCUT_CONFLICT');
+          installedNext = true;
+        }
+      }
+      return await request('command', command);
+    } catch (error) {
+      if (changed) {
+        if (installedNext) globalShortcut.unregister(next);
+        if (old) globalShortcut.register(old, toggle);
+      }
+      throw error;
+    }
+  });
+  preferenceWrites = operation.catch(() => {});
+  return operation;
 }
 let stopResolve: (() => void) | null = null;
 async function drainCapture() {
@@ -150,7 +265,13 @@ async function stopMeeting(m: Meeting) {
   await dispatch('end', {}, m.id);
 }
 function showPreview() {
-  if (menuOpen || workspace.isFocused()) return;
+  if (
+    menuOpen ||
+    workspace.isFocused() ||
+    !launcher.isVisible() ||
+    reminders?.current?.channel === 'bubble'
+  )
+    return;
   const b = launcher.getBounds(),
     area = screen.getDisplayMatching(b).workArea;
   preview.setPosition(
@@ -176,7 +297,10 @@ async function contextMenu() {
           void startMeeting(randomUUID())
             .then((result) => {
               if (result.state === 'needs_setup')
-                workspace.webContents.send('snapshot', { ...state, openSettings: true });
+                workspace.webContents.send('snapshot', {
+                  ...desktopSnapshot(),
+                  openSettings: true,
+                });
             })
             .catch(() => {});
       },
@@ -199,7 +323,19 @@ async function contextMenu() {
       label: t('settings.open'),
       click: () => {
         openWorkspace();
-        workspace.webContents.send('snapshot', { ...state, openSettings: true });
+        workspace.webContents.send('snapshot', { ...desktopSnapshot(), openSettings: true });
+      },
+    },
+    {
+      label: t(state?.preferences.launcherVisible === false ? 'launcher.show' : 'launcher.hide'),
+      click: () => {
+        if (!state) return;
+        void writePreferences({
+          id: randomUUID(),
+          meetingId: null,
+          type: 'preferencesPatch',
+          payload: { launcherVisible: state.preferences.launcherVisible === false },
+        }).catch(() => recoverReminderStart('STORAGE_FAILED'));
       },
     },
     { type: 'separator' },
@@ -235,7 +371,10 @@ const startingMeetings = new Map<
   string,
   Promise<{ meetingId: string | null; state: string; reason?: string }>
 >();
-async function startMeeting(requestId: string) {
+async function startMeeting(
+  requestId: string,
+  options: { quiet?: boolean; stillValid?: () => boolean } = {},
+) {
   if (typeof requestId !== 'string' || !/^[\w-]{1,100}$/.test(requestId))
     throw new Error('INVALID_REQUEST');
   const pending = startingMeetings.get(requestId);
@@ -244,6 +383,7 @@ async function startMeeting(requestId: string) {
     const snapshot = (await request('snapshot')) as Snapshot;
     const current = snapshot.meetings.find((m) => m.status === 'active');
     if (current) return { meetingId: current.id, state: current.capture };
+    if (options.stillValid && !options.stillValid()) return { meetingId: null, state: 'stale' };
     if (!snapshot.preferences.audio?.setupCompleted)
       return { meetingId: null, state: 'needs_setup', reason: 'AUDIO_SETUP_REQUIRED' };
     if (!snapshot.capabilities.sttConfigured)
@@ -255,7 +395,7 @@ async function startMeeting(requestId: string) {
       payload: { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone },
     })) as string;
     state = await request('snapshot');
-    openWorkspace();
+    if (!options.quiet) openWorkspace();
     if (state!.meetings.find((m) => m.id === id)?.status === 'ended')
       return { meetingId: id, state: 'input_error', reason: 'MEETING_ENDED' };
     if (['capturing', 'starting'].includes(state!.meetings.find((m) => m.id === id)!.capture))
@@ -307,6 +447,7 @@ async function quit() {
     return;
   }
   quitting = true;
+  reminders?.clear();
   globalShortcut.unregisterAll();
   app.quit();
 }
@@ -387,8 +528,9 @@ app.whenReady().then(async () => {
     }
     if (message.type === 'snapshot') {
       state = message.value;
-      for (const w of [workspace, launcher, preview])
-        if (w && !w.isDestroyed()) w.webContents.send('snapshot', state);
+      serviceAvailable = true;
+      syncDesktop();
+      broadcast();
       for (const binding of participantWindows.values())
         void request('collaborationSnapshot', {
           meetingId: binding.meetingId,
@@ -421,13 +563,15 @@ app.whenReady().then(async () => {
     }
   });
   worker.on('exit', () => {
+    serviceAvailable = false;
+    reminders?.clear();
     for (const call of pending.values()) {
       clearTimeout(call.timer);
       call.reject(new Error('SERVICE_UNAVAILABLE'));
     }
     pending.clear();
     sendStop();
-    for (const w of [workspace, launcher, preview])
+    for (const w of [workspace, launcher, preview, reminderWindow])
       if (w && !w.isDestroyed())
         w.webContents.send('snapshot', { serviceError: 'SERVICE_UNAVAILABLE' });
   });
@@ -507,7 +651,7 @@ app.whenReady().then(async () => {
       hasShadow: false,
       alwaysOnTop: true,
       skipTaskbar: true,
-      show: true,
+      show: false,
     },
     'launcher',
   );
@@ -538,6 +682,76 @@ app.whenReady().then(async () => {
     'preview',
   );
   capture = secureWindow({ width: 320, height: 160, show: false, skipTaskbar: true }, 'capture');
+  reminderWindow = secureWindow(
+    {
+      width: 320,
+      height: 90,
+      resizable: false,
+      frame: false,
+      transparent: true,
+      backgroundColor: '#00000000',
+      hasShadow: false,
+      alwaysOnTop: true,
+      skipTaskbar: true,
+      show: false,
+    },
+    'reminder',
+  );
+  reminderWindow.webContents.on('did-finish-load', broadcast);
+  launcher.on('move', positionReminder);
+  reminders = new MeetingReminder({
+    context: () => ({
+      enabled: state?.preferences.meetingReminders !== false,
+      launcherVisible: state?.preferences.launcherVisible !== false,
+      available: serviceAvailable && !quitting && !desktopPaused,
+      active: active(),
+    }),
+    present: presentReminder,
+    start: (stillValid) => startMeeting(randomUUID(), { quiet: true, stillValid }),
+    recover: recoverReminderStart,
+  });
+  nativeReminder = new SystemReminder({
+    supported: () => reminderTestMode || Notification.isSupported(),
+    create: (options) => {
+      if (!reminderTestMode) return new Notification(options);
+      // Unpackaged, explicitly enabled synthetic tests only. Packaged builds cannot use this path.
+      const events = new EventEmitter();
+      const fixture = { options, events, closed: false };
+      testNotifications.push(fixture);
+      return {
+        on: (event, callback) => events.on(event, callback),
+        removeAllListeners: () => events.removeAllListeners(),
+        show: () => {},
+        close: () => {
+          fixture.closed = true;
+        },
+      };
+    },
+    accept: (id) => {
+      void reminders.accept(id);
+    },
+    dismiss: (id) => reminders.dismiss(id),
+    failed: () => {
+      notificationUnavailable = true;
+      broadcast();
+    },
+  });
+  const stopSignals = onMeetingCandidate((candidate) => reminders.receive(candidate));
+  app.on('will-quit', () => {
+    stopSignals();
+    reminders.clear();
+  });
+  const pauseReminders = () => {
+    desktopPaused = true;
+    reminders.clear();
+  };
+  const resumeReminders = () => {
+    desktopPaused = false;
+  };
+  powerMonitor.on('suspend', pauseReminders);
+  powerMonitor.on('lock-screen', pauseReminders);
+  powerMonitor.on('resume', resumeReminders);
+  powerMonitor.on('unlock-screen', resumeReminders);
   const pixels = Buffer.alloc(16 * 16 * 4);
   for (let y = 0; y < 16; y++)
     for (let x = 0; x < 16; x++) {
@@ -555,6 +769,9 @@ app.whenReady().then(async () => {
   tray.setToolTip('Meeting Agent');
   tray.on('click', openWorkspace);
   tray.on('right-click', () => void contextMenu());
+  serviceAvailable = true;
+  syncDesktop();
+  broadcast();
   if (state?.preferences.shortcut)
     globalShortcut.register(state.preferences.shortcut, () =>
       workspace.isVisible() ? workspace.hide() : openWorkspace(),
@@ -619,11 +836,27 @@ app.whenReady().then(async () => {
       const role =
         event.sender === capture.webContents
           ? 'capture'
-          : [workspace, launcher, preview].some((w) => w.webContents === event.sender)
-            ? 'ui'
-            : 'untrusted';
+          : event.sender === reminderWindow.webContents
+            ? 'reminder'
+            : [workspace, launcher, preview].some((w) => w.webContents === event.sender)
+              ? 'ui'
+              : 'untrusted';
       if (role === 'untrusted' || event.senderFrame !== event.sender.mainFrame)
         throw new Error('PERMISSION_DENIED');
+      if (role === 'reminder') {
+        if (method === 'snapshot') return { ok: true, value: desktopSnapshot() };
+        if (method === 'reminderAccept')
+          return { ok: true, value: await reminders.accept(args?.id) };
+        if (method === 'reminderDismiss') {
+          reminders.dismiss(args?.id);
+          return { ok: true };
+        }
+        if (method === 'reminderHold' && typeof args?.held === 'boolean') {
+          reminders.hold(args?.id, args.held);
+          return { ok: true };
+        }
+        throw new Error('PERMISSION_DENIED');
+      }
       if (role === 'capture') {
         if (method === 'captureStopped') {
           stopResolve?.();
@@ -721,6 +954,18 @@ app.whenReady().then(async () => {
             );
           break;
         }
+        case 'reminderTest': {
+          if (!reminderTestMode || event.sender !== workspace.webContents)
+            throw new Error('PERMISSION_DENIED');
+          if (args?.signal) reportMeetingCandidate(args.signal);
+          if (args?.nativeEvent && ['click', 'close', 'failed'].includes(args.nativeEvent))
+            testNotifications.at(args.index ?? -1)?.events.emit(args.nativeEvent);
+          value = {
+            view: reminders.current,
+            notifications: testNotifications.map(({ options, closed }) => ({ ...options, closed })),
+          };
+          break;
+        }
         case 'startMeeting':
           value = await startMeeting(args.requestId);
           break;
@@ -740,7 +985,8 @@ app.whenReady().then(async () => {
           break;
         }
         case 'snapshot':
-          value = await request('snapshot');
+          state = await request('snapshot');
+          value = desktopSnapshot();
           break;
         case 'platform':
           value = platformInfo();
@@ -764,6 +1010,7 @@ app.whenReady().then(async () => {
               'scenario',
               'decision',
               'preferences',
+              'preferencesPatch',
               'end',
             ].includes(args.type)
           )
@@ -773,25 +1020,9 @@ app.whenReady().then(async () => {
           if (args.type === 'ingest' && !['manual', 'replay'].includes(args.payload?.kind))
             throw new Error('PERMISSION_DENIED');
           if (args.type === 'end') await drainCapture();
-          if (
-            args.type === 'preferences' &&
-            args.payload.shortcut !== state?.preferences.shortcut
-          ) {
-            const old = state?.preferences.shortcut || '',
-              next = args.payload.shortcut;
-            if (old) globalShortcut.unregister(old);
-            if (
-              next &&
-              !globalShortcut.register(next, () =>
-                workspace.isVisible() ? workspace.hide() : openWorkspace(),
-              )
-            ) {
-              if (old)
-                globalShortcut.register(old, () =>
-                  workspace.isVisible() ? workspace.hide() : openWorkspace(),
-                );
-              throw new Error('SHORTCUT_CONFLICT');
-            }
+          if (args.type === 'preferences' || args.type === 'preferencesPatch') {
+            value = await writePreferences(args);
+            break;
           }
           value = await request('command', args);
           break;
@@ -874,5 +1105,6 @@ app.whenReady().then(async () => {
   screen.on('display-removed', () => {
     const work = screen.getPrimaryDisplay().workArea;
     launcher.setPosition(work.x + work.width - 64, work.y + 100);
+    positionReminder();
   });
 });

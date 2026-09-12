@@ -1,3 +1,4 @@
+import type { ReminderView } from './meeting-candidate';
 import { EvidenceRequest } from './workflow';
 import { CollaborationIntent } from './collaboration-workflow';
 import { z } from 'zod';
@@ -505,9 +506,13 @@ export type Preferences = {
   reduceMotion: boolean;
   reduceTransparency: boolean;
   shortcut: string;
+  launcherVisible?: boolean;
+  meetingReminders?: boolean;
 };
 export type Snapshot = {
   liveTranscripts?: Array<{ meetingId: string; segmentId: string; channel: string; text: string }>;
+  reminder?: ReminderView | null;
+  notificationUnavailable?: boolean;
   meetings: Meeting[];
   preferences: Preferences;
   capabilities: {
@@ -546,6 +551,7 @@ export const Command = z
       'scenario',
       'decision',
       'preferences',
+      'preferencesPatch',
       'rename',
       'audioSettings',
     ]),

@@ -30,3 +30,7 @@
 - 上述色值是深蓝图标上的图形提示，不用作普通正文颜色；文字沿用全局可读性token。
 
 实现真源：[launcher-status.ts](../../src/ui/launcher-status.ts)、[main.tsx](../../src/ui/main.tsx)、[style.css](../../src/ui/style.css)、[desktop/main.ts](../../src/desktop/main.ts)。测试投影使用合成快照，不证明真实声卡、转写或模型质量。
+
+## 会议提醒与隐藏
+
+新增[会议候选提醒](../meeting-reminder-spec.md)：可见入口旁侧气泡与隐藏时系统通知互斥，整个气泡正文点击开始，图标本身仍打开工作页。气泡期间不展开速览；记录状态仍由真实采集状态投影。显示设置／右键菜单可隐藏与恢复入口，后台不停止。

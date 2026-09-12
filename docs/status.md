@@ -1,6 +1,6 @@
 # 当前状态与接手入口
 
-更新：2026-09-12 10:54（Asia/Singapore）。维护规则见 [AGENTS.md](../AGENTS.md) 与 [session 流程](sessions/README.md)。本页是工作快照，开始任务时须核对工作树和相关交接；不是实时监控。
+更新：2026-09-12 11:41（Asia/Singapore）。维护规则见 [AGENTS.md](../AGENTS.md) 与 [session 流程](sessions/README.md)。本页是工作快照，开始任务时须核对工作树和相关交接；不是实时监控。
 
 2026-09-12（Asia/Shanghai）增补：首版协作核心实现及Windows程序验证完成（115单元／17桌面）；完整设计仍有差距，见独立条目。其他任务记录的核验时间与证据范围保持原样。
 
@@ -26,6 +26,9 @@
 | 首版协作组件与 LangGraph | 目标设计已批准；首版核心已实施，62项按[结果矩阵](../tests/results/collaboration-v1-validation.md)区分覆盖／差距 | [完整设计](collaboration-v1-design.md)／[设计记录](sessions/2026-09-12-collaboration-components-design.md) |
 | GPT Live Transcribe 接入 | 已切换并重启：44项单元／8项桌面测试与合成语音实际流式转写通过，保留DeepSeek及暂停会议；真实会议未测 | [流式转写接入](sessions/2026-09-12-live-transcribe.md)／[验证](../tests/results/live-transcription-validation.md) |
 | Windows 本地启动与供应商配置 | 完成：本地配置 DeepSeek V4.1 Flash 与 Whisper；合成文本／语音的实际 Provider 调用通过，构建成功，主窗口正常响应；真实会议未测 | [Windows 本地启动](sessions/2026-09-12-windows-local-start.md) |
+
+| 设置即时生效 | 代码／双端包已同步；104单元、22桌面及收尾6项设置复核通过；Mac包与日常进程已更新，Windows代码／构建核对通过，真机按本轮范围未验；[PR #2](https://github.com/Jeffreyliu0131/meeting-agent/pull/2) | [本轮记录](sessions/2026-09-12-settings-autosave.md) |
+| 会议候选提醒 | 提醒代码／双端本地包已同步，99单元／19桌面及Mac包检查通过；真实检测待接入、双端原生投递待验；[PR #1](https://github.com/Jeffreyliu0131/meeting-agent/pull/1) | [本轮记录](sessions/2026-09-12-meeting-reminder.md) |
 | 界面语言与交互打磨 | 代码／两端本地包已同步：跟随系统及即时切换、文字与焦点打磨；86单元／14桌面、Mac包检查通过；Windows运行待验；91962b9已推送origin/main | [本轮记录](sessions/2026-09-12-interface-polish.md) |
 | Mac／Windows本地包同步 | 本地release均已更新至9b6886d产品源码，14文件及app.asar一致；11项桌面通过，Mac新包已打开；同步证据06f57d2已推送，当前日常库0会议，Windows真机待验 | [本轮记录](sessions/2026-09-12-cross-platform-sync.md) |
 | Agent工作流验收与推送 | 独立验收通过：86项单元／11项Electron、双端包及macOS烟测；9b6886d已推送origin/main并核对远端SHA | [本轮记录](sessions/2026-09-12-agent-workflow-acceptance-push.md) |
@@ -47,6 +50,9 @@
 ## 阻塞与未确认事项
 
 - 2026-09-12 Windows本地先完成DeepSeek V4.1 Flash／Whisper实调，随后已按用户要求切换为 `gpt-live-transcribe` 并通过实际流式调用；凭证仅在本地忽略配置中。连续会议语义、真实麦克风、双音轨及整体质量仍未验收，见流式转写记录。
+
+- 会议候选提醒仅交付信号后的双语气泡／系统通知逻辑；生产检测器未接入，正常运行不会自动提示。macOS缺有效签名身份，Windows通知注册／真机及两端实际投递未验。详见[提醒规范](meeting-reminder-spec.md)。
+
 - 线上本机＋远端声音、多人重叠发言与归属、中英质量、真实时延／成本、Windows 真机体验仍需专门证据。
 - 首次仅音频设置、采集恢复入口与新视觉已接入；剩余目标包括独立麦克风测试、独立理解反馈与通用重排确认机制，见[实现边界](frontend-spec.md#11-当前实现与目标差距)。真实设备与完整审美／无障碍验收不由合成检查代替。
 - 官方比赛赛程、评分、提交方式与团队分工没有在本页发现新的核验记录；需要时回到官方材料或用户确认。
@@ -54,7 +60,7 @@
 ## 建议接续顺序
 
 1. 核对相关 session、`git status --short` 和代码，确认仍在执行的任务与文件范围，不覆盖现有改动。
-2. 当前源码基线为9b6886d，见[独立验收](../tests/results/agent-workflow-acceptance-review.md)；3f6279a／a587a92是历史阶段。日常release两端包已在[界面打磨](sessions/2026-09-12-interface-polish.md)更新到91962b9源码并核验一致（已推送origin/main）；不代表其他Windows机器的安装已更新。真实模型与音源接入须单独授权和验收。
+2. 当前源码基线为9b6886d，见[独立验收](../tests/results/agent-workflow-acceptance-review.md)；3f6279a／a587a92是历史阶段。日常release两端包最新已在[会议提醒](sessions/2026-09-12-meeting-reminder.md)更新到提醒源码5c7c0a5并核验一致，交付见[PR #1](https://github.com/Jeffreyliu0131/meeting-agent/pull/1)；此前界面源码91962b9已推送；不代表其他Windows机器的安装已更新。真实模型与音源接入须单独授权和验收。
 3. 按用户反馈继续细化已实现的前端；本地release现含9b6886d工作流及此前图标／状态代码，新入口已核对；当前Mac日常库为0场会议，旧交接两条历史不代表当前机器数据。真实音频、系统设备路由和Windows真机另行验收。
 4. 凭证与设备具备后执行真实模型、真实音频和双端验收；将结果链接到对应 session 和本页。
 

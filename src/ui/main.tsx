@@ -1,3 +1,4 @@
+import { MeetingReminderBubble } from './MeetingReminderBubble';
 import { WorkflowPanel } from './WorkflowPanel';
 import { CollaborationPanel } from './collaboration/Panel';
 import launcherArtwork from './assets/launcher-dialogue-v1.png';
@@ -135,7 +136,11 @@ function App() {
       setServiceError(false);
       setSnapshot(value);
       if (value.selectMeetingId) setSelected(value.selectMeetingId);
-      if (value.openSettings) showSettings();
+      if (value.openSettings) {
+        setAudioSetup(value.audioSetup === true);
+        setSettings(true);
+      }
+      if (value.startError) setError(value.startError);
     };
     const off = window.meeting.subscribe(update);
     let canceled = false;
@@ -205,6 +210,8 @@ function App() {
         m.title.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()),
     ) ?? [];
   const drag = useRef<{ x: number; y: number; dragged: boolean } | null>(null);
+  if (role === 'reminder')
+    return <MeetingReminderBubble key={snapshot?.reminder?.id} view={snapshot?.reminder} t={t} />;
   if (role === 'launcher')
     return (
       <button
@@ -1135,18 +1142,9 @@ function App() {
           snapshot={snapshot}
           t={t}
           close={() => setSettings(false)}
-          save={(p, keepOpen) =>
-            act(async () => {
-              await command('preferences', p as unknown as Record<string, unknown>, null);
-              if (!keepOpen) setSettings(false);
-              return true;
-            })
-          }
-          changeInterface={(uiLanguage) =>
-            command('preferences', { ...snapshot.preferences, uiLanguage }, null)
-          }
+          savePatch={(patch) => command('preferencesPatch', patch as Record<string, unknown>, null)}
           current={current}
-          changeOutput={(output) => act(() => command('language', { locale: output }))}
+          changeOutput={(output) => command('language', { locale: output })}
         />
       )}
       {decisionScope && artifact && current && (

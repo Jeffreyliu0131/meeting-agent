@@ -454,11 +454,12 @@ Object.assign(extra['zh-CN'], {
 });
 
 Object.assign(extra.en, {
-  'design.setupHint': 'Choose what to listen to. Save once, then start when you’re ready.',
+  'design.setupHint':
+    'Choose what to listen to. Changes save automatically; recording starts only when you start a meeting.',
   'design.setupSaveHint': 'Saving returns to the home page. No audio starts.',
 });
 Object.assign(extra['zh-CN'], {
-  'design.setupHint': '先选择收听范围。设置保存后，下次即可直接开始。',
+  'design.setupHint': '选择收听范围，更改会自动保存。开始会议后才会录音。',
   'design.setupSaveHint': '保存后返回首页，不会开始录音。',
 });
 

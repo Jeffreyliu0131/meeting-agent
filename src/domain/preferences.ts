@@ -16,6 +16,8 @@ export const PreferencesSchema = z
     reduceMotion: z.boolean(),
     reduceTransparency: z.boolean(),
     shortcut: z.string().max(100),
+    launcherVisible: z.boolean().optional(),
+    meetingReminders: z.boolean().optional(),
     uiLanguage: LanguageChoice.optional(),
     defaultOutputLanguage: LanguageChoice.optional(),
     audio: AudioPreferences.optional(),
@@ -28,6 +30,8 @@ export function resolvePreferences(value: Preferences, system: string): Preferen
   const p = PreferencesSchema.parse(value);
   return {
     ...p,
+    launcherVisible: p.launcherVisible ?? true,
+    meetingReminders: p.meetingReminders ?? true,
     uiLanguage: p.uiLanguage ?? p.uiLocale,
     defaultOutputLanguage: p.defaultOutputLanguage ?? p.defaultOutputLocale,
     uiLocale: p.uiLanguage === 'system' ? systemLocale(system) : (p.uiLanguage ?? p.uiLocale),
@@ -42,4 +46,30 @@ export function resolvePreferences(value: Preferences, system: string): Preferen
       setupCompleted: false,
     },
   };
+}
+
+export const PreferencesPatchSchema = PreferencesSchema.partial()
+  .extend({ audio: AudioPreferences.partial().optional() })
+  .strict();
+export type PreferencesPatch = z.infer<typeof PreferencesPatchSchema>;
+export function mergePreferences(current: Preferences, patch: PreferencesPatch): Preferences {
+  const { audio, ...fields } = patch;
+  return {
+    ...current,
+    ...fields,
+    audio: audio
+      ? {
+          ...(current.audio ?? {
+            deviceId: 'default',
+            deviceLabel: '',
+            includeComputerAudio: false,
+            setupCompleted: false,
+          }),
+          ...audio,
+        }
+      : current.audio,
+  };
+}
+export function patchPreferences(current: Preferences, raw: unknown, system: string): Preferences {
+  return resolvePreferences(mergePreferences(current, PreferencesPatchSchema.parse(raw)), system);
 }

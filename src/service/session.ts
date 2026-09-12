@@ -59,7 +59,7 @@ import { commitMeaning, refreshIntegrity, dependencies } from '../domain/meaning
 import { reconcileCloseout } from '../domain/closeout';
 import { applyArtifactPatch, changedBlocks } from '../domain/artifacts';
 import { validateRefs } from '../domain/evidence';
-import { resolvePreferences } from '../domain/preferences';
+import { resolvePreferences, patchPreferences } from '../domain/preferences';
 import type { CallOptions } from '../agent/provider';
 export class SessionService {
   meetings: Meeting[];
@@ -244,7 +244,14 @@ export class SessionService {
         c.payload as unknown as Preferences,
         process.env.MEETING_SYSTEM_LOCALE ?? Intl.DateTimeFormat().resolvedOptions().locale,
       );
-    else if (c.type === 'create' || c.type === 'startMeeting') {
+    else if (c.type === 'preferencesPatch') {
+      prefs = patchPreferences(
+        prefs,
+        c.payload,
+        process.env.MEETING_SYSTEM_LOCALE ?? Intl.DateTimeFormat().resolvedOptions().locale,
+      );
+      result = prefs;
+    } else if (c.type === 'create' || c.type === 'startMeeting') {
       const activeMeeting = meetings.find((m) => m.status === 'active');
       if (activeMeeting && c.type === 'create') throw new Error('ACTIVE_MEETING_EXISTS');
       if (c.type === 'startMeeting' && !prefs.audio?.setupCompleted)
