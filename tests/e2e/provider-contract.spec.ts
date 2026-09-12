@@ -2,7 +2,8 @@
  * These tests do not assess real model semantics or real microphone quality. */
 import { test, expect, _electron as electron, type ElectronApplication } from '@playwright/test';
 import { createServer, type Server } from 'node:http';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync } from 'node:fs';
+import { cleanupElectron } from './cleanup';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 let server: Server,
@@ -221,14 +222,14 @@ test.beforeEach(async () => {
       OPENAI_API_KEY: 'test-transport-only',
       MEETING_API_BASE: base,
       MEETING_STT_API_KEY: 'test-transport-only',
+      MEETING_STT_MODEL: 'whisper-1',
       MEETING_STT_API_BASE: base,
     },
   });
 });
 test.afterEach(async () => {
-  await app?.evaluate(({ app }) => app.exit(0)).catch(() => {});
+  await cleanupElectron(app, dir);
   await new Promise<void>((r) => server.close(() => r()));
-  if (dir) rmSync(dir, { recursive: true, force: true });
 });
 test('provider transport, isolated preflight, generated structure, source binding, updates and personal calculator', async () => {
   let page: any;

@@ -32,6 +32,7 @@ export class SessionService {
   private expressing = new Map<string, Promise<void>>();
   private controllers = new Set<AbortController>();
   private closed = false;
+  private liveTranscripts = new Map<string, NonNullable<Snapshot['liveTranscripts']>[number]>();
   private dirty = new Set<string>();
   private timers = new Map<string, ReturnType<typeof setTimeout>>();
   constructor(
@@ -75,12 +76,15 @@ export class SessionService {
   snapshot(): Snapshot {
     return structuredClone({
       meetings: this.meetings,
+      liveTranscripts: [...this.liveTranscripts.values()],
       preferences: this.preferences,
       storageError: this.storageError,
       capabilities: {
         developerInputs: process.env.MEETING_DEV_INPUTS === '1',
         modelConfigured: !!this.config.key,
         sttConfigured: !!this.config.sttKey,
+        sttStreaming: this.config.sttModel === 'gpt-live-transcribe',
+        sttModel: this.config.sttModel,
         model: this.config.model,
         modelHost: new URL(this.config.base).host,
         sttHost: new URL(this.config.sttBase).host,
@@ -186,6 +190,19 @@ export class SessionService {
       this.changed();
     }
   }
+  partialAudio(lease: AudioLease, text: string) {
+    if (this.closed) return;
+    const key = lease.meetingId + ':' + lease.segmentId;
+    if (text)
+      this.liveTranscripts.set(key, {
+        meetingId: lease.meetingId,
+        segmentId: lease.segmentId,
+        channel: lease.channel,
+        text,
+      });
+    else this.liveTranscripts.delete(key);
+    this.changed();
+  }
   recordInputGap(lease: AudioLease, code: string) {
     const meetings = structuredClone(this.meetings),
       m = meetings.find((m) => m.id === lease.meetingId);
@@ -265,7 +282,7 @@ export class SessionService {
     id: string,
     kind: CallRecord['kind'],
     run: (options: CallOptions) => Promise<T>,
-    audioSeconds?: number,
+    audioSeconds?: number | (() => number),
   ): Promise<T> {
     if (this.closed) throw new Error('SERVICE_CLOSED');
     const m = this.meetings.find((m) => m.id === id);
@@ -296,7 +313,7 @@ export class SessionService {
       inputTokens: null,
       outputTokens: null,
       reservedTokens: reserve,
-      audioSeconds,
+      audioSeconds: typeof audioSeconds === 'number' ? audioSeconds : 0,
     };
     m.calls.push(record);
     m.calls = m.calls.filter((c) => Date.parse(c.startedAt) > now - 3600000).slice(-7200);
@@ -310,7 +327,7 @@ export class SessionService {
     };
     m.usageTotals.calls++;
     m.usageTotals.reservedTokens += reserve;
-    m.usageTotals.audioSeconds += audioSeconds ?? 0;
+    m.usageTotals.audioSeconds += typeof audioSeconds === 'number' ? audioSeconds : 0;
     this.persist();
     const controller = new AbortController();
     this.controllers.add(controller);
@@ -344,6 +361,10 @@ export class SessionService {
             outputTokens: usage?.output ?? null,
           });
           const total = current.usageTotals!;
+          if (typeof audioSeconds === 'function') {
+            r.audioSeconds = audioSeconds();
+            total.audioSeconds += r.audioSeconds;
+          }
           if (usage) {
             total.inputTokens += usage.input;
             total.outputTokens += usage.output;

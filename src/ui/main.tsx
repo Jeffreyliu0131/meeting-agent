@@ -416,6 +416,13 @@ function App() {
             </nav>
           )}
           <main className="workspace">
+            {(snapshot.liveTranscripts ?? [])
+              .filter((p) => p.meetingId === current.id)
+              .map((p) => (
+                <p className="muted" key={p.segmentId} role="status">
+                  {t('live.transcribing')} · {t('sourceKind.' + p.channel)}: {p.text}
+                </p>
+              ))}
             {(current.audioPending ?? 0) > 1 && (
               <p className="muted" role="status">
                 {t('live.audioPending')}: {current.audioPending}

@@ -4,6 +4,7 @@ import { OpenAIProvider, configFromEnv } from '../agent/provider';
 import type { AudioLease } from '../integrations/audio-leases';
 import { TranscriptionQueue } from '../integrations/transcription-queue';
 import { acceptAudio } from '../integrations/audio-leases';
+import { LiveTranscription } from '../integrations/live-transcription';
 const parent = (process as any).parentPort;
 const previews = new Map<
   string,
@@ -28,6 +29,30 @@ const service = new SessionService(
   () => parent.postMessage({ type: 'snapshot', value: service.snapshot() }),
   preview,
 );
+const liveStreams = new Map<
+  string,
+  { meetingId: string; epoch: number; stream: LiveTranscription }
+>();
+const pendingAudio = () =>
+  service.audioQueueChanged(
+    audioQueue.pending +
+      [...liveStreams.values()].reduce((n, entry) => n + entry.stream.pending, 0),
+  );
+async function finishLive(meetingId?: string, epoch?: number) {
+  await Promise.all(
+    [...liveStreams.entries()]
+      .filter(
+        ([, entry]) =>
+          (!meetingId || entry.meetingId === meetingId) &&
+          (epoch === undefined || entry.epoch === epoch),
+      )
+      .map(async ([key, entry]) => {
+        await entry.stream.finish();
+        liveStreams.delete(key);
+      }),
+  );
+  pendingAudio();
+}
 const audioQueue = new TranscriptionQueue<{
   lease: AudioLease;
   wav: Uint8Array;
@@ -44,7 +69,7 @@ const audioQueue = new TranscriptionQueue<{
     if (text) service.completeAudio(item.lease, text);
   },
   (item, code) => service.recordInputGap(item.lease, code),
-  (pending) => service.audioQueueChanged(pending),
+  () => pendingAudio(),
 );
 parent.on('message', async ({ data }: any) => {
   const { id, method, args } = data;
@@ -60,12 +85,18 @@ parent.on('message', async ({ data }: any) => {
   try {
     let value: unknown;
     if (method === 'shutdown') {
+      await finishLive();
       await Promise.race([audioQueue.idle(), new Promise((r) => setTimeout(r, 2000))]);
       audioQueue.close();
       value = true;
     } else if (method === 'snapshot') value = service.snapshot();
-    else if (method === 'command') value = service.command(args);
-    else if (method === 'translate') {
+    else if (method === 'command') {
+      value = service.command(args);
+      if (['pause', 'end', 'captureError'].includes(args.type)) void finishLive(args.meetingId);
+    } else if (method === 'audioDrain') {
+      await finishLive(args.meetingId, args.epoch);
+      value = true;
+    } else if (method === 'translate') {
       const { meetingId, segmentId, revision, targetLocale } = args;
       const m = service.meetings.find((m) => m.id === meetingId);
       const source = m?.segments.find((s) => s.id === segmentId && s.rev === revision);
@@ -89,13 +120,38 @@ parent.on('message', async ({ data }: any) => {
       const rate = new DataView(wav.buffer, wav.byteOffset, wav.byteLength).getUint32(24, true);
       if (![16000, 24000, 44100, 48000].includes(rate)) throw new Error('INVALID_AUDIO');
       const durationMs = ((wav.length - 44) / 2 / rate) * 1000;
-      const accepted = audioQueue.enqueue(meetingId + ':' + epoch + ':' + channel, {
-        lease,
-        wav,
-        bytes: wav.length,
-        durationMs,
-      });
-      value = { accepted, pending: audioQueue.pending };
+      if (config.sttModel === 'gpt-live-transcribe') {
+        if (rate !== 24000 || wav.length > 48044) throw new Error('INVALID_AUDIO');
+        const key = meetingId + ':' + epoch + ':' + channel;
+        let entry = liveStreams.get(key);
+        if (!entry) {
+          const stream = new LiveTranscription(
+            { key: config.sttKey, base: config.sttBase, model: config.sttModel },
+            {
+              run: (lease, seconds, run) =>
+                service.runCall(lease.meetingId, 'transcribe', run, seconds),
+              partial: (lease, text) => service.partialAudio(lease, text),
+              complete: (lease, text) => service.completeAudio(lease, text),
+              gap: (lease, code) => service.recordInputGap(lease, code),
+              failed: (code) => parent.postMessage({ type: 'sttError', meetingId, epoch, code }),
+              changed: pendingAudio,
+            },
+          );
+          entry = { meetingId, epoch, stream };
+          liveStreams.set(key, entry);
+        }
+        const accepted = entry.stream.append(lease, wav.subarray(44));
+        if (!accepted) throw new Error('TRANSCRIPTION_FAILED');
+        value = { accepted, pending: entry.stream.pending };
+      } else {
+        const accepted = audioQueue.enqueue(meetingId + ':' + epoch + ':' + channel, {
+          lease,
+          wav,
+          bytes: wav.length,
+          durationMs,
+        });
+        value = { accepted, pending: audioQueue.pending };
+      }
     } else throw new Error('INVALID_METHOD');
     parent.postMessage({ id, ok: true, value });
   } catch (error) {

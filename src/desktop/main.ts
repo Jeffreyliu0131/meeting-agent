@@ -71,19 +71,26 @@ function dispatch(
 }
 let stopResolve: (() => void) | null = null;
 async function drainCapture() {
+  const draining = active();
   if (!active() || active()!.capture !== 'capturing') {
     sendStop();
     return;
   }
   await new Promise<void>((resolve) => {
-    stopResolve = resolve;
+    let timer: ReturnType<typeof setTimeout>;
+    stopResolve = () => {
+      clearTimeout(timer);
+      resolve();
+    };
     capture.webContents.send('capture', { action: 'drain' });
-    setTimeout(() => {
+    timer = setTimeout(() => {
       sendStop();
       resolve();
-    }, 750);
+    }, 2000);
   });
   stopResolve = null;
+  if (state?.capabilities.sttStreaming && draining)
+    await request('audioDrain', { meetingId: draining.id, epoch: draining.epoch });
 }
 function sendStop() {
   capture?.webContents.send('capture', { action: 'stop' });
@@ -171,6 +178,7 @@ async function captureAction(action: string, meetingId: string) {
     epoch: fresh.epoch,
     mode: fresh.mode,
     deviceId: fresh.audioSettings?.deviceId ?? 'default',
+    streaming: state?.capabilities.sttStreaming === true,
   });
 }
 const startingMeetings = new Map<
@@ -291,6 +299,19 @@ app.whenReady().then(async () => {
     serviceName: 'Meeting session service',
   });
   worker.on('message', (message: any) => {
+    if (message.type === 'sttError') {
+      const m = active();
+      if (
+        m &&
+        m.id === message.meetingId &&
+        m.epoch === message.epoch &&
+        ['starting', 'capturing'].includes(m.capture)
+      ) {
+        sendStop();
+        void dispatch('captureError', { epoch: m.epoch, code: message.code }, m.id).catch(() => {});
+      }
+      return;
+    }
     if (message.type === 'preview') {
       void renderPreflight(message.artifact, __dirname)
         .then(() =>

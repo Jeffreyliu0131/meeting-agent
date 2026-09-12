@@ -26,6 +26,40 @@ function deferred<T = void>() {
   return { promise, resolve };
 }
 const tick = () => new Promise((r) => setTimeout(r, 10));
+test('live drafts remain outside meeting facts and streaming calls account for final audio duration', async () => {
+  const { service, id } = setup({
+    interpret: async () => {
+      throw new Error('UNEXPECTED_MODEL_CALL');
+    },
+  });
+  const audio = {
+    meetingId: id,
+    epoch: 1,
+    channel: 'microphone' as const,
+    segmentId: 'draft',
+    receivedAt: new Date().toISOString(),
+  };
+  service.partialAudio(audio, 'still speaking');
+  assert.equal(service.snapshot().liveTranscripts?.[0].text, 'still speaking');
+  assert.equal(service.meetings[0].segments.length, 0);
+  assert.equal(service.meetings[0].inputVersion, 0);
+  const done = deferred<string>();
+  let seconds = 0;
+  const call = service.runCall(
+    id,
+    'transcribe',
+    () => done.promise,
+    () => seconds,
+  );
+  seconds = 1.25;
+  done.resolve('finished');
+  await call;
+  assert.equal(service.meetings[0].calls?.at(-1)?.audioSeconds, 1.25);
+  assert.equal(service.meetings[0].usageTotals?.audioSeconds, 1.25);
+  service.partialAudio(audio, '');
+  assert.deepEqual(service.snapshot().liveTranscripts, []);
+  service.close();
+});
 function setup(
   model: ModelPort,
   preview?: (a: Artifact) => Promise<void>,

@@ -4,7 +4,7 @@
 
 **进度入口：[当前状态](docs/status.md)；跨任务接手：[AGENTS.md](AGENTS.md) → [session 索引](docs/sessions/README.md)。** 已有 0.1.0 首版本地实现；首版结果见[验证记录](tests/results/validation.md)，后续工作树改动和新规范的接入程度以状态及对应 session 为准，不把旧测试视为当前全部通过。
 
-当前工作树已接入连续 Agent 与新会议入口，架构见 [ADR-004](docs/adr/004-live-agent-pipeline.md)，本轮证据见 [连续 Agent 验证](tests/results/live-agent-validation.md)。真实模型和转写凭证仍缺失，程序通过不等于真实会议效果达标。
+当前工作树已接入连续 Agent 与新会议入口，架构见 [ADR-004](docs/adr/004-live-agent-pipeline.md)，工程证据见 [连续 Agent 验证](tests/results/live-agent-validation.md)。2026-09-12 Windows 本地已配置 DeepSeek V4.1 Flash 与 Whisper，并通过单条合成文本／语音的实际调用及桌面启动，见 [本地启动记录](docs/sessions/2026-09-12-windows-local-start.md)。这些检查不等于真实连续会议效果达标。
 
 ## 本地启动
 
@@ -35,11 +35,13 @@ npm run format:check
 OPENAI_API_KEY=你的凭证
 MEETING_MODEL=gpt-4.1-mini
 MEETING_API_BASE=https://api.openai.com/v1
-MEETING_STT_MODEL=gpt-4o-transcribe
+MEETING_STT_MODEL=gpt-live-transcribe
 MEETING_STT_API_BASE=https://api.openai.com/v1
 ```
 
 这是可修改的默认配置，不保证账号具有对应模型权限。模型使用 Chat Completions JSON Schema；兼容服务不支持时可设置 `MEETING_RESPONSE_FORMAT=json_object`，服务仍执行本地 schema 校验。转写可单独设置 `MEETING_STT_API_KEY`。远端地址必须 HTTPS；仅本机回环地址允许 HTTP，供本地服务与测试使用。
+
+`gpt-live-transcribe` 使用可信后台到 OpenAI Realtime 的 WebSocket：24 kHz PCM、约 100 毫秒采音包；按麦克风／电脑声音独立连接。工作页显示标为“暂定”的流式转写，只有最终文本入库并进入 Agent。停顿约 600 毫秒或累计 8 秒时提交当前段落，暂停／结束也提交尾音。密钥不进入采音窗口。显式设置 `whisper-1` 等文件转写模型仍使用旧 HTTP 路径；连接失败会提示并停止本轮采音，不静默换模型。更改配置后重启应用。此次实际接入和验证见 [流式转写记录](docs/sessions/2026-09-12-live-transcribe.md)。
 
 缺STT凭证时正常开始会提示配置；缺理解模型凭证时不生成假内容。开发入口可独立测试文字、来源和保存；添加凭证后重启可恢复未处理输入。
 
@@ -58,7 +60,7 @@ MEETING_STT_API_BASE=https://api.openai.com/v1
 
 ## Agent运行参数
 
-配置示例见 `.env.example`：上下文24,000字节、单次输出2,500 tokens、每小时2,400次供应商调用／4,000,000文本tokens预算、批次合并1,500毫秒。额度是运行上限，不是承诺时延或价格。缺少用量数据会保守预留并标未知。当前转写仍是约5秒音频切片，使用每通道30秒／2MB缓冲；超限明确记录缺口，不能承诺持续过载无损。
+配置示例见 `.env.example`：上下文24,000字节、单次输出2,500 tokens、每小时2,400次供应商调用／4,000,000文本tokens预算、批次合并1,500毫秒。额度是运行上限，不是承诺时延或价格。缺少用量数据会保守预留并标未知。流式转写在每段发出前检查调用预算，完成后记录该段音频秒数；连接握手限时10秒，每段从开始到完成限时30秒。每通道待完成音频累计上限30秒，WebSocket发送积压上限2MB，超限明确记录缺口。显式文件模型仍用约5秒切片与有界队列。
 
 ## 数据与平台
 

@@ -410,12 +410,15 @@ export type Preferences = {
   shortcut: string;
 };
 export type Snapshot = {
+  liveTranscripts?: Array<{ meetingId: string; segmentId: string; channel: string; text: string }>;
   meetings: Meeting[];
   preferences: Preferences;
   capabilities: {
     developerInputs?: boolean;
     modelConfigured: boolean;
     sttConfigured: boolean;
+    sttStreaming?: boolean;
+    sttModel?: string;
     model: string;
     modelHost: string;
     sttHost: string;

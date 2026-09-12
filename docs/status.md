@@ -1,6 +1,6 @@
 # 当前状态与接手入口
 
-更新：2026-09-11 23:32（Asia/Singapore）。维护规则见 [AGENTS.md](../AGENTS.md) 与 [session 流程](sessions/README.md)。本页是工作快照，开始任务时须核对工作树和相关交接；不是实时监控。
+更新：2026-09-12（Asia/Shanghai）。维护规则见 [AGENTS.md](../AGENTS.md) 与 [session 流程](sessions/README.md)。本页是工作快照，开始任务时须核对工作树和相关交接；不是实时监控。
 
 ## 当前认知
 
@@ -20,6 +20,8 @@
 
 | 工作 | 核实到的状态 | 接手记录 |
 |---|---|---|
+| GPT Live Transcribe 接入 | 已切换并重启：44项单元／8项桌面测试与合成语音实际流式转写通过，保留DeepSeek及暂停会议；真实会议未测 | [流式转写接入](sessions/2026-09-12-live-transcribe.md)／[验证](../tests/results/live-transcription-validation.md) |
+| Windows 本地启动与供应商配置 | 完成：本地配置 DeepSeek V4.1 Flash 与 Whisper；合成文本／语音的实际 Provider 调用通过，构建成功，主窗口正常响应；真实会议未测 | [Windows 本地启动](sessions/2026-09-12-windows-local-start.md) |
 | 当前版本提交与本地重启 | 38项测试、格式／文档／构建和真实窗口检查通过；本次提交收录现有成果，本地应用已更新 | [提交与重启](sessions/2026-09-11-push-restart.md) |
 | 已认可视觉与 style.md | 生成端规范已完成；本地风格与页面整合、来源校准和文档检查完成，未改产品代码；原附件下载受 Chrome 组织策略限制 | [设计风格落地](sessions/2026-09-11-design-style.md) |
 | Agent 连续输入、增量理解、表达更新及成本控制 | 本轮本地实现完成：38项单元／架构、7项桌面及合成连续压力测试通过；macOS打包启动通过，Windows仅构建；真实供应商待验收，未提交 | [Agent 迭代](sessions/2026-09-11-agent-iteration.md)／[结果](../tests/results/live-agent-validation.md) |
@@ -30,7 +32,7 @@
 
 ## 阻塞与未确认事项
 
-- 真实模型／转写凭证在首版交付时缺失。当前配置是否变化需在获授权的实现任务中核对可用性，不读取或展示密钥值；没有新的真实结果前保持未验收。
+- 2026-09-12 Windows本地先完成DeepSeek V4.1 Flash／Whisper实调，随后已按用户要求切换为 `gpt-live-transcribe` 并通过实际流式调用；凭证仅在本地忽略配置中。连续会议语义、真实麦克风、双音轨及整体质量仍未验收，见流式转写记录。
 - 线上本机＋远端声音、多人重叠发言与归属、中英质量、真实时延／成本、Windows 真机体验仍需专门证据。
 - 入口核心逻辑已核对；首次设置仍是完整设置页，采音错误提示的重试尚未连接采音恢复。新视觉风格仍待原任务接入，不能用程序通过替代体验验收。
 - 官方比赛赛程、评分、提交方式与团队分工没有在本页发现新的核验记录；需要时回到官方材料或用户确认。

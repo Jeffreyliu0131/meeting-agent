@@ -60,7 +60,7 @@ export function configFromEnv(): ProviderConfig {
     model: process.env.MEETING_MODEL || 'gpt-4.1-mini',
     sttKey: process.env.MEETING_STT_API_KEY || process.env.OPENAI_API_KEY || '',
     sttBase: process.env.MEETING_STT_API_BASE || 'https://api.openai.com/v1',
-    sttModel: process.env.MEETING_STT_MODEL || 'gpt-4o-transcribe',
+    sttModel: process.env.MEETING_STT_MODEL || 'gpt-live-transcribe',
     format: process.env.MEETING_RESPONSE_FORMAT || 'json_schema',
     contextBytes: setting('MEETING_CONTEXT_BYTES', 24000, 8000, 48000),
     maxOutputTokens: setting('MEETING_MAX_OUTPUT_TOKENS', 2500, 500, 8000),

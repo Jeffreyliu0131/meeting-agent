@@ -6,7 +6,7 @@
 - `domain/`：状态转换、证据和精确计算；不依赖 Electron、服务或供应商。
 - `service/`：唯一业务写入者，SQLite、命令幂等、增量调度、恢复与音频接收许可。
 - `agent/`：真实模型、转写和翻译适配器。无固定答案 fallback。
-- `integrations/`：隐藏窗口的 AudioWorklet 输入、WAV、双通道、停止释放。
+- `integrations/`：隐藏窗口的 AudioWorklet 输入、双通道与停止释放；`live-transcription.ts` 在可信后台处理 Realtime WebSocket、流式暂定文本、最终结果与音频 lease 对齐。显式文件模型仍使用 WAV／HTTP 队列。
 - `renderers/`：通用表达渲染、来源校验、被动 HTML/SVG 清洗及预览标记。
 - `desktop/`：跨平台窗口、权限、IPC、托盘、菜单、快捷键及独立预览沙箱。
 - `ui/`：选定视觉方向、双语文案与可信交互。
@@ -16,3 +16,5 @@
 ## 迭代维护
 
 新增模块或改变职责时更新本文件和对应契约／技术设计；本轮具体变化与验证写入 [session](../docs/sessions/README.md)，不要在目录说明复制实时进度。本轮接入的模块包括 `agent/context.ts`、`domain/artifacts.ts`、`integrations/transcription-queue.ts`、`renderers/RelationshipGraph.tsx` 和 `ui/live.tsx`；其接入与验证以对应 session 为准。
+
+流式 STT 的当前约束与验证见 [接入记录](../docs/sessions/2026-09-12-live-transcribe.md)；`Snapshot.liveTranscripts` 仅为内存中的暂定文本，不写入会议或作为 Agent 来源。

@@ -254,6 +254,9 @@ export function errorText(locale: Locale, code: string) {
 export { extra };
 
 Object.assign(extra.en, {
+  'live.transcribing': 'Transcribing · provisional',
+  'error.TRANSCRIPTION_TIMEOUT':
+    'Live transcription timed out. Check the connection and restart audio input.',
   'live.audioPending': 'Audio excerpts queued',
   'live.processingDetails': 'Processing details',
   'live.calls': 'Provider calls',
@@ -279,6 +282,8 @@ Object.assign(extra.en, {
     'This view changed while being prepared. Retry using the latest version.',
 });
 Object.assign(extra['zh-CN'], {
+  'live.transcribing': '正在转写（暂定）',
+  'error.TRANSCRIPTION_TIMEOUT': '实时转写超时，请检查网络后重新启动音频输入。',
   'live.audioPending': '待转写片段',
   'live.processingDetails': '处理详情',
   'live.calls': '服务调用',

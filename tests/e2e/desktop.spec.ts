@@ -5,7 +5,8 @@ import {
   type ElectronApplication,
   type Page,
 } from '@playwright/test';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync } from 'node:fs';
+import { cleanupElectron } from './cleanup';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 let app: ElectronApplication, page: Page, dataDir: string;
@@ -45,12 +46,7 @@ test.beforeEach(async () => {
   await launch();
 });
 test.afterEach(async () => {
-  await app
-    ?.evaluate(({ app }) => {
-      app.exit(0);
-    })
-    .catch(() => {});
-  rmSync(dataDir, { recursive: true, force: true });
+  await cleanupElectron(app, dataDir);
 });
 test('real Electron: event, manual original source, honest missing model, correction, UI locale, end and restore', async () => {
   await page.getByText('Development tools', { exact: true }).click();

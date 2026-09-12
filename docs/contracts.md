@@ -180,3 +180,5 @@ Decision保存`id, scope: personal|meeting, targetSnapshot, evidenceRefs, confir
 实际schema见 `src/contracts/model.ts`，工作流见 [ADR-004](adr/004-live-agent-pipeline.md)。Proposal增加互斥的patch／plan与有来源的titleProposal；来源增加输入version、采集起止时间、通道序号与可选requestContext。Meeting保存processedSources、独立expressionJobs、调用账目、标题来源／修订、音频偏好快照与实际设备。Preferences保存system语言选择与audio设置，旧数据保守迁移。
 
 桌面startMeeting意图由可信层解析设置、幂等创建与启动采集。个人请求保留绑定产物revision，生成个人对象不覆盖会议语义。历史产物仍为完整不可变快照，增量传输使用按块patch；来源／对象／关系依赖决定过期，普通新增发言不自动让无关内容过期。
+
+2026-09-12 流式 STT：`Snapshot.capabilities` 增加 `sttModel`／`sttStreaming`，`Snapshot.liveTranscripts` 携带会议ID、段落ID、音源和暂定文字，只在内存及可信 UI 中展示，不写入 Meeting 或 Agent 上下文。采音窗口仍走窄 `audio` IPC，但 Live 模式为24 kHz／约100ms PCM包装；服务端按会议、epoch、通道维护独立 WebSocket。`audioDrain` 仅由可信 main 发给 worker，用于提交尾音、等待已接受段落完成并关闭连接。最终转写沿用 `completeAudio` 与来源 lease，时间来自本机采集区间，身份保持未知。

@@ -9,6 +9,8 @@
 
 ## 新一轮结果归属
 
+2026-09-12：[GPT Live Transcribe Windows验证](live-transcription-validation.md)记录本轮44项单元、8项桌面测试与合成语音的真实流式调用，不替代真实会议验收。
+
 每轮结果注明执行日期、环境、命令、对应 Git 基线及未提交范围，链接到 [session](../../docs/sessions/README.md) 和 [状态页](../../docs/status.md)。同日多轮不得混成一个“本轮通过”。保留旧证据，新增结果标明替代范围；单独出现的 JSON／截图不自动成为全产品通过结论。
 
 本次文档治理仅运行静态文档检查，结果见[治理记录](../../docs/sessions/2026-09-11-project-continuity.md)，没有重跑首版产品测试。正在执行的 Agent 评估以对应任务最终结果为准。

@@ -39,7 +39,7 @@ function wav(samples: Float32Array, rate: number) {
     v.setInt16(44 + i * 2, Math.max(-1, Math.min(1, samples[i])) * 32767, true);
   return new Uint8Array(bytes);
 }
-window.meeting.onCapture(async ({ action, meetingId, epoch, mode, deviceId }: any) => {
+window.meeting.onCapture(async ({ action, meetingId, epoch, mode, deviceId, streaming }: any) => {
   if (action === 'drain') {
     await Promise.all(flushers.map((flush) => flush()));
     stop();
@@ -55,6 +55,7 @@ window.meeting.onCapture(async ({ action, meetingId, epoch, mode, deviceId }: an
     await window.meeting.call('captureError', { meetingId, epoch, code });
   };
   try {
+    const starters: Array<() => Promise<void>> = [];
     const streams: Array<{ stream: MediaStream; channel: string }> = [];
     const microphone = await navigator.mediaDevices.getUserMedia({
       audio: {
@@ -81,18 +82,21 @@ window.meeting.onCapture(async ({ action, meetingId, epoch, mode, deviceId }: an
       streams.push({ stream: system, channel: 'system_audio' });
     }
     for (const { stream, channel } of streams) {
-      const ctx = new AudioContext({ sampleRate: 16000 });
+      const ctx = new AudioContext({ sampleRate: streaming ? 24000 : 16000 });
       cleanup.push(() => void ctx.close());
+      await ctx.suspend();
       await ctx.audioWorklet.addModule('./pcm-worklet.js');
       if (gen !== generation) {
         await ctx.close();
         return;
       }
       const source = ctx.createMediaStreamSource(new MediaStream(stream.getAudioTracks()));
-      const node = new AudioWorkletNode(ctx, 'pcm-recorder');
+      const node = new AudioWorkletNode(ctx, 'pcm-recorder', {
+        processorOptions: { chunkMs: streaming ? 100 : 5000 },
+      });
       source.connect(node);
       node.connect(ctx.destination);
-      const captureOrigin = Date.now() - ctx.currentTime * 1000;
+      let captureOrigin = Date.now() - ctx.currentTime * 1000;
       let channelSequence = 0;
       let flushed: (() => void) | null = null;
       flushers.push(
@@ -100,7 +104,7 @@ window.meeting.onCapture(async ({ action, meetingId, epoch, mode, deviceId }: an
           new Promise<void>((resolve) => {
             flushed = resolve;
             node.port.postMessage('flush');
-            setTimeout(resolve, 250);
+            setTimeout(resolve, 1500);
           }),
       );
       node.port.onmessage = async ({
@@ -119,7 +123,7 @@ window.meeting.onCapture(async ({ action, meetingId, epoch, mode, deviceId }: an
           return;
         }
         const rms = Math.sqrt(data.reduce((sum, x) => sum + x * x, 0) / data.length);
-        if (rms < 0.0002) {
+        if (!streaming && rms < 0.0002) {
           finish?.();
           return;
         }
@@ -150,7 +154,10 @@ window.meeting.onCapture(async ({ action, meetingId, epoch, mode, deviceId }: an
       stream
         .getTracks()
         .forEach((track) => track.addEventListener('ended', () => void fail('INPUT_DISCONNECTED')));
-      await ctx.resume();
+      starters.push(async () => {
+        captureOrigin = Date.now() - ctx.currentTime * 1000;
+        await ctx.resume();
+      });
     }
     if (gen !== generation) return;
     const track = microphone.getAudioTracks()[0];
@@ -180,6 +187,7 @@ window.meeting.onCapture(async ({ action, meetingId, epoch, mode, deviceId }: an
       actualDevice: { deviceId: track.getSettings().deviceId ?? 'default', label: track.label },
     });
     if (!ready.ok) stop();
+    else if (gen === generation) await Promise.all(starters.map((start) => start()));
   } catch (error) {
     await fail(
       error instanceof DOMException &&
