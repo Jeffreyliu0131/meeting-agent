@@ -1,4 +1,4 @@
-import { collaborationCommand, refreshCollaboration } from './intentPreparation';
+import { collaborationCommand, refreshCollaboration } from './intent-preparation';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import {

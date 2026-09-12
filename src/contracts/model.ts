@@ -1,6 +1,6 @@
 import { EvidenceRequest } from './workflow';
 import { z } from 'zod';
-import { CollaborationProposal } from './intentPreparation';
+import { CollaborationProposal } from './intent-preparation';
 export const Locale = z.enum(['en', 'zh-CN']);
 export type Locale = z.infer<typeof Locale>;
 const id = z
@@ -404,7 +404,7 @@ export type ExpressionJob = {
   updateKind: 'patch' | 'create' | 'restructure';
 };
 export type Meeting = {
-  intentPreparation?: import('./intentPreparation').IntentPreparationState;
+  intentPreparation?: import('./intent-preparation').IntentPreparationState;
   clarifications?: Array<{
     id: string;
     key: string;
