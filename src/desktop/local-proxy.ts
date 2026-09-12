@@ -97,29 +97,30 @@ export async function startLocalProxy(
   if (!keys.DEEPSEEK_API_KEY && !keys.OPENAI_API_KEY)
     return { started: false, reason: 'PROVIDER_KEYS_MISSING' };
 
-  // Antivirus HTTPS scanning re-signs TLS; Python needs the Windows store
-  // exported as a bundle. start.ps1 writes this file. Absent elsewhere, and
-  // harmless on macOS where the interception does not happen.
-  const caBundle = join(dir, 'windows-cas.pem');
+  // Generated on demand rather than assumed: a fresh clone has no bundle, and
+  // without it the failure surfaces as an opaque CERTIFICATE_VERIFY_FAILED.
+  const caBundle = await ensureCaBundle(dir);
+  if (caBundle) log('Python TLS will trust the Windows certificate store');
+
+  const launcher = await resolveLitellm(dir, log);
+  if ('error' in launcher) return { started: false, reason: launcher.error };
 
   try {
     child = spawn(
-      'litellm',
+      launcher.command,
       // Relative config path with cwd set: no quoting problems with spaces, and
       // the same arguments work on both platforms.
       ['--config', 'config.yaml', '--host', '127.0.0.1', '--port', String(port)],
       {
         cwd: dir,
         // .cmd shims need a shell on Windows; the binary is directly runnable elsewhere.
-        shell: process.platform === 'win32',
+        shell: launcher.shell,
         stdio: ['ignore', 'pipe', 'pipe'],
         env: {
           ...process.env,
           ...keys,
           PYTHONUTF8: '1',
-          ...(existsSync(caBundle)
-            ? { SSL_CERT_FILE: caBundle, REQUESTS_CA_BUNDLE: caBundle }
-            : {}),
+          ...(caBundle ? { SSL_CERT_FILE: caBundle, REQUESTS_CA_BUNDLE: caBundle } : {}),
         },
       },
     );
@@ -144,6 +145,110 @@ export async function startLocalProxy(
   }
   stopLocalProxy();
   return { started: false, reason: 'PROXY_UNHEALTHY' };
+}
+
+const isWindows = process.platform === 'win32';
+
+function run(
+  command: string,
+  args: string[],
+  cwd: string,
+  log: (message: string) => void,
+): Promise<boolean> {
+  return new Promise((resolve) => {
+    const child = spawn(command, args, { cwd, stdio: 'ignore' });
+    child.on('exit', (code) => resolve(code === 0));
+    child.on('error', () => resolve(false));
+  });
+}
+
+function venvBinary(dir: string, name: string): string {
+  return isWindows
+    ? join(dir, '.venv', 'Scripts', `${name}.exe`)
+    : join(dir, '.venv', 'bin', name);
+}
+
+/**
+ * Finds litellm, installing it into a PRIVATE venv if it is nowhere to be found.
+ *
+ * A venv rather than a system install on purpose: current macOS ships a
+ * Homebrew Python that refuses `pip install` outright with
+ * externally-managed-environment (PEP 668), so a "just pip install it" would
+ * fail on exactly the platform this needs to work on. A venv under the proxy
+ * directory also cannot disturb whatever else the machine uses Python for.
+ *
+ * An existing PATH install is preferred and left alone, so a machine that
+ * already has it (the Windows dev box) is not rebuilt.
+ */
+async function resolveLitellm(
+  dir: string,
+  log: (message: string) => void,
+): Promise<{ command: string; shell: boolean } | { error: string }> {
+  const local = venvBinary(dir, 'litellm');
+  if (existsSync(local)) return { command: local, shell: false };
+
+  const probe = await run(isWindows ? 'litellm' : 'litellm', ['--version'], dir, log);
+  if (probe) return { command: 'litellm', shell: isWindows };
+
+  log('litellm not found - creating a private virtualenv (first run only, ~1 minute)');
+  const python = isWindows ? 'python' : 'python3';
+  if (!(await run(python, ['-m', 'venv', '.venv'], dir, log)))
+    return { error: 'VENV_CREATE_FAILED' };
+
+  log('installing litellm[proxy] into .venv');
+  const venvPython = venvBinary(dir, 'python');
+  if (!(await run(venvPython, ['-m', 'pip', 'install', '--quiet', 'litellm[proxy]'], dir, log)))
+    return { error: 'PIP_INSTALL_FAILED' };
+
+  if (!existsSync(local)) return { error: 'LITELLM_MISSING_AFTER_INSTALL' };
+  log('litellm installed');
+  return { command: local, shell: false };
+}
+
+/**
+ * Antivirus HTTPS scanning re-signs TLS with its own root CA. curl reads the
+ * Windows store and works; Python reads the bundled certifi list and fails with
+ * CERTIFICATE_VERIFY_FAILED - a message that says nothing about the real cause.
+ * Exporting the store and pointing Python at it keeps verification ON, unlike
+ * ssl_verify=false.
+ *
+ * Windows-only by nature: macOS has no store to export and does not need this.
+ * Generated on demand so a fresh clone works with no manual step.
+ */
+async function ensureCaBundle(dir: string): Promise<string | null> {
+  const bundle = join(dir, 'windows-cas.pem');
+  if (existsSync(bundle)) return bundle;
+  if (process.platform !== 'win32') return null;
+
+  const script = [
+    '$sb = New-Object System.Text.StringBuilder',
+    "foreach ($s in 'Cert:\\LocalMachine\\Root','Cert:\\LocalMachine\\CA') {",
+    '  Get-ChildItem $s -ErrorAction SilentlyContinue | ForEach-Object {',
+    '    [void]$sb.AppendLine("# $($_.Subject)")',
+    "    [void]$sb.AppendLine('-----BEGIN CERTIFICATE-----')",
+    '    $b64 = [Convert]::ToBase64String($_.RawData)',
+    '    for ($i=0; $i -lt $b64.Length; $i+=64) { [void]$sb.AppendLine($b64.Substring($i,[Math]::Min(64,$b64.Length-$i))) }',
+    "    [void]$sb.AppendLine('-----END CERTIFICATE-----')",
+    '  }',
+    '}',
+    '[IO.File]::WriteAllText($env:MEETING_CA_OUT, $sb.ToString())',
+  ].join('\n');
+
+  await new Promise<void>((resolve) => {
+    const ps = spawn(
+      'powershell',
+      // -Command rather than a script file, so no execution-policy flag is needed.
+      ['-NoProfile', '-NonInteractive', '-Command', script],
+      { env: { ...process.env, MEETING_CA_OUT: bundle }, stdio: 'ignore' },
+    );
+    ps.on('exit', () => resolve());
+    ps.on('error', () => resolve());
+  });
+
+  if (existsSync(bundle)) return bundle;
+  // Not fatal: without a bundle the proxy still starts. The upstream calls are
+  // what fail, and their error is reported through the normal call path.
+  return null;
 }
 
 /** Idempotent, and safe to call from a process-exit handler. */

@@ -44,9 +44,19 @@ for name in DEEPSEEK_API_KEY OPENAI_API_KEY; do
   printf 'Loaded %s %s...%s  (%d chars)\n' "$name" "${v:0:6}" "${v: -4}" "${#v}"
 done
 
-if ! command -v litellm >/dev/null 2>&1; then
-  echo "litellm not found - installing litellm[proxy]..." >&2
-  python3 -m pip install "litellm[proxy]"
+# Prefer a PATH install; otherwise build a PRIVATE venv. A system-wide
+# `pip install` fails outright on current macOS, whose Homebrew Python refuses
+# it with externally-managed-environment (PEP 668).
+litellm_bin=""
+if [ -x "$here/.venv/bin/litellm" ]; then
+  litellm_bin="$here/.venv/bin/litellm"
+elif command -v litellm >/dev/null 2>&1; then
+  litellm_bin="$(command -v litellm)"
+else
+  echo "litellm not found - creating a private virtualenv (first run only)..." >&2
+  python3 -m venv "$here/.venv"
+  "$here/.venv/bin/python" -m pip install --quiet "litellm[proxy]"
+  litellm_bin="$here/.venv/bin/litellm"
 fi
 
 echo
@@ -58,4 +68,4 @@ echo
 echo "Ctrl+C to stop."
 echo
 
-exec litellm --config "$here/config.yaml" --host 127.0.0.1 --port "$port"
+exec "$litellm_bin" --config "$here/config.yaml" --host 127.0.0.1 --port "$port"
