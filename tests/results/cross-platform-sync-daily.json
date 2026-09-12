@@ -1,0 +1,30 @@
+{
+  "ranAt": "2026-09-12T02:39:39.503Z",
+  "events": 0,
+  "dataDirectory": "~/Library/Application Support/Meeting Agent",
+  "workspaceVisible": true,
+  "rawAudioCaptured": false,
+  "realModel": false,
+  "meetingCountBefore": 0,
+  "meetingCountAfter": 0,
+  "startupStateChange": {
+    "uiLocale": "zh-CN",
+    "defaultOutputLocale": "zh-CN",
+    "keyOrder": [
+      "uiLocale",
+      "defaultOutputLocale",
+      "reduceMotion",
+      "reduceTransparency",
+      "shortcut",
+      "uiLanguage",
+      "defaultOutputLanguage",
+      "audio"
+    ]
+  },
+  "savedUserChoicesUnchanged": true,
+  "resolvedLocaleChange": {
+    "before": "zh-CN",
+    "after": "en",
+    "reason": "Existing system-following preferences resolved using this Mac locale; original serialized hash reconstructed exactly."
+  }
+}

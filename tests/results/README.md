@@ -29,3 +29,5 @@ Agent三项可靠性迭代：[验证结果](agent-reliability-validation.md)／[
 - [Agent工作流验证与交付表](agent-workflow-validation.md)：W1–W6、AC01–25、合成测试／真实效果边界；[离线语义评分清单](workflow-semantic-rubric.json)不包含真实模型结果。
 
 - [Agent工作流独立验收与GitHub交付](agent-workflow-acceptance-review.md)：独立反例、修正、最终检查与提交边界；优先于实现阶段81项记录。
+
+- [Mac／Windows本地包同步](cross-platform-sync-validation.md)：当前release双端包统一、11项桌面回归、Mac日常启动与事件库核对；Windows真机仍未验收。

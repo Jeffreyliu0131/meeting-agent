@@ -1,0 +1,13 @@
+{
+  "ranAt": "2026-09-12T02:38:03.676Z",
+  "passed": 11,
+  "failed": 0,
+  "flaky": 0,
+  "skipped": 0,
+  "durationMs": 55935.326,
+  "platform": "macOS arm64",
+  "electron": "44.3.0",
+  "sourceCommit": "9b6886d",
+  "realModel": false,
+  "realAudio": false
+}

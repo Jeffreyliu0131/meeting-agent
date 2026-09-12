@@ -6,7 +6,7 @@
 
 连续 Agent 与新会议入口已纳入基线 `3f6279a`；前端改造已完成独立本地验证，见[前端记录](docs/sessions/2026-09-11-frontend-refresh.md)。架构见 [ADR-004](docs/adr/004-live-agent-pipeline.md)，本轮证据见 [连续 Agent 验证](tests/results/live-agent-validation.md)。真实模型和转写凭证仍缺失，程序通过不等于真实会议效果达标。
 
-本地macOS应用已于2026-09-12按`38c70b1`源码更新，新界面与原历史记录已实际核对。应用位置为 `release/mac-arm64/Meeting Agent.app`；检查范围见[前端与包验证](tests/results/frontend-refresh-validation.md)。随后[桌面小图标与五态](docs/design/launcher.md)又完成本地更新，其代码已随120f77c提交推送，验证见[图标结果](tests/results/launcher-validation.md)。Git源码同步与本地应用打包是两步，当前源码提交不自动更新其他机器已有的应用包。
+本地Mac arm64与Windows x64目录包已于2026-09-12同步至`9b6886d`产品源码：两端14个构建文件及app.asar完全一致，11项桌面回归和Mac实际启动通过，见[同步验证](tests/results/cross-platform-sync-validation.md)。Mac应用已更新并打开；Windows真机尚未验收，也未远程替换其他机器的安装。Git源码同步与本地应用打包是两步，代码提交不会自动更新已有应用。
 
 ## 本地启动
 
@@ -69,7 +69,7 @@ MEETING_STT_API_BASE=https://api.openai.com/v1
 - macOS：`~/Library/Application Support/Meeting Agent/`
 - Windows：`%APPDATA%/Meeting Agent/`
 
-测试使用独立临时目录。数据未加密，随本机账号权限保护；尚无应用内删除功能，可在退出后由用户管理数据目录。供应商保留政策取决于实际账号，不能把本地不录音解释为云端零留存。
+各机器的会议数据库独立，不随Git或应用包自动同步；新库默认无会议，测试事件不会自动注入日常首页。测试使用独立临时目录。数据未加密，随本机账号权限保护；尚无应用内删除功能，可在退出后由用户管理数据目录。供应商保留政策取决于实际账号，不能把本地不录音解释为云端零留存。
 
 ```sh
 npm run pack:mac     # 在 macOS 构建应用目录
