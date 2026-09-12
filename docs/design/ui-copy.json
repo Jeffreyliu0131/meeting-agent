@@ -86,7 +86,10 @@
     "settings.reminderHelp": "Recording starts only when you click the reminder.",
     "launcher.show": "Show desktop launcher",
     "launcher.hide": "Hide desktop launcher",
-    "settings.notificationUnavailable": "System notifications could not be shown. Check this app’s notification settings."
+    "settings.notificationUnavailable": "System notifications could not be shown. Check this app’s notification settings.",
+    "settings.done": "Done",
+    "settings.saving": "Saving…",
+    "settings.autoSaved": "Changes are saved automatically."
   },
   "zh-CN": {
     "app.name": "Meeting Agent",
@@ -169,6 +172,9 @@
     "settings.reminderHelp": "只有点击提醒后才会开始记录。",
     "launcher.show": "显示桌面悬浮球",
     "launcher.hide": "隐藏桌面悬浮球",
-    "settings.notificationUnavailable": "系统通知未能显示，请检查此应用的通知设置。"
+    "settings.notificationUnavailable": "系统通知未能显示，请检查此应用的通知设置。",
+    "settings.done": "完成",
+    "settings.saving": "正在保存…",
+    "settings.autoSaved": "更改会自动保存。"
   }
 }

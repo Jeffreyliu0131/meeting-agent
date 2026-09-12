@@ -54,7 +54,7 @@ MEETING_STT_API_BASE=https://api.openai.com/v1
 5. 参数试算由确定性计算器执行；会议条件改变时保留草稿基线，用户明确选择才采用新条件。会议决定仍需填写依据和确认范围。
 6. 结束释放设备，已接受内容继续整理；重启只恢复内容，不自动录音。导出JSON保留原话和版本。
 
-新安装默认读取macOS／Windows的首选系统语言，中文系统使用简体中文，其余英文；设置选择界面语言后立即生效并自动保存，其他未保存偏好保留草稿。新会议输出语言保存快照，不随界面设置漂移。旧偏好保守保留已有语言。
+新安装默认读取macOS／Windows的首选系统语言，中文系统使用简体中文，其余英文；设置各字段修改后立即自动保存，悬浮球开关即时可见；快捷键停止输入后自动保存，底部“完成”仅关闭。失败会回到已保存值并提示重试。新会议输出语言保存快照，不随界面设置漂移。旧偏好保守保留已有语言。
 
 开发测试可在可信进程设置 `MEETING_DEV_INPUTS=1` 后重启，首页的 Development tools 才显示文字／synthetic replay入口。普通用户流程不显示这些模式，无凭证也不会返回假模型结果。
 
@@ -101,8 +101,11 @@ npm run pack:win     # 在 Windows 构建应用目录
 
 当前本地实现采用LangGraph JS 1.4.14，支持本会议主动检索、独立个人推演、持久提案／任务恢复、澄清与表达修复。运行方式不变；完整实现与限制见[运行时说明](docs/agent-workflow-runtime.md)，逐项结果见[工作流验证](tests/results/agent-workflow-validation.md)。离线人工评分清单：`node --import tsx scripts/workflow-eval.ts`（零模型调用）。不要将`test:model`误作免费离线检查。
 
-最新本地包：两端release已按[会议候选提醒](docs/sessions/2026-09-12-meeting-reminder.md)更新到提醒源码5c7c0a5；14个构建文件和app.asar一致。99单元／19桌面与Mac包隔离检查通过，Windows真机及两端真实系统通知投递待验；真实检测器尚未接入。此前91962b9界面源码已推送，本轮交付见[PR #1](https://github.com/Jeffreyliu0131/meeting-agent/pull/1)。
+提醒阶段本地包：两端release已按[会议候选提醒](docs/sessions/2026-09-12-meeting-reminder.md)更新到提醒源码5c7c0a5；14个构建文件和app.asar一致。99单元／19桌面与Mac包隔离检查通过，Windows真机及两端真实系统通知投递待验；真实检测器尚未接入。此前91962b9界面源码已推送，本轮交付见[PR #1](https://github.com/Jeffreyliu0131/meeting-agent/pull/1)。
 
 ## 会议候选提醒
 
 已接入[双语提醒链路](docs/meeting-reminder-spec.md)：球可见时气泡，隐藏时系统通知，点击才开始记录。显示设置可隐藏球，托盘可恢复，已有记录继续。当前没有生产会议检测器，正常运行不会自动产生候选；本轮验证使用合成信号。未正式签名的Mac本地包及未注册的Windows目录包，均不能据此保证系统通知投递。实现与验证见[本轮记录](docs/sessions/2026-09-12-meeting-reminder.md)。
+
+
+最新设置源码a47cf8c通过[PR #2](https://github.com/Jeffreyliu0131/meeting-agent/pull/2)交付；两端本地包同源，Windows代码／构建核对通过。详情见[即时生效记录](docs/sessions/2026-09-12-settings-autosave.md)，真机不在用户本轮要求内。

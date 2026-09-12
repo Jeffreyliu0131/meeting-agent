@@ -47,3 +47,29 @@ export function resolvePreferences(value: Preferences, system: string): Preferen
     },
   };
 }
+
+export const PreferencesPatchSchema = PreferencesSchema.partial()
+  .extend({ audio: AudioPreferences.partial().optional() })
+  .strict();
+export type PreferencesPatch = z.infer<typeof PreferencesPatchSchema>;
+export function mergePreferences(current: Preferences, patch: PreferencesPatch): Preferences {
+  const { audio, ...fields } = patch;
+  return {
+    ...current,
+    ...fields,
+    audio: audio
+      ? {
+          ...(current.audio ?? {
+            deviceId: 'default',
+            deviceLabel: '',
+            includeComputerAudio: false,
+            setupCompleted: false,
+          }),
+          ...audio,
+        }
+      : current.audio,
+  };
+}
+export function patchPreferences(current: Preferences, raw: unknown, system: string): Preferences {
+  return resolvePreferences(mergePreferences(current, PreferencesPatchSchema.parse(raw)), system);
+}

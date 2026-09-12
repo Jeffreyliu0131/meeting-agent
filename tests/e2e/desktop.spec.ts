@@ -98,7 +98,7 @@ test('real Electron: event, manual original source, honest missing model, correc
     .click();
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByLabel('Interface language', { exact: true }).selectOption('zh-CN');
-  await page.getByRole('button', { name: '保存设置', exact: true }).click();
+  await page.getByRole('button', { name: '完成', exact: true }).click();
   await expect(page.getByRole('button', { name: '结束会议' })).toBeVisible();
   await page.getByRole('button', { name: '结束会议' }).click();
   await expect(page.getByText('会议已结束', { exact: true }).first()).toBeVisible();
@@ -258,7 +258,7 @@ test('meeting library filters, search recovery and settings keyboard loop', asyn
   await expect
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
     .toBe(true);
-  await expect(dialog.getByRole('button', { name: 'Save settings', exact: true })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: 'Done', exact: true })).toBeVisible();
   await expect
     .poll(() =>
       page.evaluate(() => {
@@ -288,8 +288,8 @@ test('meeting library filters, search recovery and settings keyboard loop', asyn
   );
 
   await dialog.getByRole('button', { name: 'Close', exact: true }).press('Shift+Tab');
-  await expect(dialog.getByRole('button', { name: 'Save settings', exact: true })).toBeFocused();
-  await dialog.getByRole('button', { name: 'Save settings', exact: true }).press('Escape');
+  await expect(dialog.getByRole('button', { name: 'Done', exact: true })).toBeFocused();
+  await dialog.getByRole('button', { name: 'Done', exact: true }).press('Escape');
   await expect(dialog).toBeHidden();
   await expect(page.getByRole('button', { name: 'Settings', exact: true })).toBeFocused();
 });

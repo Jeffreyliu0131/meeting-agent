@@ -6,6 +6,7 @@
 
 | 记录 | 类型／状态 | 主要内容 |
 |---|---|---|
+| [设置即时生效](2026-09-12-settings-autosave.md) | 代码／双端包已同步，[PR #2](https://github.com/Jeffreyliu0131/meeting-agent/pull/2) | 104单元、22桌面＋收尾6专项；Mac日常进程已更新，Windows运行待验 |
 | [会议候选提醒](2026-09-12-meeting-reminder.md) | 提醒代码／双端包已同步，[PR #1](https://github.com/Jeffreyliu0131/meeting-agent/pull/1) | 99单元／19桌面与Mac包通过；真实检测待接入、系统投递／Windows真机待验 |
 | [界面语言与交互打磨](2026-09-12-interface-polish.md) | 代码／两端本地包已同步，91962b9已推送；Windows运行待验 | 跟随系统、即时保存及交互细节；86单元／14桌面、Mac包验证通过 |
 | [Mac／Windows本地包同步](2026-09-12-cross-platform-sync.md) | 本地同步及推送完成，Windows真机待验 | 两端14个文件及app.asar一致；11项桌面通过；同步证据06f57d2已推送，日常库0事件 |

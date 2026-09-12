@@ -1,3 +1,5 @@
+import { PreferenceWriter } from './preference-writer';
+import type { PreferencesPatch } from '../domain/preferences';
 import { X, Mic, Languages, SlidersHorizontal, BookOpen, Clock3, ChevronRight } from 'lucide-react';
 import React, { useEffect, useState, useRef } from 'react';
 import type { Snapshot, Meeting, Ref, Segment, Formula, Preferences } from '../contracts/model';
@@ -157,49 +159,57 @@ export function Settings({
   snapshot,
   t,
   close,
-  save,
+  savePatch,
   current,
   changeOutput,
-  changeInterface,
 }: {
   preferences: Preferences;
   setupOnly?: boolean;
   snapshot: Snapshot;
   t: (s: string) => string;
   close: () => void;
-  save: (p: Preferences, keepOpen?: boolean) => Promise<any>;
+  savePatch: (p: PreferencesPatch) => Promise<Preferences>;
   current?: Meeting;
   changeOutput: (l: string) => Promise<any>;
-  changeInterface: (language: NonNullable<Preferences['uiLanguage']>) => Promise<any>;
 }) {
-  const [draft, setDraft] = useState(preferences),
-    [platform, setPlatform] = useState<any>(null),
+  const [writer] = useState(() => new PreferenceWriter(preferences, savePatch));
+  const [, refresh] = useState(0);
+  const draft = writer.value;
+  const [platform, setPlatform] = useState<any>(null),
     [devices, setDevices] = useState<Array<{ deviceId: string; label: string }>>([]),
     [audioError, setAudioError] = useState('');
-  const [languageBusy, setLanguageBusy] = useState(false),
-    [languageError, setLanguageError] = useState('');
-  const languagePending = useRef(false);
+  const shortcutTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const shortcutDirty = useRef(false),
+    shortcutValue = useRef(preferences.shortcut);
+  const [shortcut, setShortcut] = useState(preferences.shortcut);
+  const [shortcutWaiting, setShortcutWaiting] = useState(false);
+  useEffect(() => writer.subscribe(() => refresh((v) => v + 1)), [writer]);
+  useEffect(() => writer.receive(preferences), [writer, preferences]);
   useEffect(() => {
-    // Refresh only committed language fields; audio/display/shortcut drafts belong to the user.
-    setDraft((previous) => ({
-      ...previous,
-      uiLanguage: preferences.uiLanguage,
-      uiLocale: preferences.uiLocale,
-    }));
-  }, [preferences.uiLanguage, preferences.uiLocale]);
-  const selectInterface = async (language: NonNullable<Preferences['uiLanguage']>) => {
-    if (languagePending.current) return;
-    languagePending.current = true;
-    setLanguageBusy(true);
-    setLanguageError('');
-    try {
-      await changeInterface(language);
-    } catch (error) {
-      setLanguageError((error as Error).message);
-    } finally {
-      languagePending.current = false;
-      setLanguageBusy(false);
+    if (!shortcutDirty.current) {
+      setShortcut(draft.shortcut);
+      shortcutValue.current = draft.shortcut;
     }
+  }, [draft.shortcut]);
+  useEffect(() => () => clearTimeout(shortcutTimer.current), []);
+  const change = (patch: PreferencesPatch) => {
+    void writer.change(patch);
+  };
+  const submitShortcut = () => {
+    clearTimeout(shortcutTimer.current);
+    setShortcutWaiting(false);
+    if (!shortcutDirty.current) return;
+    shortcutDirty.current = false;
+    change({ shortcut: shortcutValue.current.trim() });
+  };
+  const finish = async (completeSetup = false) => {
+    const alreadyFailed = !!writer.error;
+    submitShortcut();
+    if (!(await writer.flush()) && !alreadyFailed) return;
+    if (completeSetup && setupOnly && !writer.value.audio?.setupCompleted) {
+      if (!(await writer.change({ audio: { setupCompleted: true } }))) return;
+    }
+    close();
   };
   const [activeSection, setActiveSection] = useState('settings-audio');
   const sections = useRef<HTMLDivElement>(null);
@@ -216,7 +226,7 @@ export function Settings({
   return (
     <Modal
       title={t(setupOnly ? 'entry.audioSetup' : 'settings.open')}
-      close={close}
+      close={() => void finish()}
       className={`settings-modal ${setupOnly ? 'audio-setup-modal' : ''}`}
     >
       <p className="settings-intro">{t(setupOnly ? 'design.setupHint' : 'design.settingsHint')}</p>
@@ -267,12 +277,10 @@ export function Settings({
               <select
                 value={draft.audio?.deviceId ?? 'default'}
                 onChange={(e) =>
-                  setDraft({
-                    ...draft,
+                  change({
                     audio: {
                       deviceId: e.target.value,
                       deviceLabel: devices.find((d) => d.deviceId === e.target.value)?.label ?? '',
-                      includeComputerAudio: draft.audio?.includeComputerAudio ?? false,
                       setupCompleted: true,
                     },
                   })
@@ -300,14 +308,8 @@ export function Settings({
                 type="checkbox"
                 checked={draft.audio?.includeComputerAudio ?? false}
                 onChange={(e) =>
-                  setDraft({
-                    ...draft,
-                    audio: {
-                      deviceId: draft.audio?.deviceId ?? 'default',
-                      deviceLabel: draft.audio?.deviceLabel ?? '',
-                      includeComputerAudio: e.target.checked,
-                      setupCompleted: true,
-                    },
+                  change({
+                    audio: { includeComputerAudio: e.target.checked, setupCompleted: true },
                   })
                 }
               />
@@ -324,22 +326,11 @@ export function Settings({
                   {t('entry.currentDevice')}: {current.actualDevice?.label || t('entry.defaultMic')}
                 </p>
                 <button
-                  disabled={languageBusy}
+                  disabled={writer.busy || shortcutWaiting}
                   onClick={async () => {
                     try {
-                      const saved = await save(
-                        {
-                          ...draft,
-                          audio: {
-                            deviceId: draft.audio?.deviceId ?? 'default',
-                            deviceLabel: draft.audio?.deviceLabel ?? '',
-                            includeComputerAudio: draft.audio?.includeComputerAudio ?? false,
-                            setupCompleted: true,
-                          },
-                        },
-                        true,
-                      );
-                      if (saved !== true) return;
+                      submitShortcut();
+                      if (!(await writer.flush())) return;
                       await api('applyAudioSettings');
                       close();
                     } catch (e) {
@@ -363,12 +354,14 @@ export function Settings({
                   {t('settings.interfaceLanguage')}
                   <select
                     aria-label={t('settings.interfaceLanguage')}
-                    value={preferences.uiLanguage ?? preferences.uiLocale}
+                    value={draft.uiLanguage ?? draft.uiLocale}
                     aria-describedby="interface-language-hint"
-                    aria-busy={languageBusy}
-                    aria-disabled={languageBusy}
+                    aria-busy={writer.busy}
+                    aria-disabled={writer.busy || shortcutWaiting}
                     onChange={(e) =>
-                      void selectInterface(e.target.value as NonNullable<Preferences['uiLanguage']>)
+                      change({
+                        uiLanguage: e.target.value as NonNullable<Preferences['uiLanguage']>,
+                      })
                     }
                   >
                     <option value="system">{t('entry.system')}</option>
@@ -377,21 +370,14 @@ export function Settings({
                   </select>
                 </label>
                 <p id="interface-language-hint" className="settings-field-hint" role="status">
-                  {t(languageBusy ? 'design.languageSaving' : 'design.languageImmediate')}
+                  {t('design.languageImmediate')}
                 </p>
-                {languageError && (
-                  <p className="error-text selectable-text" role="alert">
-                    {errorText(preferences.uiLocale, languageError)}
-                  </p>
-                )}
                 <label>
                   {t('settings.defaultOutputLanguage')}
                   <select
                     aria-label={t('settings.defaultOutputLanguage')}
                     value={draft.defaultOutputLanguage ?? draft.defaultOutputLocale}
-                    onChange={(e) =>
-                      setDraft({ ...draft, defaultOutputLanguage: e.target.value as any })
-                    }
+                    onChange={(e) => change({ defaultOutputLanguage: e.target.value as any })}
                   >
                     <option value="system">{t('entry.system')}</option>
                     <option value="en">English</option>
@@ -403,7 +389,12 @@ export function Settings({
                     {t('settings.outputLanguage')}
                     <select
                       value={current.outputLocale}
-                      onChange={(e) => void changeOutput(e.target.value)}
+                      onChange={(e) => {
+                        setAudioError('');
+                        void changeOutput(e.target.value).catch((error) =>
+                          setAudioError(error.message),
+                        );
+                      }}
                     >
                       <option value="en">English</option>
                       <option value="zh-CN">简体中文</option>
@@ -420,7 +411,7 @@ export function Settings({
                   <input
                     type="checkbox"
                     checked={draft.launcherVisible ?? true}
-                    onChange={(e) => setDraft({ ...draft, launcherVisible: e.target.checked })}
+                    onChange={(e) => change({ launcherVisible: e.target.checked })}
                   />
                   {t('settings.launcherVisible')}
                 </label>
@@ -432,7 +423,7 @@ export function Settings({
                   <input
                     type="checkbox"
                     checked={draft.meetingReminders ?? true}
-                    onChange={(e) => setDraft({ ...draft, meetingReminders: e.target.checked })}
+                    onChange={(e) => change({ meetingReminders: e.target.checked })}
                   />
                   {t('settings.meetingReminders')}
                 </label>
@@ -442,7 +433,7 @@ export function Settings({
                     type="checkbox"
                     name="reduceMotion"
                     checked={draft.reduceMotion}
-                    onChange={(e) => setDraft({ ...draft, reduceMotion: e.target.checked })}
+                    onChange={(e) => change({ reduceMotion: e.target.checked })}
                   />
                   {t('settings.reduceMotion')}
                 </label>
@@ -450,15 +441,30 @@ export function Settings({
                   <input
                     type="checkbox"
                     checked={draft.reduceTransparency}
-                    onChange={(e) => setDraft({ ...draft, reduceTransparency: e.target.checked })}
+                    onChange={(e) => change({ reduceTransparency: e.target.checked })}
                   />
                   {t('settings.reduceTransparency')}
                 </label>
                 <label>
                   {t('shortcut')}
                   <input
-                    value={draft.shortcut}
-                    onChange={(e) => setDraft({ ...draft, shortcut: e.target.value })}
+                    value={shortcut}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setShortcut(value);
+                      shortcutValue.current = value;
+                      shortcutDirty.current = true;
+                      setShortcutWaiting(true);
+                      clearTimeout(shortcutTimer.current);
+                      shortcutTimer.current = setTimeout(submitShortcut, 500);
+                    }}
+                    onBlur={submitShortcut}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                        e.preventDefault();
+                        submitShortcut();
+                      }
+                    }}
                   />
                 </label>
                 <small>{t('shortcutHelp')}</small>
@@ -491,23 +497,26 @@ export function Settings({
         </div>
       </div>
       <div className="settings-footer">
-        <span>{t(setupOnly ? 'design.setupSaveHint' : 'design.saveHint')}</span>
+        <div role="status" className="settings-save-status">
+          {writer.error ? (
+            <span className="error-text" role="alert">
+              {errorText(preferences.uiLocale, writer.error)}{' '}
+              <button className="text-button" onClick={() => void writer.retry()}>
+                {t('action.retry')}
+              </button>
+            </span>
+          ) : (
+            <span>
+              {t(writer.busy || shortcutWaiting ? 'settings.saving' : 'settings.autoSaved')}
+            </span>
+          )}
+        </div>
         <button
           className="primary"
-          disabled={languageBusy}
-          onClick={() =>
-            void save({
-              ...draft,
-              audio: {
-                deviceId: draft.audio?.deviceId ?? 'default',
-                deviceLabel: draft.audio?.deviceLabel ?? '',
-                includeComputerAudio: draft.audio?.includeComputerAudio ?? false,
-                setupCompleted: true,
-              },
-            })
-          }
+          disabled={writer.busy || shortcutWaiting}
+          onClick={() => void finish(true)}
         >
-          {t('saveSettings')}
+          {t('settings.done')}
         </button>
       </div>
     </Modal>

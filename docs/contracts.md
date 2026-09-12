@@ -150,7 +150,7 @@ Agent可以设计新组合，应用不提供“特定会议模板ID”要求它�
 
 固定模板版本与产物身份分离；同用途内容变化通常生成同一artifact的新revision。已保存revision不原地覆盖，供恢复和对比。
 
-同一artifact可保留不同locale的表示，均链接相同业务对象与来源。语言切换递增会议languageRevision，不增加虚假的语义变化；提交检查语言配置与对象版本。UI语言单独保存在UserPreferences，设置选择后通过既有preferences命令立即提交；合并已保存偏好，不带入其他设置草稿，不触发整场理解。字段与并发规则详见[语言契约](language-spec.md)。
+同一artifact可保留不同locale的表示，均链接相同业务对象与来源。语言切换递增会议languageRevision，不增加虚假的语义变化；提交检查语言配置与对象版本。UI语言单独保存在UserPreferences，设置选择后通过preferencesPatch命令立即提交；在服务端合并最新已保存偏好，不带入其他设置字段，不触发整场理解。字段与并发规则详见[语言契约](language-spec.md)。
 
 ## 5. 操作契约与事务
 
@@ -204,3 +204,6 @@ Decision保存`id, scope: personal|meeting, targetSnapshot, evidenceRefs, confir
 ## 会议候选与提醒
 
 新增[MeetingCandidate契约](../src/contracts/meeting-candidate.ts)与[提醒流程](meeting-reminder-spec.md)。候选只可由主进程可信适配器报告，带稳定ID、递增revision、present及限时expiresAt；不能从转写或模型获得启动权限。Preferences新增可选launcherVisible／meetingReminders，迁移默认true；桌面快照reminder及notificationUnavailable是瞬态展示元数据，不存入会议。气泡IPC仅允许snapshot、reminderAccept、reminderDismiss、reminderHold；开始复用现有幂等接口。真实检测器未接入。
+
+
+设置新增preferencesPatch命令，使用PreferencesPatchSchema严格校验可选字段，audio按子字段合并；返回保存后的Preferences。旧preferences全量接口保留兼容，正常设置和托盘改用补丁。桌面串行协调快捷键注册／失败回滚，前端PreferenceWriter串行持久化、保留最新意图并对失败字段回滚。见[即时设置规范](meeting-entry-spec.md#11-设置即时保存2026-09-12)。

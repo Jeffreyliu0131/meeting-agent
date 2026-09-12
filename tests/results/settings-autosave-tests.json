@@ -1,0 +1,27 @@
+{
+  "ranAt": "2026-09-12 12:52 Asia/Singapore",
+  "base": "62e3f5c + settings autosave working tree",
+  "unit": {
+    "passed": 104,
+    "failed": 0
+  },
+  "fullElectron": {
+    "startTime": "2026-09-12T04:45:30.769Z",
+    "duration": 106567.644,
+    "expected": 22,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "finalSettingsElectron": {
+    "startTime": "2026-09-12T04:48:11.390Z",
+    "duration": 9186.416,
+    "expected": 6,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "scope": "Full 22-test Electron run passed; after audio-subfield failure supersession refinement, all 104 unit tests and all 6 settings Electron tests passed again.",
+  "realAudioCaptured": false,
+  "WindowsRuntime": "not verified"
+}
