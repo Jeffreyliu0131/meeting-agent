@@ -6,6 +6,8 @@
 
 | 记录 | 类型／状态 | 主要内容 |
 |---|---|---|
+| [首版协作组件实施](2026-09-12-collaboration-implementation.md) | 首版核心实现完成 | 四类悬浮窗、悬浮球提示、M/C/R与本地三人闭环；115单元／17桌面通过，完整设计差距另记 |
+| [首版协作组件与 LangGraph 设计](2026-09-12-collaboration-components-design.md) | 设计完成，已授权实施 | 四组件、完整图与触发矩阵、schema、角色投影和62项验收目标；实际覆盖见后续实施记录 |
 | [GPT Live Transcribe 接入](2026-09-12-live-transcribe.md) | 本地切换完成 | 44项单元／8项桌面测试及真实合成音频转写通过；重启保留暂停会议 |
 | [Windows 本地启动与供应商配置](2026-09-12-windows-local-start.md) | 本地启动完成 | DeepSeek V4.1 Flash／Whisper 单次真实调用通过；构建成功、主窗口响应正常 |
 | [界面语言与交互打磨](2026-09-12-interface-polish.md) | 代码／两端本地包已同步，91962b9已推送；Windows运行待验 | 跟随系统、即时保存及交互细节；86单元／14桌面、Mac包验证通过 |

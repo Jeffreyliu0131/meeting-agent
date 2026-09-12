@@ -30,3 +30,12 @@
 - [WorkflowPanel.tsx](ui/WorkflowPanel.tsx)：个人任务、澄清和输入缺口的可信操作。
 
 实际预算、恢复、版本与有限支持范围见[工作流说明](../docs/agent-workflow-runtime.md)。
+
+## 协作组件模块
+
+- [运行时schema](contracts/collaboration.ts)／[意图与图提案](contracts/collaboration-workflow.ts)：四组件、版本、角色投影、命令、证据、持久任务。
+- [领域命令](domain/collaboration.ts)／[确定性冲突](domain/collaboration-conflicts.ts)／[依赖复核](domain/collaboration-integrity.ts)：响应、结果、发布门槛、冲突和来源版本。
+- [C／R图](agent/collaboration.ts)／[持久调度](service/collaboration-runtime.ts)／[SQLite表](service/collaboration-store.ts)：图不持有事务，服务提交后再通知。
+- [四组件界面](ui/collaboration/Panel.tsx)／[样式](ui/collaboration/styles.css)：主工作区索引、发起者悬浮窗、模拟参与者窗口；desktop绑定actor，launcher-status投影ready提示。
+
+[实际运行时与差距](../docs/collaboration-v1-runtime.md)／[本轮验证](../tests/results/collaboration-v1-validation.md)。

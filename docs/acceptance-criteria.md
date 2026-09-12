@@ -1,5 +1,7 @@
 # 验收标准：会议事件与Agent生成表达
 
+首版协作[62项验收场景](collaboration-v1-acceptance.md)的实际覆盖见[本轮验证](../tests/results/collaboration-v1-validation.md)。本地程序／图替身测试、真实模型语义和双端运行分列，不能沿用旧证据宣称全部通过。
+
 > 文件职责：产品／工程设计要求，不是完成清单。当前进度与最新修订见[状态页](status.md)；已交付首版取舍见[ADR-003](adr/003-cross-platform-first-version.md)，实际结果见[验证记录](../tests/results/README.md)。具体实现以代码核对，未实现的要求仍是目标。
 2026-09-11｜状态：产品验收标准；已执行与未执行按对应版本的验证记录区分，不在本文件宣称全部通过。业务范围见[产品定义](product-definition.md)，阶段映射见[实施计划](implementation-plan.md)。
 

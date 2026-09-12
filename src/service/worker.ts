@@ -119,6 +119,12 @@ parent.on('message', async ({ data }: any) => {
       audioQueue.close();
       value = true;
     } else if (method === 'snapshot') value = service.snapshot();
+    else if (method === 'enableCollaboration')
+      value = service.enableCollaboration(args.meetingId, args.names);
+    else if (method === 'collaborationSnapshot')
+      value = service.collaborationSnapshot(args.meetingId, args.actorId);
+    else if (method === 'collaborationCommand')
+      value = service.collaborate(args.command, args.actorId);
     else if (method === 'command') {
       value = service.command(args);
       if (['pause', 'end', 'captureError'].includes(args.type)) void finishLive(args.meetingId);

@@ -4,6 +4,8 @@
 
 **进度入口：[当前状态](docs/status.md)；跨任务接手：[AGENTS.md](AGENTS.md) → [session 索引](docs/sessions/README.md)。** 已有 0.1.0 首版本地实现；首版结果见[验证记录](tests/results/validation.md)，后续工作树改动和新规范的接入程度以状态及对应 session 为准，不把旧测试视为当前全部通过。
 
+首版协作已接入当前工作树：在会议内点击“开启本地协作模拟”，可准备投票、分工、冲突和决定确认。组件在独立悬浮窗预览／发放，准备好后悬浮球显示数量，点击提示打开；参与者A／B／C用独立窗口回应。自动准备衔接LangGraph，正式发放仍由发起者点击。见[设计](docs/collaboration-v1-design.md)、[实际运行与边界](docs/collaboration-v1-runtime.md)、[本轮验证](tests/results/collaboration-v1-validation.md)。
+
 连续 Agent 与新会议入口已纳入基线 `3f6279a`；前端改造已完成独立本地验证，见[前端记录](docs/sessions/2026-09-11-frontend-refresh.md)。架构见 [ADR-004](docs/adr/004-live-agent-pipeline.md)，本轮证据见 [连续 Agent 验证](tests/results/live-agent-validation.md)。2026-09-12 Windows 本地已配置 DeepSeek V4.1 Flash 与 Whisper，并通过单条合成文本／语音的实际调用及桌面启动，见 [本地启动记录](docs/sessions/2026-09-12-windows-local-start.md)；这些检查不等于真实连续会议效果达标。
 
 本地Mac arm64与Windows x64目录包已于2026-09-12同步至`9b6886d`产品源码：两端14个构建文件及app.asar完全一致，11项桌面回归和Mac实际启动通过，见[同步验证](tests/results/cross-platform-sync-validation.md)。Mac应用已更新并打开；Windows真机尚未验收，也未远程替换其他机器的安装。Git源码同步与本地应用打包是两步，代码提交不会自动更新已有应用。

@@ -5,7 +5,8 @@ import {
   type ElectronApplication,
   type Page,
 } from '@playwright/test';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { cleanupElectron } from './cleanup';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
@@ -43,8 +44,7 @@ test.beforeEach(() => {
   dataDir = mkdtempSync(join(tmpdir(), 'meeting-interface-'));
 });
 test.afterEach(async () => {
-  await app?.evaluate(({ app }) => app.exit(0)).catch(() => {});
-  rmSync(dataDir, { recursive: true, force: true });
+  await cleanupElectron(app, dataDir);
 });
 
 test('interface language saves immediately, preserves unrelated drafts and persists across restart', async () => {

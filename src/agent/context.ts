@@ -303,6 +303,35 @@ export function contextPayload(meeting: Meeting) {
   const current = m.artifacts.at(-1);
   return {
     clarifications: m.clarifications?.filter((c) => c.status === 'pending') ?? [],
+    collaboration:
+      m.contextScope === 'personal' || !m.collaboration
+        ? null
+        : {
+            enabled: true,
+            participants: m.collaboration.participants,
+            components: m.collaboration.components
+              .filter((c) => c.draftState !== 'cancelled')
+              .slice(-16)
+              .map((c) => ({
+                id: c.id,
+                family: c.family,
+                draftRevision: c.draftRevision,
+                publishedRevision: c.publishedRevision,
+                state: c.draftState,
+                scopeText: c.collection?.scopeText ?? '',
+                collecting: c.collection?.status === 'collecting',
+                title:
+                  c.revisions.at(-1)?.content.kind === 'poll'
+                    ? (c.revisions.at(-1)!.content as any).payload.question
+                    : c.family,
+              })),
+            decisions: m.collaboration.decisions.map((d) => ({
+              id: d.id,
+              statement: d.statement,
+              participantIds: d.participantIds,
+              reviewRequired: d.reviewRequired,
+            })),
+          },
     personalRequest:
       m.contextScope === 'personal' ? (m.segments.find((s) => s.kind === 'request') ?? null) : null,
     scope: m.contextScope,

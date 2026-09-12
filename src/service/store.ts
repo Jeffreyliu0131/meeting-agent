@@ -1,4 +1,9 @@
 import { DatabaseSync } from 'node:sqlite';
+import {
+  initializeCollaborationStore,
+  loadCollaboration,
+  writeCollaboration,
+} from './collaboration-store';
 import { resolvePreferences } from '../domain/preferences';
 import type { Meeting, Preferences } from '../contracts/model';
 export const defaults: Preferences = {
@@ -30,6 +35,7 @@ export class SQLiteStore implements StorePort {
   readonly db: DatabaseSync;
   constructor(path: string) {
     this.db = new DatabaseSync(path);
+    initializeCollaborationStore(this.db);
     this.db.exec(
       'PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; CREATE TABLE IF NOT EXISTS state (id INTEGER PRIMARY KEY CHECK(id=1), schema_version INTEGER NOT NULL, payload TEXT NOT NULL); CREATE TABLE IF NOT EXISTS commands (id TEXT PRIMARY KEY, hash TEXT NOT NULL, result TEXT NOT NULL);',
     );
@@ -57,6 +63,10 @@ export class SQLiteStore implements StorePort {
       state.preferences,
       process.env.MEETING_SYSTEM_LOCALE ?? Intl.DateTimeFormat().resolvedOptions().locale,
     );
+    for (const meeting of state.meetings) {
+      const collaboration = loadCollaboration(this.db, meeting.id);
+      if (collaboration) meeting.collaboration = collaboration;
+    }
     return state;
   }
   save(
@@ -70,7 +80,14 @@ export class SQLiteStore implements StorePort {
         .prepare(
           'INSERT INTO state(id,schema_version,payload) VALUES(1,1,?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload',
         )
-        .run(JSON.stringify({ meetings, preferences }));
+        .run(
+          JSON.stringify({
+            meetings: meetings.map(({ collaboration, ...meeting }) => meeting),
+            preferences,
+          }),
+        );
+      for (const meeting of meetings)
+        if (meeting.collaboration) writeCollaboration(this.db, meeting.collaboration);
       for (const meeting of meetings)
         for (const job of meeting.workflowJobs ?? []) {
           const previous = this.db

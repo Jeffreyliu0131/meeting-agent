@@ -10,7 +10,7 @@ export async function cleanupElectron(app: ElectronApplication | undefined, dire
   const target = resolve(directory);
   if (
     dirname(target).toLowerCase() !== resolve(tmpdir()).toLowerCase() ||
-    !/^meeting-(desktop|provider-test|live-stt)-/.test(basename(target))
+    !/^meeting-(desktop|provider-test|live-stt|interface|reliability-ui)-/.test(basename(target))
   )
     throw new Error('INVALID_TEST_CLEANUP_PATH');
   // Windows Chromium helpers may release database handles just after the main process exits.
