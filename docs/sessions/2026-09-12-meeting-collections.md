@@ -1,7 +1,7 @@
 # 跨会议文件夹与综合纪要
 
 记录类型：本任务执行记录。
-状态：进行中。更新时间：2026-09-12（Asia/Singapore）。
+状态：完成（Phase 0–3 与主要文档）；真实模型语义未验收。更新时间：2026-09-12（Asia/Singapore）。
 关联任务：用户新增需求——把同一主题的多场会议放进一个文件夹，生成一份综合纪要。
 
 ## 目标与授权
@@ -40,14 +40,14 @@
 
 ## 实际变化与依据
 
-进行中。分阶段：
+分阶段：
 
 | 阶段 | 内容 | 状态 |
 |---|---|---|
 | 0 | 契约与持久化 | 完成 |
 | 1 | 文件夹 CRUD + 失效判定 + UI | 完成；导出未做 |
 | 2 | 确定性 digest | 完成（UI 面板已接入） |
-| 3 | 模型综合 | 未开始 |
+| 3 | 模型综合 | 完成 |
 
 **Phase 0 实际改动**：`contracts/model.ts` 抽出 `UsageTotals`；新增 `CollectionReport`／`CollectionAlias`／`CollectionWatermark`／`CollectionOmitted`／`CollectionReportRevision`／`MeetingCollection`／`MAX_COLLECTION_MEMBERS`；`Snapshot` 增 `collections`；`CallRecord.kind` 与 `Command.type` 各加集合成员。`service/store.ts` 的 `load`／`save` 携带 collections，`schema_version` **保持 1**，`load()` 加 `Array.isArray` 归一。`service/session.ts` 增字段、构造期补默认与孤儿成员清理、`snapshot()`／`persist()`／`command()` 三处写入路径全部携带 collections。`service/call-pool.ts` 增 `'collection'` lane。
 
@@ -102,10 +102,14 @@ UI 上 `CollectionWorkspace` 在报告区**上方**渲染确定性面板，引�
 **已执行**（2026-09-12，本机 Node v24.19.0，分支 `xuwenzhe`，工作树含本轮未提交改动）：
 
 - `npx tsc --noEmit`：通过。
-- `npm test`：**101 项通过 / 0 失败**（开工前基线 86 项；本轮新增 `tests/unit/collection.test.ts` 15 项）。
+- `npm test`：**125 项通过 / 0 失败**（开工前基线 86 项；本轮新增 collection 15 项、collection-digest 14 项、collection-report 10 项）。
+- `npm run build`：通过。
+- `PYTHONUTF8=1 python scripts/check-docs.py`：passed。
 - 新增测试覆盖：集合跨重启持久化、旧 payload 无 collections 可加载、畸形 collections 归一、命令幂等与 ID 冲突、`REV_CONFLICT`、`COLLECTION_MEMBER_NOT_FOUND`／`COLLECTION_NOT_FOUND`、成员上限、删除持久化、成员会议消失后的清理、以及四条失效判定与引用归组。
 
-**未执行**：`npm run build`、`npm run test:e2e`、`npm run format:check`、`scripts/check-docs.py`；UI、导出、digest 与模型综合均未开始。
+**未执行**：`npm run test:e2e`（见下）、`npm run format:check`、集合导出、集合的 e2e 用例。
+
+**e2e 的 13 项失败已确认为既有环境问题，非本轮引入**：失败全部发生在 `test.afterEach` 的 `rmSync`（`app.exit(0)` 后 Windows 尚未释放 SQLite 句柄，报 EPERM），测试体本身通过。为排除嫌疑，把本轮改动全部 `git stash` 后在干净基线上跑同一套件，**出现完全相同的失败**；随后 `git stash pop` 恢复并复验。
 
 **过程中发现的一个测试陷阱**（值得记录）：`SQLiteStore.load()` 会先经 `resolvePreferences` 校验偏好，因此 seed 一个空 `preferences: {}` 会**抛校验错误**；该异常使 `store.close()` 被跳过，目录句柄未释放，`rmSync` 报 `EPERM` 并**掩盖了真实错误**。已把 `close()` 移入 `finally`，并改用合法偏好 seed。
 
@@ -113,7 +117,10 @@ UI 上 `CollectionWorkspace` 在报告区**上方**渲染确定性面板，引�
 
 ## 未完项与下一步
 
-按方案阶段推进；Phase 1+2 完成后即可在零模型调用下演示完整功能。Phase 3 需模型凭证，其结果为真实模型结果，须与合成/替身结果分开记录。
+- 真实模型的语义质量**未验收**：单测用的是确定性替身，`test:model` 未运行。
+- `assertCollectionCoverage` 只能保证「分歧的别名在报告中出现过」，**不能保证模型把两侧都当作分歧呈现**——这是弱保证，须人工评估。
+- 剩余文档（见下）、集合导出、集合的 e2e 用例。
+- 真实模型下的长会写放大、时延与成本未测。
 
 ## 文件同步与交付
 
