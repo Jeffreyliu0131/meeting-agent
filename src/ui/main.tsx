@@ -1171,5 +1171,11 @@ function App() {
   );
 }
 createRoot(document.getElementById('root')!).render(
-  role === 'component-dock' ? <ComponentDock /> : role === 'participant' || role === 'component' ? <CollaborationPanel floating /> : <App />,
+  role === 'component-dock' ? (
+    <ComponentDock />
+  ) : role === 'participant' || role === 'component' ? (
+    <CollaborationPanel floating />
+  ) : (
+    <App />
+  ),
 );

@@ -642,7 +642,7 @@ app.whenReady().then(async () => {
     }
   });
   const area = screen.getPrimaryDisplay().workArea;
-  componentDock = new ComponentDock({state: () => state, create: secureWindow, request});
+  componentDock = new ComponentDock({ state: () => state, create: secureWindow, request });
   launcher = secureWindow(
     {
       x: area.x + area.width - 64,
@@ -785,7 +785,7 @@ app.whenReady().then(async () => {
     try {
       if (event.sender === componentDock?.window.webContents) {
         if (event.senderFrame !== event.sender.mainFrame) throw new Error('PERMISSION_DENIED');
-        return {ok:true,value:await componentDock.handle(method,args)};
+        return { ok: true, value: await componentDock.handle(method, args) };
       }
       const componentWindow = componentWindows.get(event.sender.id);
       if (componentWindow) {

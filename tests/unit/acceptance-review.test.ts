@@ -207,6 +207,76 @@ test('JSON-object component and impact requests explicitly ask for JSON for comp
   }
 });
 
+test('review: DeepSeek realtime preparation uses its output limit and disables lengthy thinking', async () => {
+  const { OpenAIProvider } = await import('../../src/agent/provider');
+  const previous = globalThis.fetch;
+  try {
+    for (const model of ['deepseek-flash', 'gpt-4.1']) {
+      globalThis.fetch = async (_url, init) => {
+        const body = JSON.parse(String(init?.body));
+        if (model.startsWith('deepseek')) {
+          assert.equal(body.max_tokens, 1800);
+          assert.equal(body.max_completion_tokens, undefined);
+          assert.deepEqual(body.thinking, { type: 'disabled' });
+        } else {
+          assert.equal(body.max_completion_tokens, 1800);
+          assert.equal(body.thinking, undefined);
+        }
+        return new Response(
+          JSON.stringify({
+            choices: [
+              {
+                message: { content: JSON.stringify({ content: null, clarification: '缺少选项' }) },
+              },
+            ],
+          }),
+        );
+      };
+      const provider = new OpenAIProvider({
+        key: 'synthetic',
+        base: 'https://synthetic.invalid',
+        model,
+        sttKey: '',
+        sttBase: '',
+        sttModel: 'whisper-1',
+        format: 'json_object',
+        maxOutputTokens: 1800,
+      });
+      await provider.prepareComponent({});
+    }
+  } finally {
+    globalThis.fetch = previous;
+  }
+});
+
+test('review: schema repair tells the model which field was invalid', async () => {
+  const { runWorkflow } = await import('../../src/agent/workflow');
+  const { z } = await import('zod');
+  const x = setup({ interpret: async () => result(empty()) });
+  let attempts = 0;
+  try {
+    await runWorkflow({
+      context: x.m,
+      remaining: () => 2 - attempts,
+      validate: () => {},
+      evidence: async () => {},
+      interpret: async (repair) => {
+        attempts++;
+        if (attempts === 1)
+          return z
+            .object({ objects: z.array(z.object({}).strict()) })
+            .parse({ objects: [{ required: true }] });
+        assert.match(repair!, /objects\.0/);
+        assert.match(repair!, /required/);
+        return empty();
+      },
+    });
+    assert.equal(attempts, 2);
+  } finally {
+    x.service.close();
+  }
+});
+
 test('review: legacy IDs beginning new_ stay stable and cannot switch entity kind', async () => {
   const { resolveNewRefs } = await import('../../src/service/workflow-state');
   const x = setup({ interpret: async () => result(empty()) });

@@ -27,7 +27,18 @@ function createWorkflow(ports: WorkflowPorts, personal: boolean) {
           (!(error instanceof z.ZodError) && !(error instanceof SyntaxError))
         )
           throw error;
-        return { proposal: null, repair: 'INVALID_PROPOSAL' };
+        return {
+          proposal: null,
+          repair:
+            error instanceof z.ZodError
+              ? 'INVALID_PROPOSAL: ' +
+                error.issues
+                  .slice(0, 8)
+                  .map((i) => `${i.path.join('.')}: ${i.message}`)
+                  .join('; ')
+                  .slice(0, 1600)
+              : 'INVALID_PROPOSAL: return valid JSON matching the supplied schema',
+        };
       }
     })
     .addNode('validate', (state) => {

@@ -1,5 +1,7 @@
 # 执行记录
 
+最新[自动缩略区与真实逐段填充](component-dock-validation.md)：147单元、8项相关桌面覆盖、真实模型两项到三项更新，以及已重启日常应用的证据。
+
 本轮[静默组件审核与自然音频验证](agent-component-review-validation.md)：区分传输替身桌面检查、合成文本真实模型调用、TTS文件生成；不代表真实麦克风全链路已验收。
 
 [validation.md](validation.md) 是已交付首版（本地基线 `5fcd90f`）的实际结果与限制；[package-smoke.json](package-smoke.json)、[microphone-probe.json](microphone-probe.json)、[package-content.json](package-content.json) 为已执行探针元数据，不含录音或真实会议原文。
