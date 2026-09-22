@@ -4,6 +4,8 @@
 
 首版协作的115单元／17桌面属于原分支阶段证据，见[实施记录](sessions/2026-09-12-collaboration-implementation.md)；后续主线整合、包和各端运行以对应交接为准，不用旧通过数代表当前版本。
 
+2026-09-22 招聘展示入口文案更新进行中，见[本轮记录](sessions/2026-09-22-recruiter-entry.md)。仅修改公开展示与交接，不改变产品源码、包或运行验收结论。
+
 ## 当前认知
 
 - 产品基线 `meeting-event-generative-v3`：线上＋线下、每场会议独立事件、桌面低打扰入口、持续理解、Agent 自主生成表达、来源／修订和主动推演。身份按可靠性提供，未知也可继续理解。详见 [产品定义](product-definition.md) 与 [决策](decisions.md)。

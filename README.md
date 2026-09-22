@@ -1,5 +1,49 @@
 # Meeting Agent
 
+**Follow the discussion. See the structure. Keep decisions with people.**
+
+会中实时理解与协作助手 · macOS / Windows desktop prototype · Two-person project
+
+Discussions move faster than people can turn them into notes, diagrams and follow-up actions. Meeting Agent follows a meeting in the background and offers an on-demand desktop view of the issues, relationships and decisions being discussed. The agent chooses text, a mind map or a flow diagram according to the content.
+
+**My role — Kairui Liu:** I lead product design, most implementation and testing, working with AI. This is a two-person project; my teammate contributes technical input. I designed the low-interruption entry, collaboration review flow and distinction between meeting facts and personal exploration.
+
+[**Quick review · 快速查看**](#quick-review) · [Product choices](#product-choices) · [Validation & limits](#validation-status) · [Run locally · 本地启动](#本地启动) · [Developer handoff · 开发接续](docs/status.md)
+
+## Quick review
+
+**No installation needed to inspect the product:** the image below is an existing screenshot from the actual macOS app package, using synthetic meeting input and a test provider. It demonstrates the interface, not real-model meeting quality.
+
+[![Meeting Agent mind-map view from the packaged app using synthetic input](tests/results/demo-live-visuals-package/02-mindmap-detail.png)](tests/results/demo-live-visuals-validation.md)
+
+1. **See the expression options:** [mind map](tests/results/demo-live-visuals-package/02-mindmap-detail.png), [flow diagram](tests/results/demo-live-visuals-package/04-flow-detail.png), and [streaming draft](tests/results/demo-live-visuals-package/01-live-draft.png).
+2. **Trace a collaboration flow:** [draft → host review → distribution → participant response](docs/collaboration-v1-runtime.md). The current participant workflow uses local simulated identities and windows.
+3. **Inspect the evidence:** [visual-flow validation](tests/results/demo-live-visuals-validation.md), [bounded Agent workflow](tests/results/agent-workflow-validation.md), and [known gaps](#validation-status). To run the desktop prototype, use the setup instructions below and your own provider configuration.
+
+## Product choices
+
+| Choice · 关键选择 | Why it matters · 用途 | Implementation / detail |
+|---|---|---|
+| Background understanding, on-demand glance | People can stay in the discussion and inspect a short working view when needed. | [Meeting entry](docs/meeting-entry-spec.md) · [UI](docs/frontend-spec.md) |
+| Agent-prepared collaboration, human authority | The agent prepares polls, assignments, conflicts and decision-confirmation drafts from discussion. The host reviews and distributes; participants respond for themselves. | [Collaboration intents](docs/collaboration-intents.md) |
+| Separate meeting facts from personal scenarios | A private “what if” does not rewrite the meeting. Quotes and versions make conclusions traceable; changed sources can make a cross-meeting report stale. | [Reliability](docs/agent-reliability.md) · [Cross-meeting collections](docs/adr/006-cross-meeting-collections.md) |
+| Bounded work with recovery | LangGraph connects quote retrieval, output validation and limited repair. Unfinished tasks persist across restarts; recording does not restart automatically. | [Workflow runtime](docs/agent-workflow-runtime.md) |
+
+## Validation status
+
+**Delivered:** a desktop prototype with source-linked expressions, personal scenarios, collaboration drafts and persistent tasks. Shared code and local macOS / Windows builds have recorded engineering checks; each result applies to its stated version.
+
+**Still unproven:** reliable continuous understanding and the complete real-meeting workflow. In a **12 September check of `8db0b41`**, synthetic text sent to a real model produced three initial outputs, but all six follow-up additions/corrections failed to produce valid updates. Collaboration distribution is mainly covered by synthetic tests; final Windows hardware validation remains outstanding. [Dated review summary and limits](docs/sessions/2026-09-22-recruiter-entry.md#已知验证边界).
+
+[All validation records](tests/results/README.md) · [Product definition](docs/product-definition.md) · [Decision history](docs/decisions.md)
+
+## 开发接续与阶段记录
+
+[当前状态](docs/status.md) · [AGENTS.md](AGENTS.md) · [session 索引](docs/sessions/README.md) · [实施计划](docs/implementation-plan.md)
+
+<details>
+<summary>展开原有工程接续说明（各项按其记录的版本与时间解释）</summary>
+
 [Demo实时表达](docs/demo-live-visuals.md)：主动选择思路／关系／流程图、语义图标、真实生成草稿和局部编辑反馈；连续语音分段2.4秒、理解合并默认250ms。参数不等于端到端时延；源码、双端包和真实效果分别见[本轮验证](tests/results/demo-live-visuals-validation.md)。
 
 四类协作意图已接入：会议工作页 →“协作意图”→“开启自动准备”。模型准备投票、分工、冲突和决定确认的私有草稿；用户检查后可转为本地协作组件，再明确发放并由参与者回应。私有准备和正式发放分开，范围见[意图说明](docs/collaboration-intents.md)与[协作运行说明](docs/collaboration-v1-runtime.md)。
@@ -16,6 +60,9 @@
 
 两端本地包随各次实现更新，准确基线与范围查对应 session 和包指纹；`9b6886d` 的[双端同步验证](tests/results/cross-platform-sync-validation.md)属于历史证据。源码、包内容、日常进程和各机器安装版本分别核对。
 
+
+</details>
+
 ## 本地启动
 
 需要 Node.js 22.12+ 和 npm。macOS、Windows PowerShell 使用相同命令：
@@ -26,7 +73,7 @@ npm run setup:desktop
 npm start
 ```
 
-当前工作目录已安装依赖并下载运行时，可直接 `npm start`。启动只出现桌面小入口，不自动采音。悬停直接查看当前会议的实时画板，移开后收起；点击打开工作页，右键显示菜单。关闭工作页保留后台服务，退出软件才结束。
+完成首次依赖与运行时安装后，可直接 `npm start`。启动只出现桌面小入口，不自动采音。悬停直接查看当前会议的实时画板，移开后收起；点击打开工作页，右键显示菜单。关闭工作页保留后台服务，退出软件才结束。
 
 ```sh
 npm run start:built   # 启动上次构建
